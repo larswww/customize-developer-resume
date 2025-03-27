@@ -8,6 +8,9 @@ export class OpenAIClient implements AIClient {
   }
 
   async generate(prompt: string, options: AIRequestOptions = {}): Promise<AIResponse> {
+    console.log('[OpenAI Client] Making request to OpenAI API');
+    
+    // Use these exact headers and method to ensure MSW intercepts the request
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -31,11 +34,15 @@ export class OpenAIClient implements AIClient {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorText = await response.text();
+      const errorData = errorText ? JSON.parse(errorText) : {};
+      console.error('[OpenAI Client] Error response:', errorData);
       throw new Error(`OpenAI API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
+    console.log('[OpenAI Client] Received response from OpenAI API');
+    
     return {
       text: data.choices[0].message.content,
       metadata: {

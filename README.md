@@ -1,86 +1,65 @@
-# Welcome to React Router!
+# AI Resume Generator
 
-A modern, production-ready template for building full-stack React applications using React Router.
+A React application that generates targeted resumes using AI services. The application leverages React Router and Tailwind CSS for a smooth user experience.
 
 ## Features
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+- Step-by-step visualization of the resume generation process
+- Support for various AI providers (Anthropic, OpenAI, Gemini)
+- Mock API integration for development and testing without API costs
+- End-to-end testing with Playwright
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js (v16+)
+- pnpm (v7+)
+
 ### Installation
 
-Install the dependencies:
-
 ```bash
-npm install
+# Install dependencies
+pnpm install
 ```
 
 ### Development
 
-Start the development server with HMR:
+```bash
+# Start the development server
+pnpm dev
+```
+
+The application will be available at http://localhost:3000.
+
+## API Configuration
+
+By default, the application uses Mock Service Worker (MSW) in development mode to intercept API calls and return mock responses. This means you can develop and test without real API keys.
+
+If you want to use the real AI providers, you need to set the following environment variables:
+
+```
+ANTHROPIC_API_KEY=your_anthropic_api_key
+OPENAI_API_KEY=your_openai_api_key
+GEMINI_API_KEY=your_gemini_api_key
+```
+
+You can use a `.env` file in the project root to set these variables.
+
+## Testing
+
+### End-to-End Tests
+
+The project includes end-to-end tests using Playwright. These tests use MSW to mock API responses, so you don't need real API keys to run them.
 
 ```bash
-npm run dev
+# Run end-to-end tests
+pnpm test:e2e
+
+# Run end-to-end tests with UI
+pnpm test:e2e:ui
 ```
 
-Your application will be available at `http://localhost:5173`.
+## License
 
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── server.js
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+MIT

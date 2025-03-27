@@ -8,6 +8,9 @@ export class AnthropicClient implements AIClient {
   }
 
   async generate(prompt: string, options: AIRequestOptions = {}): Promise<AIResponse> {
+    console.log('[Anthropic Client] Making request to Anthropic API');
+    
+    // Use these exact headers and method to ensure MSW intercepts the request
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -30,11 +33,15 @@ export class AnthropicClient implements AIClient {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      const errorText = await response.text();
+      const errorData = errorText ? JSON.parse(errorText) : {};
+      console.error('[Anthropic Client] Error response:', errorData);
       throw new Error(`Anthropic API error: ${response.statusText} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
+    console.log('[Anthropic Client] Received response from Anthropic API');
+    
     return {
       text: data.content[0].text,
       metadata: {
