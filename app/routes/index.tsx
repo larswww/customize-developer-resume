@@ -6,9 +6,12 @@ import type { ActionFunctionArgs } from "react-router";
 import { Await, useAsyncError } from "react-router";
 import { StepErrorBoundary } from "../components/StepErrorBoundary";
 import { workflowSteps } from "../config/workflow";
-import { executeWorkflow, validateApiKeys } from "../services/workflow/WorkflowService";
-import { WorkflowEngine } from "../services/workflow/WorkflowEngine";
 import { workHistory } from "../data/workHistory";
+import { WorkflowEngine } from "../services/workflow/WorkflowEngine";
+import {
+	executeWorkflow,
+	validateApiKeys,
+} from "../services/workflow/WorkflowService";
 
 export function meta() {
 	return [
@@ -41,11 +44,14 @@ export async function action({ request }: ActionFunctionArgs) {
 		}
 
 		// For step-by-step execution
-		const engine = new WorkflowEngine({
-			anthropic: process.env.ANTHROPIC_API_KEY || "",
-			openai: process.env.OPENAI_API_KEY || "",
-			gemini: process.env.GEMINI_API_KEY || "",
-		}, workflowSteps);
+		const engine = new WorkflowEngine(
+			{
+				anthropic: process.env.ANTHROPIC_API_KEY || "",
+				openai: process.env.OPENAI_API_KEY || "",
+				gemini: process.env.GEMINI_API_KEY || "",
+			},
+			workflowSteps,
+		);
 
 		// Create promises for each step
 		const stepPromises = engine.createStepPromises(jobDescription, workHistory);

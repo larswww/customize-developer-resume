@@ -26,22 +26,8 @@ export function hasStepResult(stepId: string): boolean {
 }
 
 /**
- * Validates if a step ID exists in the workflow
- */
-export function isValidStepId(stepId: string): boolean {
-	return workflowSteps.some((step) => step.id === stepId);
-}
-
-/**
  * Gets all step results
  */
 export function getAllStepResults(): Record<string, unknown> {
 	return Object.fromEntries(stepResults.entries());
 }
-
-/**
- * Clears all step results
- */
-export function clearStepResults(): void {
-	stepResults.clear();
-} 

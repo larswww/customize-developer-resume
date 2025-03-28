@@ -48,6 +48,10 @@
 		"vite": "^5.4.11",
 		"vite-tsconfig-paths": "^5.1.4"
 	},
+	"engines": {
+		"node": "20.17.0",
+		"pnpm": "10.7.0"
+	},
 	"msw": {
 		"workerDirectory": ["public"]
 	}

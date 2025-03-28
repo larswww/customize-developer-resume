@@ -1,4 +1,3 @@
-import { storeStepResult } from "../state/stepStorage";
 import { AnthropicClient } from "../ai/anthropic";
 import { GeminiClient } from "../ai/gemini";
 import { OpenAIClient } from "../ai/openai";
@@ -8,6 +7,7 @@ import type {
 	WorkflowContext,
 	WorkflowStep,
 } from "../ai/types";
+import { storeStepResult } from "../state/stepStorage";
 // Import other AI clients when implemented
 
 export interface StepResult {
