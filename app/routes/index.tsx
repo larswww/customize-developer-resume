@@ -7,11 +7,11 @@ import { Await, useAsyncError } from "react-router";
 import { StepErrorBoundary } from "../components/StepErrorBoundary";
 import { workflowSteps } from "../config/workflow";
 import { workHistory } from "../data/workHistory";
-import { WorkflowEngine } from "../services/workflow/WorkflowEngine";
+import { WorkflowEngine } from "../services/workflow/workflow-engine";
 import {
 	executeWorkflow,
 	validateApiKeys,
-} from "../services/workflow/WorkflowService";
+} from "../services/workflow/workflow-service";
 
 export function meta() {
 	return [

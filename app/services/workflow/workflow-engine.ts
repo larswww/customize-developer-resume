@@ -198,7 +198,7 @@ export class WorkflowEngine {
 					try {
 						storeStepResult(step.id, result);
 						logDebug(`Stored result for API access: ${step.id}`);
-					} catch (e) {
+					} catch (_e) {
 						logDebug(
 							`Note: Could not store step result for API access (might be expected): ${step.id}`,
 						);
@@ -343,7 +343,7 @@ export class WorkflowEngine {
 				try {
 					storeStepResult(step.id, result);
 					logDebug(`Stored result for API access: ${step.id}`);
-				} catch (e) {
+				} catch (_e) {
 					logDebug(
 						`Note: Could not store step result for API access (might be expected): ${step.id}`,
 					);

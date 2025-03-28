@@ -1,6 +1,6 @@
 import { workflowSteps } from "../../config/workflow";
 import { workHistory } from "../../data/workHistory";
-import { WorkflowEngine } from "./WorkflowEngine";
+import { WorkflowEngine } from "./workflow-engine";
 
 // You'll need to set these up in your environment
 const API_KEYS = {

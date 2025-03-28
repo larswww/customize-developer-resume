@@ -1,14 +1,14 @@
 import { workflowSteps } from "../../config/workflow";
 
 // Workflow execution tracking
-let isWorkflowRunning = false;
+let _isWorkflowRunning = false;
 let currentWorkflow: Promise<string> | null = null;
 
 /**
  * Sets the workflow running state
  */
 export function setWorkflowRunning(running: boolean): void {
-	isWorkflowRunning = running;
+	_isWorkflowRunning = running;
 }
 
 /**

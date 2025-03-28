@@ -106,7 +106,7 @@ test.describe("Resume Generator", () => {
 			await page.screenshot({ path: "test-results/server-only-result.png" });
 
 			// Test passes if we get to this point, as we at least confirmed the UI is responding
-		} catch (error) {
+		} catch (_error) {
 			// If neither condition is met within timeout, the test will fail
 			throw new Error(
 				"The resume generation in server-only mode did not complete or show an error",

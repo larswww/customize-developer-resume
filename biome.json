@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"ignore": ["node_modules", "dist", "build", ".react-router"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -25,6 +25,20 @@
 				"noUnusedLabels": "info",
 				"noUnusedPrivateClassMembers": "info",
 				"noUnusedVariables": "info"
+			},
+			"style": {
+				"noVar": "info",
+				"useConsistentArrayType": "info",
+				"useConst": "info",
+				"useDefaultParameterLast": "info",
+				"useExportType": "info",
+				"useFilenamingConvention": "info",
+				"useImportType": "info",
+				"useTemplate": "info"
+			},
+			"suspicious": {
+				"noExplicitAny": "info",
+				"useErrorMessage": "info"
 			}
 		}
 	},

@@ -43,7 +43,7 @@ export const textTransform = (response: AIResponse) => {
  * Transformer for Markdown responses that returns the text as is
  * but stores it under a specific key in the context
  */
-export function createMarkdownTransform(stepId: string, contextKey: string) {
+export function createMarkdownTransform(_stepId: string, contextKey: string) {
 	return (response: AIResponse, context: WorkflowContext) => {
 		// Store the result in the context with the specified key
 		if (contextKey) {
