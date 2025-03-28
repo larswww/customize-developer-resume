@@ -1,4 +1,4 @@
-import { storeStepResult } from "../../routes/api.steps.$stepId";
+import { storeStepResult } from "../state/stepStorage";
 import { AnthropicClient } from "../ai/anthropic";
 import { GeminiClient } from "../ai/gemini";
 import { OpenAIClient } from "../ai/openai";

@@ -5,10 +5,14 @@
 	"scripts": {
 		"build": "react-router build",
 		"dev": "cross-env NODE_ENV=development tsx server.ts",
+		"dev:msw": "cross-env MSW_ENABLED=true tsx server.ts",
 		"start": "tsx server.ts",
 		"typecheck": "react-router typegen && tsc -b",
 		"test:e2e": "playwright test",
-		"test:e2e:ui": "playwright test --ui"
+		"test:e2e:ui": "playwright test --ui",
+		"lint": "biome check --write .",
+		"lint:format": "biome format --write .",
+		"lint:lint": "biome lint --write ."
 	},
 	"dependencies": {
 		"@react-router/express": "^7.4.0",

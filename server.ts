@@ -13,8 +13,7 @@ import morgan from "morgan";
 dotenv.config();
 
 // Initialize MSW for server-side API mocking if enabled
-const isMswEnabled =
-	process.env.NODE_ENV === "development" || process.env.MSW_ENABLED === "true";
+const isMswEnabled = process.env.MSW_ENABLED === "true";
 
 // Add global fetch debugging in development
 if (process.env.NODE_ENV === "development") {

@@ -2,53 +2,49 @@ import { http, HttpResponse } from "msw";
 
 // Mock responses for each step
 const mockResponses = {
-	"analyze-job": {
-		keySkills: [
-			"Nextjs",
-			"TypeScript",
-			"Tailwind CSS",
-			"Responsive interfaces",
-			"Frontend development",
-		],
-		responsibilities: [
-			"Setting up a new Product Management System",
-			"Building responsive and user-friendly interfaces",
-			"Working with backend developers, UX/UI designers and product owners",
-		],
-		requiredExperience: [
-			"Strong experience with Nextjs",
-			"Strong experience with TypeScript",
-			"Strong experience with Tailwind",
-			"Experience building responsive interfaces",
-			"Experience setting up applications from scratch",
-		],
-		niceToHave: [],
-	},
-	"match-experience": [
-		{
-			matchedRequirement: "Nextjs experience",
-			relevantExperience:
-				"Led development of an e-commerce platform using Next.js, implementing SSR and optimizing performance",
-			impact: "Reduced page load times by 45% and improved SEO rankings",
-			keywords: ["Next.js", "SSR", "Performance optimization", "SEO"],
-		},
-		{
-			matchedRequirement: "TypeScript expertise",
-			relevantExperience:
-				"Implemented TypeScript across multiple frontend projects, creating robust type definitions and interfaces",
-			impact:
-				"Reduced type-related bugs by 60% and improved code maintainability",
-			keywords: ["TypeScript", "Type safety", "Code quality"],
-		},
-		{
-			matchedRequirement: "Tailwind CSS proficiency",
-			relevantExperience:
-				"Designed and implemented responsive UI components using Tailwind CSS",
-			impact:
-				"Accelerated UI development time by 40% while maintaining design consistency",
-			keywords: ["Tailwind CSS", "Responsive design", "UI components"],
-		},
-	],
+	"analyze-job": `# Job Analysis
+
+## Key Skills
+- Nextjs
+- TypeScript
+- Tailwind CSS
+- Responsive interfaces
+- Frontend development
+
+## Responsibilities
+- Setting up a new Product Management System
+- Building responsive and user-friendly interfaces
+- Working with backend developers, UX/UI designers and product owners
+
+## Required Experience
+- Strong experience with Nextjs
+- Strong experience with TypeScript
+- Strong experience with Tailwind
+- Experience building responsive interfaces
+- Experience setting up applications from scratch
+
+## Nice to Have
+- None specified
+`,
+	"match-experience": `# Relevance Matching
+
+## Nextjs experience
+**Relevant Experience**: Led development of an e-commerce platform using Next.js, implementing SSR and optimizing performance
+**Impact**: Reduced page load times by 45% and improved SEO rankings
+**Keywords**: Next.js, SSR, Performance optimization, SEO
+
+## TypeScript expertise
+**Relevant Experience**: Implemented TypeScript across multiple frontend projects, creating robust type definitions and interfaces
+**Impact**: Reduced type-related bugs by 60% and improved code maintainability
+**Keywords**: TypeScript, Type safety, Code quality
+
+## Tailwind CSS proficiency
+**Relevant Experience**: Designed and implemented responsive UI components using Tailwind CSS
+**Impact**: Accelerated UI development time by 40% while maintaining design consistency
+**Keywords**: Tailwind CSS, Responsive design, UI components
+`,
+	"professional-summary":
+		"Senior software engineer with expertise in Next.js, TypeScript, and AI integrations. Demonstrated success in optimizing cloud costs by 95% and delivering MVPs 4x faster than standard timelines.",
 	"generate-resume": `# Lars Woldern
 Frontend Developer | Next.js Specialist
 
@@ -123,7 +119,7 @@ export const anthropicHandler = http.post(
 			content: [
 				{
 					type: "text",
-					text: JSON.stringify(mockResponses["analyze-job"]),
+					text: mockResponses["analyze-job"],
 				},
 			],
 			usage: {
@@ -165,7 +161,7 @@ export const openaiHandler = http.post(
 					index: 0,
 					message: {
 						role: "assistant",
-						content: JSON.stringify(mockResponses["match-experience"]),
+						content: mockResponses["match-experience"],
 					},
 					logprobs: null,
 					finish_reason: "stop",
@@ -201,13 +197,73 @@ export const geminiHandler = http.post(
 		);
 
 		console.log("[MSW] Mocking Gemini API call");
+
+		// Try to determine which step we're handling based on request content
+		// This is a simplistic approach - in a real-world scenario, you'd parse the prompt more carefully
+		interface ContentPart {
+			text?: string;
+			[key: string]: unknown;
+		}
+
+		interface Content {
+			parts?: ContentPart[];
+			role?: string;
+			[key: string]: unknown;
+		}
+
+		// Check if the request includes text about creating a professional summary or full resume
+		let responseText = mockResponses["professional-summary"];
+		let matchProfessionalSummary = false;
+		let matchFinalResume = false;
+
+		// Parse the request content to determine which mock to return
+		if (
+			requestBody &&
+			typeof requestBody === "object" &&
+			"contents" in requestBody &&
+			Array.isArray(requestBody.contents)
+		) {
+			// Look through each part for our step identifiers
+			const userMessages = requestBody.contents.filter(
+				(content: Content) =>
+					content?.role === "user" &&
+					content?.parts &&
+					Array.isArray(content.parts),
+			);
+
+			for (const message of userMessages) {
+				const textParts =
+					message.parts?.filter(
+						(part: ContentPart) => part?.text && typeof part.text === "string",
+					) || [];
+
+				for (const part of textParts) {
+					const text = part.text || "";
+					if (text.includes("compelling professional summary")) {
+						matchProfessionalSummary = true;
+					}
+					if (text.includes("complete, tailored resume in markdown format")) {
+						matchFinalResume = true;
+					}
+				}
+			}
+		}
+
+		// Choose appropriate response based on content match
+		if (matchFinalResume) {
+			responseText = mockResponses["generate-resume"];
+		} else if (matchProfessionalSummary) {
+			responseText = mockResponses["professional-summary"];
+		}
+
+		// Return a properly formatted Gemini response
 		return HttpResponse.json({
 			candidates: [
 				{
 					content: {
 						parts: [
 							{
-								text: mockResponses["generate-resume"],
+								text: responseText,
 							},
 						],
 						role: "model",
@@ -216,6 +272,11 @@ export const geminiHandler = http.post(
 					safetyRatings: [],
 				},
 			],
+			usageMetadata: {
+				promptTokenCount: 300,
+				candidatesTokenCount: 200,
+				totalTokenCount: 500,
+			},
 			promptFeedback: {
 				safetyRatings: [],
 			},

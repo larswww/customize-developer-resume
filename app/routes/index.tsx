@@ -3,18 +3,12 @@ import { Suspense } from "react";
 import ReactMarkdown from "react-markdown";
 import { Form, useActionData, useNavigation } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { Await, useAsyncError, useLoaderData } from "react-router";
+import { Await, useAsyncError } from "react-router";
 import { StepErrorBoundary } from "../components/StepErrorBoundary";
 import { workflowSteps } from "../config/workflow";
-import { workHistory } from "../data/workHistory";
+import { executeWorkflow, validateApiKeys } from "../services/workflow/WorkflowService";
 import { WorkflowEngine } from "../services/workflow/WorkflowEngine";
-
-// You'll need to set these up in your environment
-const API_KEYS = {
-	anthropic: process.env.ANTHROPIC_API_KEY || "",
-	openai: process.env.OPENAI_API_KEY || "",
-	gemini: process.env.GEMINI_API_KEY || "",
-};
+import { workHistory } from "../data/workHistory";
 
 export function meta() {
 	return [
@@ -23,32 +17,15 @@ export function meta() {
 	];
 }
 
-// Type definition for our step results
-interface StepResult {
-	stepId: string;
-	result: unknown;
-	isComplete: boolean;
-}
-
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData();
 	const jobDescription = formData.get("jobDescription") as string;
 	const mode = formData.get("mode") as string; // 'withSteps' or 'serverOnly'
 
 	// Validate API keys
-	const missingKeys = [];
-	if (!API_KEYS.anthropic) missingKeys.push("ANTHROPIC_API_KEY");
-	if (!API_KEYS.openai) missingKeys.push("OPENAI_API_KEY");
-	if (!API_KEYS.gemini) missingKeys.push("GEMINI_API_KEY");
+	const { missingKeys, isValid } = validateApiKeys();
 
-	// Log API key status (without revealing the actual keys)
-	console.log("API Key Status:", {
-		anthropic: API_KEYS.anthropic ? "Present" : "Missing",
-		openai: API_KEYS.openai ? "Present" : "Missing",
-		gemini: API_KEYS.gemini ? "Present" : "Missing",
-	});
-
-	if (missingKeys.length > 0) {
+	if (!isValid) {
 		return {
 			success: false,
 			error: `Missing required API keys: ${missingKeys.join(", ")}. Please check your environment configuration.`,
@@ -59,13 +36,16 @@ export async function action({ request }: ActionFunctionArgs) {
 	try {
 		if (mode === "serverOnly") {
 			// For server-only execution
-			const engine = new WorkflowEngine(API_KEYS, workflowSteps);
-			const generatedResume = await engine.execute(jobDescription, workHistory);
+			const generatedResume = await executeWorkflow(jobDescription);
 			return { success: true, result: generatedResume, mode };
 		}
 
 		// For step-by-step execution
-		const engine = new WorkflowEngine(API_KEYS, workflowSteps);
+		const engine = new WorkflowEngine({
+			anthropic: process.env.ANTHROPIC_API_KEY || "",
+			openai: process.env.OPENAI_API_KEY || "",
+			gemini: process.env.GEMINI_API_KEY || "",
+		}, workflowSteps);
 
 		// Create promises for each step
 		const stepPromises = engine.createStepPromises(jobDescription, workHistory);
@@ -95,13 +75,6 @@ export async function action({ request }: ActionFunctionArgs) {
 			mode,
 		};
 	}
-}
-
-// Type definition for our workflow state
-interface WorkflowState {
-	isProcessing: boolean;
-	currentStep: number;
-	results: Record<string, unknown>;
 }
 
 const testJd = `Front-end developer | Opzetten nieuw project in Nextjs
@@ -239,40 +212,39 @@ export default function Index() {
 							>
 								{(result) => (
 									<div className="ml-10 p-3 border rounded bg-green-50">
+										<div className="flex items-center text-green-700 mb-2">
+											<svg
+												className="w-5 h-5 mr-2"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+												aria-hidden="true"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth={2}
+													d="M5 13l4 4L19 7"
+												/>
+											</svg>
+											<span>Step completed</span>
+										</div>
+
 										{step.id === finalStepId ? (
 											<div>
 												<h3 className="font-medium mb-2">
 													Your Generated Resume:
 												</h3>
-												<ReactMarkdown>
+												<ReactMarkdown className="prose max-w-none">
 													{typeof result === "string" ? result : String(result)}
 												</ReactMarkdown>
 											</div>
 										) : (
-											<div>
-												<div className="flex items-center text-green-700 mb-2">
-													<svg
-														className="w-5 h-5 mr-2"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-														xmlns="http://www.w3.org/2000/svg"
-														aria-hidden="true"
-													>
-														<path
-															strokeLinecap="round"
-															strokeLinejoin="round"
-															strokeWidth={2}
-															d="M5 13l4 4L19 7"
-														/>
-													</svg>
-													<span>Step completed</span>
-												</div>
-												<pre className="text-sm overflow-x-auto max-h-60">
-													{typeof result === "string"
-														? result
-														: JSON.stringify(result, null, 2)}
-												</pre>
+											<div className="markdown-content">
+												<ReactMarkdown className="prose max-w-none">
+													{typeof result === "string" ? result : String(result)}
+												</ReactMarkdown>
 											</div>
 										)}
 									</div>
