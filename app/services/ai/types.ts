@@ -19,6 +19,10 @@ export type AIProvider = "anthropic" | "openai" | "gemini";
 export interface WorkflowContext {
 	jobDescription: string;
 	workHistory: string;
+	relevant?: string;
+	experience?: string;
+	workExperience?: string;
+	resume?: string;
 	intermediateResults: Record<string, unknown>;
 }
 

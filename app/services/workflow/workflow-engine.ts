@@ -245,6 +245,170 @@ export class WorkflowEngine {
 		return stepPromises;
 	}
 
+	// Create an array of step promises with a custom context object
+	createCustomStepPromises(
+		initialContext: Partial<WorkflowContext>,
+		onStepComplete?: (stepId: string, result: unknown) => void,
+	): StepPromise[] {
+		// Create a complete context object with required fields
+		const context: WorkflowContext = {
+			jobDescription: initialContext.jobDescription || "",
+			workHistory: initialContext.workHistory || "",
+			intermediateResults: {},
+			...initialContext,
+		};
+
+		// Create a map to store dependency promises
+		const promises: Record<string, Promise<unknown>> = {};
+
+		// Create all promise generators
+		const stepPromises = this.steps.map((step, index) => {
+			return async () => {
+				logDebug(`Starting execution of step: ${step.id}`);
+				try {
+					// If this isn't the first step, wait for the previous step to complete
+					if (index > 0) {
+						const prevStep = this.steps[index - 1];
+						logDebug(`Waiting for previous step to complete: ${prevStep.id}`);
+						// Make sure we have the result from the previous step before continuing
+						await promises[prevStep.id];
+
+						// Update context with previous step results when needed
+						// For example, for the resume step we might need the extract-experience result
+						if (step.id === "craft-resume" && prevStep.id === "extract-experience") {
+							context.experience = context.intermediateResults[prevStep.id] as string || context.workHistory;
+						}
+						// For cover letter we might need the resume
+						if (step.id === "write-cover-letter" && context.intermediateResults["craft-resume"]) {
+							context.resume = context.intermediateResults["craft-resume"] as string;
+						}
+						// For qualities and expertise, we might need the extract-experience result
+						if (step.id === "5-qualities-and-5-expertise") {
+							context.workExperience = context.intermediateResults["extract-experience"] as string || context.workHistory;
+						}
+
+						// Log the current context state for debugging
+						logDebug("Context after previous step:", {
+							hasIntermediateResults:
+								Object.keys(context.intermediateResults).length > 0,
+							availableKeys: Object.keys(context.intermediateResults),
+							previousStepResult: context.intermediateResults[prevStep.id]
+								? "Present"
+								: "Missing",
+						});
+					}
+
+					logDebug(`Getting client for provider: ${step.provider}`);
+					const client = this.getClient(step.provider);
+
+					// Generate the prompt using the context
+					let prompt: string;
+					try {
+						prompt =
+							typeof step.prompt === "function"
+								? step.prompt(context)
+								: step.prompt;
+						logDebug(
+							`Generated prompt for step ${step.id} (length: ${prompt.length} chars)`,
+						);
+					} catch (error) {
+						logDebug(`Error generating prompt for step ${step.id}`, {
+							error: error instanceof Error ? error.message : String(error),
+						});
+						throw error;
+					}
+
+					// Call the AI provider
+					logDebug(`Calling AI provider: ${step.provider} for step ${step.id}`);
+					let response: AIResponse;
+					try {
+						response = await client.generate(prompt, step.options);
+						logDebug(
+							`Received response from ${step.provider} for step ${step.id}`,
+						);
+					} catch (error) {
+						logDebug(
+							`Error from AI provider ${step.provider} for step ${step.id}`,
+							{
+								error: error instanceof Error ? error.message : String(error),
+								stack: error instanceof Error ? error.stack : undefined,
+							},
+						);
+						throw error;
+					}
+
+					// Transform the response
+					let result: unknown;
+					try {
+						result = step.transform
+							? step.transform(response, context)
+							: response.text;
+						logDebug(`Transformed result for step ${step.id}`);
+					} catch (error) {
+						logDebug(`Error transforming result for step ${step.id}`, {
+							error: error instanceof Error ? error.message : String(error),
+							responseText:
+								response.text.substring(0, 200) +
+								(response.text.length > 200 ? "..." : ""),
+						});
+						throw error;
+					}
+
+					// Update the context with the result
+					context.intermediateResults[step.id] = result;
+					logDebug(`Updated context with result for step ${step.id}`);
+
+					// Store the result for API access if that function exists
+					try {
+						storeStepResult(step.id, result);
+						logDebug(`Stored result for API access: ${step.id}`);
+					} catch (_e) {
+						logDebug(
+							`Note: Could not store step result for API access (might be expected): ${step.id}`,
+						);
+						// Ignore errors from storeStepResult as it might not be available
+					}
+
+					// Notify caller about step completion
+					if (onStepComplete) {
+						onStepComplete(step.id, result);
+						logDebug(`Notified completion of step: ${step.id}`);
+					}
+
+					logDebug(`Successfully completed step: ${step.id}`);
+					return result;
+				} catch (error) {
+					const errorMessage =
+						error instanceof Error ? error.message : String(error);
+					const errorStack = error instanceof Error ? error.stack : undefined;
+
+					logDebug(`Error in workflow step ${step.id}:`, {
+						error: errorMessage,
+						stack: errorStack,
+						step: step.id,
+						provider: step.provider,
+					});
+
+					// Rethrow with enhanced error message
+					throw new Error(
+						`Error in workflow step ${step.id} (provider: ${step.provider}): ${errorMessage}`,
+					);
+				}
+			};
+		});
+
+		// Initialize all promises to ensure they're ready for dependencies
+		logDebug("Initializing all step promises");
+		this.steps.forEach((step, index) => {
+			const executeStep = stepPromises[index];
+			promises[step.id] = executeStep();
+		});
+
+		logDebug("Returning step promise generators");
+		// Return the original step promise generators
+		return stepPromises;
+	}
+
 	async execute(
 		jobDescription: string,
 		workHistory: string,

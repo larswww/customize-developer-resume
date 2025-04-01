@@ -1,5 +1,6 @@
 import { workflowSteps } from "../../config/workflow";
 import { workHistory } from "../../data/workHistory";
+import type { WorkflowContext } from "../ai/types";
 import { WorkflowEngine } from "./workflow-engine";
 
 // You'll need to set these up in your environment
@@ -32,7 +33,25 @@ export function validateApiKeys() {
 /**
  * Execute a workflow synchronously and return the final result
  */
-export async function executeWorkflow(jobDescription: string) {
+export async function executeWorkflow(jobDescription: string, relevant?: string) {
 	const engine = new WorkflowEngine(API_KEYS, workflowSteps);
-	return await engine.execute(jobDescription, workHistory);
+	
+	// Create initial context with all needed fields
+	const initialContext: Partial<WorkflowContext> = {
+		jobDescription,
+		workHistory,
+		relevant: relevant || "",
+		experience: workHistory,
+		workExperience: workHistory,
+	};
+	
+	// Execute the workflow with custom context and return the result from the craft-resume step
+	const stepPromises = engine.createCustomStepPromises(initialContext);
+	const results = await Promise.all(stepPromises.map(step => step()));
+	
+	// Find the index of the craft-resume step
+	const resumeStepIndex = workflowSteps.findIndex(step => step.id === "craft-resume");
+	
+	// Return the result from the craft-resume step, or the last step if not found
+	return results[resumeStepIndex >= 0 ? resumeStepIndex : results.length - 1] as string;
 }

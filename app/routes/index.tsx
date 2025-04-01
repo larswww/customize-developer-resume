@@ -23,6 +23,7 @@ export function meta() {
 export async function action({ request }: ActionFunctionArgs) {
 	const formData = await request.formData();
 	const jobDescription = formData.get("jobDescription") as string;
+	const relevant = formData.get("relevant") as string;
 	const mode = formData.get("mode") as string; // 'withSteps' or 'serverOnly'
 
 	// Validate API keys
@@ -53,8 +54,17 @@ export async function action({ request }: ActionFunctionArgs) {
 			workflowSteps,
 		);
 
+		// Create initial context with all needed fields
+		const initialContext = {
+			jobDescription,
+			workHistory,
+			relevant: relevant || "",
+			experience: workHistory,
+			workExperience: workHistory,
+		};
+
 		// Create promises for each step
-		const stepPromises = engine.createStepPromises(jobDescription, workHistory);
+		const stepPromises = engine.createCustomStepPromises(initialContext);
 		const stepResults: Record<string, Promise<unknown>> = {};
 
 		// Store the promises by step ID for client-side resolution
@@ -135,6 +145,7 @@ We hebben een duidelijk beeld, workflows en designs waarmee je aan de slag kunt.
 
 export default function Index() {
 	const [jobDescription, setJobDescription] = useState(testJd);
+	const [relevantDescription, setRelevantDescription] = useState("");
 	const actionData = useActionData<{
 		success?: boolean;
 		result?: string;
@@ -151,12 +162,18 @@ export default function Index() {
 	// Get the step name for display
 	const getStepName = (stepId: string): string => {
 		switch (stepId) {
-			case "analyze-job":
-				return "Analyzing Job Description";
-			case "match-experience":
-				return "Matching Relevant Experience";
-			case "generate-resume":
-				return "Generating Resume";
+			case "job-description-analysis":
+				return "Analyze Description";
+			case "extract-experience":
+				return "Extract Experience";
+			case "craft-resume":
+				return "Craft Resume";
+			case "background-info":
+				return "Background Info";
+			case "5-qualities-and-5-expertise":
+				return "5 Qualities and 5 Expertise";
+			case "write-cover-letter":
+				return "Write Cover Letter";
 			default:
 				return stepId;
 		}
@@ -172,9 +189,6 @@ export default function Index() {
 			return null;
 		}
 
-		// Final result will be in the last step
-		const finalStepId = workflowSteps[workflowSteps.length - 1].id;
-
 		// Component to handle errors from Await
 		const StepErrorElement = ({ stepId }: { stepId: string }) => {
 			const error = useAsyncError() as Error;
@@ -182,11 +196,9 @@ export default function Index() {
 		};
 
 		return (
-			<div className="mb-8">
-				<h2 className="text-xl font-bold mb-4">Resume Generation Progress</h2>
-
+			<div className="mb-8 grid grid-cols-2 gap-4">
 				{workflowSteps.map((step, index) => (
-					<div key={step.id} className="mb-4">
+					<div key={step.id} className="mb-4 border rounded p-4">
 						<div className="flex items-center mb-2">
 							<div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 mr-2">
 								{index + 1}
@@ -196,7 +208,7 @@ export default function Index() {
 
 						<Suspense
 							fallback={
-								<div className="ml-10 p-3 border rounded bg-gray-50">
+								<div className="p-3 rounded bg-gray-50">
 									<div className="animate-pulse flex space-x-4">
 										<div className="flex-1 space-y-4 py-1">
 											<div className="h-4 bg-gray-200 rounded w-3/4" />
@@ -217,7 +229,7 @@ export default function Index() {
 								errorElement={<StepErrorElement stepId={step.id} />}
 							>
 								{(result) => (
-									<div className="ml-10 p-3 border rounded bg-green-50">
+									<div className="p-3 rounded bg-green-50">
 										<div className="flex items-center text-green-700 mb-2">
 											<svg
 												className="w-5 h-5 mr-2"
@@ -234,25 +246,14 @@ export default function Index() {
 													d="M5 13l4 4L19 7"
 												/>
 											</svg>
-											<span>Step completed</span>
+											<span>Complete</span>
 										</div>
 
-										{step.id === finalStepId ? (
-											<div>
-												<h3 className="font-medium mb-2">
-													Your Generated Resume:
-												</h3>
-												<ReactMarkdown className="prose max-w-none">
-													{typeof result === "string" ? result : String(result)}
-												</ReactMarkdown>
-											</div>
-										) : (
-											<div className="markdown-content">
-												<ReactMarkdown className="prose max-w-none">
-													{typeof result === "string" ? result : String(result)}
-												</ReactMarkdown>
-											</div>
-										)}
+										<div className="markdown-content max-h-64 overflow-y-auto">
+											<ReactMarkdown className="prose max-w-none">
+												{typeof result === "string" ? result : String(result)}
+											</ReactMarkdown>
+										</div>
 									</div>
 								)}
 							</Await>
@@ -264,22 +265,38 @@ export default function Index() {
 	};
 
 	return (
-		<div className="max-w-4xl mx-auto p-6">
+		<div className="max-w-6xl mx-auto p-6">
 			<h1 className="text-2xl font-bold mb-6">AI Resume Generator</h1>
 
 			<Form method="post" className="mb-8">
-				<div className="mb-4">
-					<label htmlFor="jobDescription" className="block mb-2 font-medium">
-						Job Description
-					</label>
-					<textarea
-						id="jobDescription"
-						name="jobDescription"
-						value={jobDescription}
-						onChange={(e) => setJobDescription(e.target.value)}
-						className="w-full h-48 p-2 border rounded"
-						placeholder="Paste the job description here..."
-					/>
+				<div className="grid grid-cols-2 gap-4 mb-4">
+					<div>
+						<label htmlFor="jobDescription" className="block mb-2 font-medium">
+							Job Description
+						</label>
+						<textarea
+							id="jobDescription"
+							name="jobDescription"
+							value={jobDescription}
+							onChange={(e) => setJobDescription(e.target.value)}
+							className="w-full h-48 p-2 border rounded"
+							placeholder="Paste the job description here..."
+						/>
+					</div>
+					
+					<div>
+						<label htmlFor="relevant" className="block mb-2 font-medium">
+							Relevant Description (Optional)
+						</label>
+						<textarea
+							id="relevant"
+							name="relevant"
+							value={relevantDescription}
+							onChange={(e) => setRelevantDescription(e.target.value)}
+							className="w-full h-48 p-2 border rounded"
+							placeholder="What kind of experience is relevant for this role? (Optional)"
+						/>
+					</div>
 				</div>
 
 				<div className="flex gap-4">
@@ -290,7 +307,7 @@ export default function Index() {
 						className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
 						disabled={isSubmitting}
 					>
-						{isSubmitting ? "Processing..." : "Generate Resume with Steps"}
+						{isSubmitting ? "Processing..." : "Generate All Sections"}
 					</button>
 
 					<button

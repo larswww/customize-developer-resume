@@ -50,7 +50,7 @@
 	},
 	"engines": {
 		"node": "20.17.0",
-		"pnpm": "10.7.0"
+		"pnpm": "10.6.3"
 	},
 	"msw": {
 		"workerDirectory": ["public"]
