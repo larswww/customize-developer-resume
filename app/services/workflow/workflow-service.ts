@@ -1,57 +1,53 @@
 import { workflowSteps } from "../../config/workflow";
-import { workHistory } from "../../data/workHistory";
-import type { WorkflowContext } from "../ai/types";
+import type { WorkflowStep } from "../../config/workflow";
 import { WorkflowEngine } from "./workflow-engine";
-
-// You'll need to set these up in your environment
-const API_KEYS = {
-	anthropic: process.env.ANTHROPIC_API_KEY || "",
-	openai: process.env.OPENAI_API_KEY || "",
-	gemini: process.env.GEMINI_API_KEY || "",
-};
+import { workHistory } from "../../data/workHistory";
 
 /**
- * Validate API keys and return missing ones
+ * Executes the entire workflow on the server side
  */
-export function validateApiKeys() {
-	const missingKeys = [];
-	if (!API_KEYS.anthropic) missingKeys.push("ANTHROPIC_API_KEY");
-	if (!API_KEYS.openai) missingKeys.push("OPENAI_API_KEY");
-	if (!API_KEYS.gemini) missingKeys.push("GEMINI_API_KEY");
-
-	return {
-		missingKeys,
-		isValid: missingKeys.length === 0,
-		apiKeyStatus: {
-			anthropic: API_KEYS.anthropic ? "Present" : "Missing",
-			openai: API_KEYS.openai ? "Present" : "Missing",
-			gemini: API_KEYS.gemini ? "Present" : "Missing",
+export async function executeWorkflow(jobDescription: string): Promise<string> {
+	// Create workflow engine
+	const engine = new WorkflowEngine(
+		{
+			anthropic: process.env.ANTHROPIC_API_KEY || "",
+			openai: process.env.OPENAI_API_KEY || "",
+			gemini: process.env.GEMINI_API_KEY || "",
 		},
-	};
-}
+		workflowSteps as unknown as WorkflowStep[]
+	);
 
-/**
- * Execute a workflow synchronously and return the final result
- */
-export async function executeWorkflow(jobDescription: string, relevant?: string) {
-	const engine = new WorkflowEngine(API_KEYS, workflowSteps);
-	
-	// Create initial context with all needed fields
-	const initialContext: Partial<WorkflowContext> = {
+	// Initial context with job description and work history
+	const initialContext: Record<string, unknown> = {
 		jobDescription,
 		workHistory,
-		relevant: relevant || "",
+		relevant: "",
 		experience: workHistory,
 		workExperience: workHistory,
 	};
+
+	// Execute all steps in sequence
+	const context = await engine.execute(initialContext);
+
+	// Return the final resume
+	if (!context["craft-resume"]) {
+		throw new Error("Resume generation failed");
+	}
+	return String(context["craft-resume"]);
+}
+
+/**
+ * Validates that required API keys are present
+ */
+export function validateApiKeys(): { 
+	isValid: boolean; 
+	missingKeys: string[];
+} {
+	const requiredKeys = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"];
+	const missingKeys = requiredKeys.filter(key => !process.env[key]);
 	
-	// Execute the workflow with custom context and return the result from the craft-resume step
-	const stepPromises = engine.createCustomStepPromises(initialContext);
-	const results = await Promise.all(stepPromises.map(step => step()));
-	
-	// Find the index of the craft-resume step
-	const resumeStepIndex = workflowSteps.findIndex(step => step.id === "craft-resume");
-	
-	// Return the result from the craft-resume step, or the last step if not found
-	return results[resumeStepIndex >= 0 ? resumeStepIndex : results.length - 1] as string;
+	return {
+		isValid: missingKeys.length === 0,
+		missingKeys
+	};
 }

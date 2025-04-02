@@ -12,28 +12,28 @@ export class OpenAIClient implements AIClient {
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
 		console.log("[OpenAI Client] Making request to OpenAI API");
-		
+
 		const model = options.model || "o1";
 		const systemPrompt = options.systemPrompt || "You are a helpful assistant.";
-		
+
 		// Determine the model type for proper message formatting
-		const getModelType = (modelName: string): 'o1' | 'o3' | 'mini' => {
-			if (modelName.includes('o1-mini') || modelName.includes('o3-mini')) {
-				return 'mini';
+		const getModelType = (modelName: string): "o1" | "o3" | "mini" => {
+			if (modelName.includes("o1-mini") || modelName.includes("o3-mini")) {
+				return "mini";
 			}
-			if (modelName.startsWith('o1')) {
-				return 'o1';
+			if (modelName.startsWith("o1")) {
+				return "o1";
 			}
-			return 'o3';
+			return "o3";
 		};
-		
+
 		const modelType = getModelType(model);
-		
+
 		// Prepare messages based on model type
-		let messages: {role: string; content: string}[] = [];
-		
+		let messages: { role: string; content: string }[] = [];
+
 		switch (modelType) {
-			case 'o1':
+			case "o1":
 				// o1 models use "developer" role
 				messages = [
 					{
@@ -46,7 +46,7 @@ export class OpenAIClient implements AIClient {
 					},
 				];
 				break;
-			case 'mini':
+			case "mini":
 				// Mini models don't support system/developer messages
 				messages = [
 					{
@@ -70,19 +70,24 @@ export class OpenAIClient implements AIClient {
 		}
 
 		// Create request payload
-		const requestBody: Record<string, any> = {
+		const requestBody: Record<string, unknown> = {
 			model: model,
 			messages: messages,
 		};
-		
+
 		// Only include max_tokens if provided
 		if (options.maxTokens) {
 			requestBody.max_tokens = options.maxTokens;
 		}
-		
+
 		// Only include temperature for models that support it (not mini models)
-		if (options.temperature !== undefined && modelType !== 'mini') {
+		if (options.temperature !== undefined && modelType !== "mini") {
 			requestBody.temperature = options.temperature;
+		}
+
+		// Add response_format if provided (for JSON responses)
+		if (options.response_format) {
+			requestBody.response_format = options.response_format;
 		}
 
 		// Use these exact headers and method to ensure MSW intercepts the request

@@ -41,9 +41,9 @@ export function startServer() {
 		console.log(`[MSW] Request unhandled: ${request.method} ${request.url}`);
 	});
 
-	server.events.on("request:end", ({ request, response }) => {
+	server.events.on("request:end", ({ request, requestId }) => {
 		console.log(
-			`[MSW] Request ended: ${request.method} ${request.url} (${response?.status || "no response"})`,
+			`[MSW] Request ended: ${request.method} ${request.url}`,
 		);
 	});
 

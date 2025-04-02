@@ -3,7 +3,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "react-router build",
+		"build": "react-router build && npm run copy-pdf-worker",
 		"dev": "cross-env NODE_ENV=development tsx server.ts",
 		"dev:msw": "cross-env MSW_ENABLED=true tsx server.ts",
 		"start": "tsx server.ts",
@@ -12,16 +12,23 @@
 		"test:e2e:ui": "playwright test --ui",
 		"lint": "biome check --write .",
 		"lint:format": "biome format --write .",
-		"lint:lint": "biome lint --write ."
+		"lint:lint": "biome lint --write .",
+		"copy-pdf-worker": "node scripts/copy-pdf-worker.mjs"
 	},
 	"dependencies": {
 		"@react-router/express": "^7.4.0",
 		"@react-router/node": "^7.4.0",
+		"@types/better-sqlite3": "^7.6.12",
+		"better-sqlite3": "^11.9.1",
 		"compression": "^1.7.5",
 		"dotenv": "^16.4.1",
 		"express": "^4.21.1",
+		"html2canvas": "^1.4.1",
 		"isbot": "^5.1.17",
+		"jspdf": "^3.0.1",
 		"morgan": "^1.10.0",
+		"pdfjs-dist": "^5.1.91",
+		"puppeteer-core": "^24.5.0",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"react-markdown": "^9.0.1",
@@ -53,6 +60,19 @@
 		"pnpm": "10.6.3"
 	},
 	"msw": {
-		"workerDirectory": ["public"]
+		"workerDirectory": [
+			"public"
+		]
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"better-sqlite3"
+		],
+		"ignoredBuiltDependencies": [
+			"@biomejs/biome",
+			"core-js",
+			"esbuild",
+			"msw"
+		]
 	}
 }

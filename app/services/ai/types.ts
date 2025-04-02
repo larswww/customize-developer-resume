@@ -12,6 +12,7 @@ export interface AIRequestOptions {
 	maxTokens?: number;
 	model?: string;
 	systemPrompt?: string;
+	response_format?: { type: string };
 }
 
 export type AIProvider = "anthropic" | "openai" | "gemini";

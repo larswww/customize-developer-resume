@@ -67,3 +67,40 @@ body {
 .markdown-content {
 	@apply max-w-none w-full;
 }
+
+/* Print styles */
+@media print {
+	@page {
+		size: letter portrait;
+		margin: 0;
+	}
+
+	body {
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+		color-adjust: exact !important;
+	}
+
+	.resume-container {
+		width: 8.5in !important;
+		height: 11in !important;
+		overflow: hidden !important;
+		position: relative !important;
+		page-break-after: always !important;
+		page-break-inside: avoid !important;
+		box-shadow: none !important;
+	}
+
+	/* Ensure colors print */
+	.bg-yellow-300 {
+		background-color: #ffeb3b !important;
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+	}
+
+	.bg-gray-50 {
+		background-color: #f9fafb !important;
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+	}
+}

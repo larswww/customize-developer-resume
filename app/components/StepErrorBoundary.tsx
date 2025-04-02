@@ -6,19 +6,29 @@ interface StepErrorBoundaryProps {
 }
 
 export function StepErrorBoundary({ stepId, error }: StepErrorBoundaryProps) {
-	// Log the error to the console for debugging
-	console.error(`Error in workflow step ${stepId}:`, error);
-
 	return (
-		<div className="ml-10 p-3 border rounded bg-red-50 text-red-500">
-			<div className="font-medium mb-2">Error processing this step:</div>
-			<div className="mb-2">{error.message}</div>
-			<details className="text-xs">
-				<summary className="cursor-pointer">Technical details</summary>
-				<pre className="mt-2 overflow-x-auto whitespace-pre-wrap">
-					{error.stack || "No stack trace available"}
-				</pre>
-			</details>
+		<div className="p-3 rounded bg-red-50">
+			<div className="flex items-center text-red-600 mb-2">
+				<svg 
+					xmlns="http://www.w3.org/2000/svg" 
+					className="h-5 w-5 mr-2" 
+					fill="none" 
+					viewBox="0 0 24 24" 
+					stroke="currentColor"
+					aria-hidden="true"
+				>
+					<path 
+						strokeLinecap="round" 
+						strokeLinejoin="round" 
+						strokeWidth={2} 
+						d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+					/>
+				</svg>
+				<span>Error in step: {stepId}</span>
+			</div>
+			<div className="mt-2 p-2 bg-red-100 text-red-800 rounded font-mono text-sm overflow-auto">
+				{error.message}
+			</div>
 		</div>
 	);
 }

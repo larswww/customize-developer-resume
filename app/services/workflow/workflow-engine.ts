@@ -1,557 +1,129 @@
-import { AnthropicClient } from "../ai/anthropic";
-import { GeminiClient } from "../ai/gemini";
-import { OpenAIClient } from "../ai/openai";
-import type {
-	AIClient,
-	AIResponse,
-	WorkflowContext,
-	WorkflowStep,
-} from "../ai/types";
-import { storeStepResult } from "../state/stepStorage";
-// Import other AI clients when implemented
+import type { WorkflowStep } from "../../config/workflow";
 
-export interface StepResult {
-	stepId: string;
-	result: unknown;
-	isComplete: boolean;
+type ApiKeys = {
+	anthropic: string;
+	openai: string;
+	gemini?: string;
+};
+
+export interface WorkflowContext {
+	[key: string]: unknown;
 }
 
-export interface WorkflowProgress {
-	currentStep: string;
-	totalSteps: number;
-	completedSteps: number;
-	results: Record<string, unknown>;
-	isComplete: boolean;
-}
-
-export type ProgressCallback = (progress: WorkflowProgress) => void;
-
-// Define a StepPromise type
-export type StepPromise = () => Promise<unknown>;
-
-// Enhanced logging function for debugging
-function logDebug(message: string, data?: unknown) {
-	console.log(`[WorkflowEngine] ${message}`);
-	if (data) {
-		console.log(JSON.stringify(data, null, 2));
-	}
-}
-
+/**
+ * WorkflowEngine - Handles the execution of workflow steps
+ */
 export class WorkflowEngine {
-	private clients: Record<string, AIClient>;
+	private apiKeys: ApiKeys;
 	private steps: WorkflowStep[];
 
-	constructor(apiKeys: Record<string, string>, steps: WorkflowStep[]) {
+	constructor(apiKeys: ApiKeys, steps: WorkflowStep[]) {
+		this.apiKeys = apiKeys;
 		this.steps = steps;
-
-		// Log API key status (not the actual keys)
-		logDebug("API Key Status:", {
-			anthropic: apiKeys.anthropic ? "Present" : "Missing",
-			openai: apiKeys.openai ? "Present" : "Missing",
-			gemini: apiKeys.gemini ? "Present" : "Missing",
-		});
-
-		// Initialize clients with error handling
-		this.clients = {};
-
-		try {
-			this.clients.anthropic = new AnthropicClient(apiKeys.anthropic);
-			logDebug("Anthropic client initialized");
-		} catch (error) {
-			logDebug("Error initializing Anthropic client", {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		}
-
-		try {
-			this.clients.openai = new OpenAIClient(apiKeys.openai);
-			logDebug("OpenAI client initialized");
-		} catch (error) {
-			logDebug("Error initializing OpenAI client", {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		}
-
-		try {
-			this.clients.gemini = new GeminiClient(apiKeys.gemini);
-			logDebug("Gemini client initialized");
-		} catch (error) {
-			logDebug("Error initializing Gemini client", {
-				error: error instanceof Error ? error.message : String(error),
-			});
-		}
 	}
 
-	// Get an AI client by provider name
-	getClient(provider: string): AIClient {
-		const client = this.clients[provider];
-		if (!client) {
-			const error = `No client found for provider: ${provider}`;
-			logDebug(error);
-			throw new Error(error);
-		}
-		return client;
-	}
+	/**
+	 * Execute all workflow steps in sequence
+	 */
+	async execute(initialContext: WorkflowContext): Promise<WorkflowContext> {
+		let context: WorkflowContext = { ...initialContext };
 
-	// Create an array of step promises that can be awaited sequentially
-	createStepPromises(
-		jobDescription: string,
-		workHistory: string,
-		onStepComplete?: (stepId: string, result: unknown) => void,
-	): StepPromise[] {
-		const initialContext: WorkflowContext = {
-			jobDescription,
-			workHistory,
-			intermediateResults: {},
-		};
-
-		// Create a shared context object that will be passed between steps
-		const context: WorkflowContext = { ...initialContext };
-
-		// Create a map to store dependency promises
-		const promises: Record<string, Promise<unknown>> = {};
-
-		// First, create all promise generators
-		const stepPromises = this.steps.map((step, index) => {
-			return async () => {
-				logDebug(`Starting execution of step: ${step.id}`);
-				try {
-					// If this isn't the first step, wait for the previous step to complete
-					if (index > 0) {
-						const prevStep = this.steps[index - 1];
-						logDebug(`Waiting for previous step to complete: ${prevStep.id}`);
-						// Make sure we have the result from the previous step before continuing
-						await promises[prevStep.id];
-
-						// Log the current context state for debugging
-						logDebug("Context after previous step:", {
-							hasIntermediateResults:
-								Object.keys(context.intermediateResults).length > 0,
-							availableKeys: Object.keys(context.intermediateResults),
-							previousStepResult: context.intermediateResults[prevStep.id]
-								? "Present"
-								: "Missing",
-						});
-					}
-
-					logDebug(`Getting client for provider: ${step.provider}`);
-					const client = this.getClient(step.provider);
-
-					// Generate the prompt using the context
-					let prompt: string;
-					try {
-						prompt =
-							typeof step.prompt === "function"
-								? step.prompt(context)
-								: step.prompt;
-						logDebug(
-							`Generated prompt for step ${step.id} (length: ${prompt.length} chars)`,
-						);
-					} catch (error) {
-						logDebug(`Error generating prompt for step ${step.id}`, {
-							error: error instanceof Error ? error.message : String(error),
-						});
-						throw error;
-					}
-
-					// Call the AI provider
-					logDebug(`Calling AI provider: ${step.provider} for step ${step.id}`);
-					let response: AIResponse;
-					try {
-						response = await client.generate(prompt, step.options);
-						logDebug(
-							`Received response from ${step.provider} for step ${step.id}`,
-						);
-					} catch (error) {
-						logDebug(
-							`Error from AI provider ${step.provider} for step ${step.id}`,
-							{
-								error: error instanceof Error ? error.message : String(error),
-								stack: error instanceof Error ? error.stack : undefined,
-							},
-						);
-						throw error;
-					}
-
-					// Transform the response
-					let result: unknown;
-					try {
-						result = step.transform
-							? step.transform(response, context)
-							: response.text;
-						logDebug(`Transformed result for step ${step.id}`);
-					} catch (error) {
-						logDebug(`Error transforming result for step ${step.id}`, {
-							error: error instanceof Error ? error.message : String(error),
-							responseText:
-								response.text.substring(0, 200) +
-								(response.text.length > 200 ? "..." : ""),
-						});
-						throw error;
-					}
-
-					// Update the context with the result
-					context.intermediateResults[step.id] = result;
-					logDebug(`Updated context with result for step ${step.id}`);
-
-					// Store the result for API access if that function exists
-					try {
-						storeStepResult(step.id, result);
-						logDebug(`Stored result for API access: ${step.id}`);
-					} catch (_e) {
-						logDebug(
-							`Note: Could not store step result for API access (might be expected): ${step.id}`,
-						);
-						// Ignore errors from storeStepResult as it might not be available
-					}
-
-					// Notify caller about step completion
-					if (onStepComplete) {
-						onStepComplete(step.id, result);
-						logDebug(`Notified completion of step: ${step.id}`);
-					}
-
-					logDebug(`Successfully completed step: ${step.id}`);
-					return result;
-				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : String(error);
-					const errorStack = error instanceof Error ? error.stack : undefined;
-
-					logDebug(`Error in workflow step ${step.id}:`, {
-						error: errorMessage,
-						stack: errorStack,
-						step: step.id,
-						provider: step.provider,
-					});
-
-					// Rethrow with enhanced error message
-					throw new Error(
-						`Error in workflow step ${step.id} (provider: ${step.provider}): ${errorMessage}`,
-					);
-				}
-			};
-		});
-
-		// Initialize all promises to ensure they're ready for dependencies
-		logDebug("Initializing all step promises");
-		this.steps.forEach((step, index) => {
-			const executeStep = stepPromises[index];
-			promises[step.id] = executeStep();
-		});
-
-		logDebug("Returning step promise generators");
-		// Return the original step promise generators
-		return stepPromises;
-	}
-
-	// Create an array of step promises with a custom context object
-	createCustomStepPromises(
-		initialContext: Partial<WorkflowContext>,
-		onStepComplete?: (stepId: string, result: unknown) => void,
-	): StepPromise[] {
-		// Create a complete context object with required fields
-		const context: WorkflowContext = {
-			jobDescription: initialContext.jobDescription || "",
-			workHistory: initialContext.workHistory || "",
-			intermediateResults: {},
-			...initialContext,
-		};
-
-		// Create a map to store dependency promises
-		const promises: Record<string, Promise<unknown>> = {};
-
-		// Create all promise generators
-		const stepPromises = this.steps.map((step, index) => {
-			return async () => {
-				logDebug(`Starting execution of step: ${step.id}`);
-				try {
-					// If this isn't the first step, wait for the previous step to complete
-					if (index > 0) {
-						const prevStep = this.steps[index - 1];
-						logDebug(`Waiting for previous step to complete: ${prevStep.id}`);
-						// Make sure we have the result from the previous step before continuing
-						await promises[prevStep.id];
-
-						// Update context with previous step results when needed
-						// For example, for the resume step we might need the extract-experience result
-						if (step.id === "craft-resume" && prevStep.id === "extract-experience") {
-							context.experience = context.intermediateResults[prevStep.id] as string || context.workHistory;
-						}
-						// For cover letter we might need the resume
-						if (step.id === "write-cover-letter" && context.intermediateResults["craft-resume"]) {
-							context.resume = context.intermediateResults["craft-resume"] as string;
-						}
-						// For qualities and expertise, we might need the extract-experience result
-						if (step.id === "5-qualities-and-5-expertise") {
-							context.workExperience = context.intermediateResults["extract-experience"] as string || context.workHistory;
-						}
-
-						// Log the current context state for debugging
-						logDebug("Context after previous step:", {
-							hasIntermediateResults:
-								Object.keys(context.intermediateResults).length > 0,
-							availableKeys: Object.keys(context.intermediateResults),
-							previousStepResult: context.intermediateResults[prevStep.id]
-								? "Present"
-								: "Missing",
-						});
-					}
-
-					logDebug(`Getting client for provider: ${step.provider}`);
-					const client = this.getClient(step.provider);
-
-					// Generate the prompt using the context
-					let prompt: string;
-					try {
-						prompt =
-							typeof step.prompt === "function"
-								? step.prompt(context)
-								: step.prompt;
-						logDebug(
-							`Generated prompt for step ${step.id} (length: ${prompt.length} chars)`,
-						);
-					} catch (error) {
-						logDebug(`Error generating prompt for step ${step.id}`, {
-							error: error instanceof Error ? error.message : String(error),
-						});
-						throw error;
-					}
-
-					// Call the AI provider
-					logDebug(`Calling AI provider: ${step.provider} for step ${step.id}`);
-					let response: AIResponse;
-					try {
-						response = await client.generate(prompt, step.options);
-						logDebug(
-							`Received response from ${step.provider} for step ${step.id}`,
-						);
-					} catch (error) {
-						logDebug(
-							`Error from AI provider ${step.provider} for step ${step.id}`,
-							{
-								error: error instanceof Error ? error.message : String(error),
-								stack: error instanceof Error ? error.stack : undefined,
-							},
-						);
-						throw error;
-					}
-
-					// Transform the response
-					let result: unknown;
-					try {
-						result = step.transform
-							? step.transform(response, context)
-							: response.text;
-						logDebug(`Transformed result for step ${step.id}`);
-					} catch (error) {
-						logDebug(`Error transforming result for step ${step.id}`, {
-							error: error instanceof Error ? error.message : String(error),
-							responseText:
-								response.text.substring(0, 200) +
-								(response.text.length > 200 ? "..." : ""),
-						});
-						throw error;
-					}
-
-					// Update the context with the result
-					context.intermediateResults[step.id] = result;
-					logDebug(`Updated context with result for step ${step.id}`);
-
-					// Store the result for API access if that function exists
-					try {
-						storeStepResult(step.id, result);
-						logDebug(`Stored result for API access: ${step.id}`);
-					} catch (_e) {
-						logDebug(
-							`Note: Could not store step result for API access (might be expected): ${step.id}`,
-						);
-						// Ignore errors from storeStepResult as it might not be available
-					}
-
-					// Notify caller about step completion
-					if (onStepComplete) {
-						onStepComplete(step.id, result);
-						logDebug(`Notified completion of step: ${step.id}`);
-					}
-
-					logDebug(`Successfully completed step: ${step.id}`);
-					return result;
-				} catch (error) {
-					const errorMessage =
-						error instanceof Error ? error.message : String(error);
-					const errorStack = error instanceof Error ? error.stack : undefined;
-
-					logDebug(`Error in workflow step ${step.id}:`, {
-						error: errorMessage,
-						stack: errorStack,
-						step: step.id,
-						provider: step.provider,
-					});
-
-					// Rethrow with enhanced error message
-					throw new Error(
-						`Error in workflow step ${step.id} (provider: ${step.provider}): ${errorMessage}`,
-					);
-				}
-			};
-		});
-
-		// Initialize all promises to ensure they're ready for dependencies
-		logDebug("Initializing all step promises");
-		this.steps.forEach((step, index) => {
-			const executeStep = stepPromises[index];
-			promises[step.id] = executeStep();
-		});
-
-		logDebug("Returning step promise generators");
-		// Return the original step promise generators
-		return stepPromises;
-	}
-
-	async execute(
-		jobDescription: string,
-		workHistory: string,
-		onProgress?: ProgressCallback,
-	): Promise<string> {
-		logDebug("Starting workflow execution");
-		const context: WorkflowContext = {
-			jobDescription,
-			workHistory,
-			intermediateResults: {},
-		};
-
-		let result: unknown;
-		const totalSteps = this.steps.length;
-		let completedSteps = 0;
-		const results: Record<string, unknown> = {};
-
+		// Execute each step in order
 		for (const step of this.steps) {
-			logDebug(
-				`Executing step ${step.id} (${completedSteps + 1}/${totalSteps})`,
-			);
 			try {
-				// Update progress with current step
-				if (onProgress) {
-					onProgress({
-						currentStep: step.id,
-						totalSteps,
-						completedSteps,
-						results,
-						isComplete: false,
-					});
-					logDebug(`Updated progress for step ${step.id}`);
-				}
-
-				logDebug(`Getting client for provider: ${step.provider}`);
-				const client = this.clients[step.provider];
-				if (!client) {
-					const error = `No client found for provider: ${step.provider}`;
-					logDebug(error);
-					throw new Error(error);
-				}
-
-				// Generate the prompt
-				let prompt: string;
-				try {
-					prompt =
-						typeof step.prompt === "function"
-							? step.prompt(context)
-							: step.prompt;
-					logDebug(
-						`Generated prompt for step ${step.id} (length: ${prompt.length} chars)`,
-					);
-				} catch (error) {
-					logDebug(`Error generating prompt for step ${step.id}`, {
-						error: error instanceof Error ? error.message : String(error),
-					});
-					throw error;
-				}
-
-				// Call the AI provider
-				logDebug(`Calling AI provider: ${step.provider} for step ${step.id}`);
-				let response: AIResponse;
-				try {
-					response = await client.generate(prompt, step.options);
-					logDebug(
-						`Received response from ${step.provider} for step ${step.id}`,
-					);
-				} catch (error) {
-					logDebug(
-						`Error from AI provider ${step.provider} for step ${step.id}`,
-						{
-							error: error instanceof Error ? error.message : String(error),
-							stack: error instanceof Error ? error.stack : undefined,
-						},
-					);
-					throw error;
-				}
-
-				// Transform the response
-				try {
-					result = step.transform
-						? step.transform(response, context)
-						: response.text;
-					logDebug(`Transformed result for step ${step.id}`);
-				} catch (error) {
-					logDebug(`Error transforming result for step ${step.id}`, {
-						error: error instanceof Error ? error.message : String(error),
-						responseText:
-							response.text.substring(0, 200) +
-							(response.text.length > 200 ? "..." : ""),
-					});
-					throw error;
-				}
-
-				// Store the result for API access
-				try {
-					storeStepResult(step.id, result);
-					logDebug(`Stored result for API access: ${step.id}`);
-				} catch (_e) {
-					logDebug(
-						`Note: Could not store step result for API access (might be expected): ${step.id}`,
-					);
-					// Ignore errors from storeStepResult as it might not be available
-				}
-
-				// Update context with the result
-				context.intermediateResults[step.id] = result;
-				logDebug(`Updated context with result for step ${step.id}`);
-
-				// Store the result and update progress
-				results[step.id] = result;
-				completedSteps++;
-				logDebug(`Completed step ${step.id} (${completedSteps}/${totalSteps})`);
-
-				if (onProgress) {
-					onProgress({
-						currentStep: step.id,
-						totalSteps,
-						completedSteps,
-						results,
-						isComplete: completedSteps === totalSteps,
-					});
-					logDebug(`Updated progress after completing step ${step.id}`);
-				}
+				const result = await this.executeStep(step, context);
+				// Add result to context with step ID as key
+				context[step.id] = result;
 			} catch (error) {
-				const errorMessage =
-					error instanceof Error ? error.message : String(error);
-				const errorStack = error instanceof Error ? error.stack : undefined;
-
-				logDebug(`Error in workflow step ${step.id}:`, {
-					error: errorMessage,
-					stack: errorStack,
-					step: step.id,
-					provider: step.provider,
-				});
-
-				throw new Error(
-					`Error in workflow step ${step.id} (provider: ${step.provider}): ${errorMessage}`,
-				);
+				console.error(`Error executing step ${step.id}:`, error);
+				throw error;
 			}
 		}
 
-		logDebug("Workflow execution completed successfully");
-		return result as string;
+		return context;
+	}
+
+	/**
+	 * Creates a list of promises for each step that can be executed independently
+	 */
+	createCustomStepPromises(initialContext: WorkflowContext): Array<() => Promise<unknown>> {
+		const context: WorkflowContext = { ...initialContext };
+		const stepPromises: Array<() => Promise<unknown>> = [];
+
+		// For each step, create a promise factory function
+		this.steps.forEach((step, index) => {
+			// Create a function that when called, will execute the step
+			const promise = async () => {
+				// Wait for all previous steps to complete
+				if (index > 0) {
+					for (let i = 0; i < index; i++) {
+						context[this.steps[i].id] = await stepPromises[i]();
+					}
+				}
+
+				// Now execute this step with the updated context
+				return this.executeStep(step, context);
+			};
+
+			stepPromises.push(promise);
+		});
+
+		return stepPromises;
+	}
+
+	/**
+	 * Executes a single workflow step
+	 */
+	private async executeStep(step: WorkflowStep, context: WorkflowContext): Promise<string> {
+		// Currently using a mock implementation for development
+		// In production, this would call the appropriate AI service
+		console.log(`Executing step: ${step.id}`);
+		
+		// Simple mock implementation - in a real app, we'd call an AI service here
+		return this.mockStepExecution(step, context);
+	}
+
+	/**
+	 * Mock implementation for step execution during development
+	 */
+	private mockStepExecution(step: WorkflowStep, context: WorkflowContext): string {
+		// Replace placeholders in the userPrompt with context values
+		let userPrompt = step.userPrompt;
+		
+		// Find all placeholders in the format {{key}}
+		const placeholders = userPrompt.match(/{{([^}]+)}}/g) || [];
+		
+		// Replace each placeholder with its value from the context
+		placeholders.forEach(placeholder => {
+			const key = placeholder.replace('{{', '').replace('}}', '');
+			const value = context[key];
+			if (value !== undefined) {
+				userPrompt = userPrompt.replace(placeholder, String(value));
+			}
+		});
+		
+		// Mock responses for different steps
+		switch (step.id) {
+			case "job-description-analysis":
+				return "The job requires expertise in NextJS, React, and TypeScript. Key responsibilities include developing frontend components, implementing responsive UIs, and collaborating with backend teams.";
+			
+			case "extract-experience":
+				return "Your most relevant experiences include:\n- Senior Software Engineer at Krew working with NextJS\n- Frontend Developer at NoLemons using NextJS and Drupal\n- Your geospatial analysis project using React";
+			
+			case "craft-resume":
+				return "# LARS WOLDERN\n\n## PROFESSIONAL SUMMARY\nSenior Software Engineer with expertise in NextJS, React, and TypeScript, focusing on building responsive and performant web applications. Proven track record of taking ownership of complex projects and delivering successful outcomes.\n\n## RELEVANT EXPERIENCE\n\n**Senior Software Engineer - Krew (2023-Present)**\n- Took over a complex Nextjs codebase from the departing CTO; deployed new features to production within the first week\n- Translated detailed Figma prototypes into functional products\n\n**Frontend Developer - NoLemons (2021-2023)**\n- Assumed ownership of a legacy full-stack Nextjs and Drupal application\n- Stabilized code, improved responsiveness, and created enhancement backlog\n\n## SKILLS\n- **Frontend**: TypeScript, React, NextJS, Responsive Design\n- **Backend**: Python, FastAPI, Redis, PostgreSQL\n- **Tools**: Git, Docker, AWS";
+			
+			case "background-info":
+				return "The company appears to be a technology startup focusing on web application development using modern JavaScript frameworks. They value expertise in NextJS and React, suggesting they likely have customer-facing web products requiring responsive design.";
+			
+			case "5-qualities-and-5-expertise":
+				return "## Key Qualities\n1. Adaptability - Quickly taking over and understanding complex codebases\n2. Problem-solving - Identifying issues and implementing effective solutions\n3. Ownership - Taking responsibility for project success\n4. Collaboration - Working effectively with cross-functional teams\n5. Technical leadership - Guiding technical decisions and mentoring others\n\n## Areas of Expertise\n1. NextJS/React Development\n2. TypeScript\n3. Responsive UI Design\n4. Full-stack Integration\n5. Performance Optimization";
+			
+			case "write-cover-letter":
+				return "Dear Hiring Manager,\n\nI am excited to apply for the Senior Frontend Developer position at your company. With extensive experience in NextJS, React, and TypeScript, I have successfully delivered numerous web applications from concept to production.\n\nMost recently at Krew, I took over a complex NextJS codebase and deployed new features within my first week, demonstrating my ability to quickly understand and contribute to established projects. Previously at NoLemons, I stabilized a legacy application while improving its responsiveness and creating a roadmap for future enhancements.\n\nI am particularly interested in joining your team because of your focus on innovative web solutions and your commitment to quality user experiences. I believe my technical expertise and collaborative approach would make me a valuable addition to your organization.\n\nThank you for considering my application. I look forward to discussing how my skills and experience align with your needs.\n\nSincerely,\nLars Woldern";
+			
+			default:
+				return `Mock response for step: ${step.id}`;
+		}
 	}
 }

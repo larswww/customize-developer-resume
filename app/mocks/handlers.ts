@@ -45,47 +45,189 @@ const mockResponses = {
 `,
 	"professional-summary":
 		"Senior software engineer with expertise in Next.js, TypeScript, and AI integrations. Demonstrated success in optimizing cloud costs by 95% and delivering MVPs 4x faster than standard timelines.",
-	"generate-resume": `# Lars Woldern
-Frontend Developer | Next.js Specialist
+	"generate-resume": `RESUME
 
-## Professional Summary
-Experienced frontend developer with strong expertise in Next.js, TypeScript, and Tailwind CSS. Specialized in building responsive and user-friendly interfaces, with a proven track record of setting up applications from scratch and optimizing performance.
+PRODUCT WORKS B.V. – OWNER
+Amsterdam | Oct 2024 – Current
 
-## Key Skills
-- Next.js
-- TypeScript
-- Tailwind CSS
-- Responsive Design
-- Performance Optimization
-- SSR/SSG Implementation
+• Krew (AI Industry)
+– Took over a Next.js and TypeScript project left by the previous CTO and deployed new features within the first week.
+– Rebuilt front-end components with Tailwind, improving UI consistency and responsiveness.
+– Collaborated on Python/FastAPI back end to enhance data flow and reliability.
 
-## Professional Experience
+• NoLemons (Automotive)
+– Maintained and refactored a complex Next.js/Tailwind codebase for a secondhand car marketplace.
+– Handled feature backlog and deployments, enabling a smooth handover to a new owner and accelerated business exit.
 
-### Senior Frontend Developer
-**Digital Solutions Inc.** | 2021 - Present
-- Led development of an e-commerce platform using Next.js, implementing SSR and optimizing performance which reduced page load times by 45%
-- Implemented TypeScript across multiple frontend projects, creating robust type definitions and interfaces
-- Designed and built responsive UI components using Tailwind CSS, accelerating UI development time by 40%
-- Collaborated closely with backend developers, UX/UI designers, and product owners to deliver high-quality products
+MCKINSEY & COMPANY – SENIOR FULL STACK ENGINEER / SENIOR SPECIALIST
+Amsterdam | Jun 2022 – Sep 2024
 
-### Frontend Developer
-**Web Innovations** | 2018 - 2021
-- Built and maintained multiple web applications using React and Next.js
-- Migrated legacy JavaScript codebase to TypeScript, improving code quality and reducing bugs
-- Created responsive interfaces for various devices following accessibility best practices
+• Major Automotive Manufacturer
+– Developed a Next.js platform for geospatial EV-charging analysis, merging big data and ML insights.
+– Deployed weekly UI updates, enabling iterative feedback and cross-team collaboration.
+– Packaged the solution for broader reuse, showcased at a leading European hackathon.
 
-## Education
-**Bachelor of Science in Computer Science**
-University of Technology | 2018
+• McKinsey Leap Gen AI Platform (AI/Strategy Consulting)
+– Built a Next.js front end integrating NestJS back end for generative AI experiences.
+– Led full stack development, including real-time data streaming and private document ingestion.
+– Won an "Innovation Olympics" Gold Medal for delivering a fully functional GenAI prototype that secured €2M funding.
 
-## Languages
-- Dutch (Native)
-- English (Fluent)
+ACCENTURE LIQUID STUDIO – FULL STACK ENGINEER TEAM LEAD
+Amsterdam | Jun 2021 – Sep 2022
 
-## Contact
-- Email: lars.woldern@example.com
-- LinkedIn: linkedin.com/in/larswoldern
-- GitHub: github.com/larswoldern`,
+• Fortune 500 Retail Company
+– Led a small team to deliver a progressive web application with Tailwind, Vue, and modern testing tools.
+– Removed vendor lock-in and saved €1.5M by driving in-house front-end development.
+– Deployed to 5,700 stores, winning an innovation award for mobile-first efficiency.
+
+CYGNI, PART OF ACCENTURE – FULL STACK ENGINEER
+Östersund | Sep 2019 – Jan 2021
+
+• Octopoda AB (SaaS Startup)
+– Conducted design sprints to define crucial MVP features and reduce scope creep.
+– Delivered weekly iterations on a Vue and Node.js AWS stack, securing further funding rounds.
+
+• WorkPi
+– Implemented React/TypeScript component library from PDF specs, winning a hackathon.
+
+• Mid Sweden University
+– Modernized a JavaScript curriculum, improving course feedback score from 2.8 to 4.8.
+
+––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– (End of core resume content)`,
+	"generate-printable-html": `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @media print {
+            @page {
+                margin: 1in;
+            }
+            body {
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                color: #000;
+            }
+            a {
+                color: #000;
+                text-decoration: none;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+    <header class="mb-8">
+        <h1 class="text-4xl font-bold mb-2">[Your Name]</h1>
+        <p class="text-lg">[Your Address] | [City, State] | [Your Email] | [Your Phone Number] | <a href="[LinkedIn URL]" class="text-blue-600">LinkedIn</a></p>
+    </header>
+
+    <main class="space-y-8">
+        <section>
+            <h2 class="text-2xl font-semibold border-b-2 border-gray-300 pb-1 mb-4">Professional Experience</h2>
+
+            <article class="mb-6">
+                <header class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold">PRODUCT WORKS B.V. – OWNER</h3>
+                    <span class="text-sm text-gray-600">Amsterdam | Oct 2024 – Current</span>
+                </header>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>
+                        <strong>Krew (AI Industry)</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Took over a Next.js and TypeScript project left by the previous CTO and deployed new features within the first week.</li>
+                            <li>Rebuilt front-end components with Tailwind, improving UI consistency and responsiveness.</li>
+                            <li>Collaborated on Python/FastAPI back end to enhance data flow and reliability.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>NoLemons (Automotive)</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Maintained and refactored a complex Next.js/Tailwind codebase for a secondhand car marketplace.</li>
+                            <li>Handled feature backlog and deployments, enabling a smooth handover to a new owner and accelerated business exit.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </article>
+
+            <article class="mb-6">
+                <header class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold">MCKINSEY & COMPANY – SENIOR FULL STACK ENGINEER / SENIOR SPECIALIST</h3>
+                    <span class="text-sm text-gray-600">Amsterdam | Jun 2022 – Sep 2024</span>
+                </header>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>
+                        <strong>Major Automotive Manufacturer</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Developed a Next.js platform for geospatial EV-charging analysis, merging big data and ML insights.</li>
+                            <li>Deployed weekly UI updates, enabling iterative feedback and cross-team collaboration.</li>
+                            <li>Packaged the solution for broader reuse, showcased at a leading European hackathon.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>McKinsey Leap Gen AI Platform (AI/Strategy Consulting)</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Built a Next.js front end integrating NestJS back end for generative AI experiences.</li>
+                            <li>Led full stack development, including real-time data streaming and private document ingestion.</li>
+                            <li>Won an "Innovation Olympics" Gold Medal for delivering a fully functional GenAI prototype that secured €2M funding.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </article>
+
+            <article class="mb-6">
+                <header class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold">ACCENTURE LIQUID STUDIO – FULL STACK ENGINEER TEAM LEAD</h3>
+                    <span class="text-sm text-gray-600">Amsterdam | Jun 2021 – Sep 2022</span>
+                </header>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>
+                        <strong>Fortune 500 Retail Company</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Led a small team to deliver a progressive web application with Tailwind, Vue, and modern testing tools.</li>
+                            <li>Removed vendor lock-in and saved €1.5M by driving in-house front-end development.</li>
+                            <li>Deployed to 5,700 stores, winning an innovation award for mobile-first efficiency.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </article>
+
+            <article>
+                <header class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold">CYGNI, PART OF ACCENTURE – FULL STACK ENGINEER</h3>
+                    <span class="text-sm text-gray-600">Östersund | Sep 2019 – Jan 2021</span>
+                </header>
+                <ul class="list-disc list-inside ml-4 space-y-2">
+                    <li>
+                        <strong>Octopoda AB (SaaS Startup)</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Conducted design sprints to define crucial MVP features and reduce scope creep.</li>
+                            <li>Delivered weekly iterations on a Vue and Node.js AWS stack, securing further funding rounds.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>WorkPi</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Implemented React/TypeScript component library from PDF specs, winning a hackathon.</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Mid Sweden University</strong>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>Modernized a JavaScript curriculum, improving course feedback score from 2.8 to 4.8.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </article>
+        </section>
+    </main>
+</body>
+</html>`,
 };
 
 // Mock Anthropic API
@@ -130,48 +272,85 @@ export const anthropicHandler = http.post(
 	},
 );
 
-// Mock OpenAI API - Make the path pattern more general
-export const openaiHandler = http.post(
-	"https://api.openai.com/v1/*",
+// Mock OpenAI API
+const openAIHandler = http.post(
+	"https://api.openai.com/v1/chat/completions",
 	async ({ request }) => {
 		console.log("[MSW] OpenAI API call intercepted:", request.url);
-
-		// Log request details for debugging
-		const requestBody = await request
-			.clone()
-			.json()
-			.catch(() => "Could not parse request JSON");
+		const requestBody = await request.clone().json().catch(() => null);
 		console.log(
-			"[MSW] OpenAI API request body:",
+			"[MSW] OpenAI API request body (parsed):",
 			JSON.stringify(requestBody, null, 2),
 		);
-		console.log(
-			"[MSW] OpenAI API request headers:",
-			Object.fromEntries([...request.headers.entries()]),
-		);
 
-		console.log("[MSW] Mocking OpenAI API call");
-		return HttpResponse.json({
-			id: "chatcmpl-abc123",
-			object: "chat.completion",
-			created: Date.now(),
-			model: "o1",
-			choices: [
-				{
-					index: 0,
-					message: {
-						role: "assistant",
-						content: mockResponses["match-experience"],
-					},
-					logprobs: null,
-					finish_reason: "stop",
+		// Check if this is the structured resume generation request
+		if (
+			requestBody &&
+			requestBody.model === "gpt-4-turbo" &&
+			requestBody.response_format?.type === "json_object"
+		) {
+			console.log("[MSW] Handling structured resume generation request.");
+			// Return a mock structured ResumeData object
+			const mockResumeData = {
+				contactInfo: {
+					name: "Mocked Lars Wöldern",
+					title: "Mocked Product Engineer",
+					location: "Mocksterdam",
+					phone: "+1 000 000 0000",
+					email: "mock@example.com",
+					github: "github.com/mockuser",
+					linkedin: "linkedin.com/in/mockuser",
 				},
-			],
-			usage: {
-				prompt_tokens: 300,
-				completion_tokens: 200,
-				total_tokens: 500,
-			},
+				workExperience: [
+					{
+						title: "Mocked Senior Software Engineer",
+						company: "Mock Krew",
+						location: "Mocksterdam",
+						dates: "2023-Present",
+						description: ["Mocked description paragraph."],
+						highlights: ["Mocked highlight 1.", "Mocked highlight 2."],
+					},
+				],
+				education: [
+					{
+						degree: "Mocked Degree",
+						institution: "Mock University",
+						dates: "2010-2014",
+						location: "Mock City",
+					},
+				],
+				skills: [
+					{
+						category: "Mock Frontend",
+						items: ["Mock React", "Mock TypeScript"],
+					},
+					{
+						category: "Mock Backend",
+						items: ["Mock Python", "Mock FastAPI"],
+					},
+				],
+				otherInfo: {
+					title: "Mock Other",
+					items: ["Mock Item 1"],
+				},
+				languages: ["🇺��", "🇸🇪"],
+			};
+
+			return HttpResponse.json({
+				choices: [
+					{
+						message: {
+							content: JSON.stringify(mockResumeData),
+						},
+					},
+				],
+			});
+		}
+
+		// Default fallback for other OpenAI calls (if any)
+		console.warn("[MSW] Unhandled OpenAI API call, returning default empty response.");
+		return HttpResponse.json({
+			choices: [{ message: { content: "Default mock response" } }],
 		});
 	},
 );
@@ -307,7 +486,7 @@ export const fallbackHandlers = [
 
 export const handlers = [
 	anthropicHandler,
-	openaiHandler,
+	openAIHandler,
 	geminiHandler,
 	...fallbackHandlers,
 ];

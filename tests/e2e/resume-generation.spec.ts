@@ -1,116 +1,152 @@
 import { expect, test } from "@playwright/test";
 
-// Log MSW status at the beginning of tests
-test.beforeAll(async () => {
-	console.log("Running tests with MSW mocking enabled");
-});
+test.describe("Resume Generation E2E Flow", () => {
+	// Increase timeout for the entire test suite due to AI generation steps
+	test.setTimeout(120000); // 2 minutes
 
-test.describe("Resume Generator", () => {
-	// Increase timeout for the entire test file
-	test.setTimeout(60000);
+	test("should create a job, generate content, verify persistence, create resume, and download PDF", async ({ page }) => {
+		const jobTitle = `E2E Test Job ${Date.now()}`;
+		const jobDescription = "This is a test job description for the E2E flow.";
+		let jobId: string | null = null;
 
-	test("should generate a resume with step-by-step visualization", async ({
-		page,
-	}) => {
-		// Log that we're testing with MSW
-		await page.evaluate(() => {
-			console.log(
-				"MSW status:",
-				(window as Window & { msw?: boolean }).msw
-					? "Initialized"
-					: "Not initialized",
-			);
+		await test.step("Navigate to Dashboard and Reveal Create Job Form", async () => {
+			await page.goto("/dashboard");
+			await expect(page).toHaveTitle(/Resume Generator Dashboard/);
+			// Click the button to show the form
+			await page.getByRole("button", { name: "Create New Job" }).click();
+			// Verify the form heading is now visible
+			await expect(page.getByRole("heading", { name: "Create New Resume Job" })).toBeVisible();
 		});
 
-		// Go to the resume generator page
-		await page.goto("/");
-
-		// Verify the page title
-		await expect(page).toHaveTitle(/AI Resume Generator/);
-
-		// Verify the text area contains a job description
-		const jobDescriptionTextarea = page.locator("#jobDescription");
-		await expect(jobDescriptionTextarea).toBeVisible();
-		await expect(jobDescriptionTextarea).not.toBeEmpty();
-
-		// Click the generate button
-		const generateButton = page.getByRole("button", {
-			name: "Generate Resume with Steps",
+		await test.step("Fill Job Title and Create Job", async () => {
+			// Fill the title in the revealed form
+			await page.locator('input[name="title"]').fill(jobTitle);
+			// Click the submit button within the form
+			await page.getByRole("button", { name: "Create Job" }).click();
+			
+			// Expect the URL to still be the dashboard after form submission
+			await expect(page).toHaveURL(/\/dashboard/);
+			// Expect the new job title heading to be visible on the dashboard
+			await expect(page.getByRole("heading", { name: jobTitle })).toBeVisible();
 		});
-		await expect(generateButton).toBeVisible();
-		await generateButton.click();
 
-		// Verify the progress section appears
-		const progressHeading = page.getByRole("heading", {
-			name: "Resume Generation Progress",
+		await test.step("Navigate to Generate Content", async () => {
+			// Find the job card div by locating the specific h3 title, then go up to the parent card
+			const jobCard = page.locator('div.border.rounded-lg').filter({ has: page.getByRole('heading', { name: jobTitle, level: 3, exact: true }) });
+			
+			// Find the "Generate Content" link within that specific job card
+			const generateContentLink = jobCard.getByRole("link", { name: "Generate Content" });
+			await expect(generateContentLink).toBeVisible();
+			
+			// Extract jobId from the link's href
+			const href = await generateContentLink.getAttribute('href');
+			expect(href).toBeTruthy();
+			const match = href?.match(/\/job\/(\d+)\/content/);
+			expect(match).toBeTruthy();
+			if (!match || !match[1]) {
+				throw new Error('Could not extract job ID from link href');
+			}
+			jobId = match[1];
+			console.log(`Found Job ID: ${jobId}`);
+
+			await generateContentLink.click();
+			await expect(page).toHaveURL(`/job/${jobId}/content`);
+			await expect(page.getByRole("heading", { name: `Generate Content for ${jobTitle}` })).toBeVisible();
 		});
-		await expect(progressHeading).toBeVisible();
 
-		// Verify each step is processed correctly
-
-		// Step 1: Job Analysis
-		const step1Heading = page.getByRole("heading", {
-			name: "Analyzing Job Description",
-			exact: true,
+		await test.step("Generate All Content Sections", async () => {
+			await page.getByRole("button", { name: "Generate All Sections" }).click();
+			
+			// Wait for a specific piece of generated content to appear (e.g., Cover Letter)
+			// Increase timeout as AI generation can be slow
+			const coverLetterHeading = page.getByRole("heading", { name: "Write Cover Letter" });
+			await expect(coverLetterHeading).toBeVisible({ timeout: 90000 }); // 90 seconds timeout for generation
+			
+			// Verify a small part of the cover letter content
+			await expect(page.locator('p:has-text("Dear Hiring Manager,")')).toBeVisible();
 		});
-		await expect(step1Heading).toBeVisible();
 
-		// Wait for step 1 to complete - more specific selector
-		const stepCompletedText = page
-			.getByText("Step completed", { exact: true })
-			.first();
-		await expect(stepCompletedText).toBeVisible({ timeout: 30000 });
-
-		// Check for successful completion of all steps
-		// You can modify this to check for UI elements specific to your implementation
-		// This could be checking for the final rendered resume
-		const finalContent = await page.waitForSelector(
-			'pre:has-text("keySkills")',
-			{ timeout: 30000 },
-		);
-		expect(finalContent).toBeTruthy();
-
-		// Take a screenshot of the completed resume
-		await page.screenshot({ path: "test-results/resume-completed.png" });
-	});
-
-	test("should generate a resume without steps visualization", async ({
-		page,
-	}) => {
-		// Go to the resume generator page
-		await page.goto("/");
-
-		// Click the generate button for server-only mode
-		const generateButton = page.getByRole("button", {
-			name: "Generate Resume (Server only)",
+		await test.step("Reload Page and Verify Content Persistence", async () => {
+			await page.reload();
+			await page.waitForLoadState('domcontentloaded'); // Wait for page to be ready after reload
+			
+			// Re-check for the generated content after reload
+			const coverLetterHeading = page.getByRole("heading", { name: "Write Cover Letter" });
+			await expect(coverLetterHeading).toBeVisible();
+			await expect(page.locator('p:has-text("Dear Hiring Manager,")')).toBeVisible();
+			// Check another section for good measure
+			const analysisHeading = page.getByRole("heading", { name: "Analyze Description" });
+			await expect(analysisHeading).toBeVisible(); 
 		});
-		await expect(generateButton).toBeVisible();
-		await generateButton.click();
 
-		// Since the server-only mode might not fully work with MSW, we'll check for either:
-		// 1. The successfully generated resume, or
-		// 2. An error message showing that the server is attempting to process
+		await test.step("Navigate to Create Resume Page", async () => {
+			// This link might appear at the bottom after generation
+			const createResumeLink = page.locator('a:has-text("Create Resume")').last(); // Use last if multiple links exist
+			await expect(createResumeLink).toBeVisible();
+			await createResumeLink.click();
+			await expect(page).toHaveURL(`/job/${jobId}/resume`);
+			// Verify navigation by checking for an element unique to the resume page, like the generate button
+			await expect(page.getByRole("button", { name: "Generate Structured Resume" })).toBeVisible();
+		});
 
-		try {
-			// Wait for either an error or success message
-			await Promise.race([
-				page.waitForSelector('div:has-text("Generated Resume")', {
-					timeout: 30000,
-				}),
-				page.waitForSelector('div:has-text("Error processing")', {
-					timeout: 30000,
-				}),
-			]);
+		await test.step("Generate and Verify Structured Resume Content", async () => {
+			// Click the button to generate structured data
+			await page.getByRole("button", { name: "Generate Structured Resume" }).click();
+			
+			// Wait for the structured data to be generated and rendered
+			// Check for a key section heading
+			const professionalSummary = page.getByRole("heading", { name: "Generated Resume" });
+			// Increase timeout as AI generation can be slow
+			await expect(professionalSummary).toBeVisible({ timeout: 60000 }); // 60 seconds timeout
+			
+			// Check for skills section as well
+			const skillsSection = page.getByRole("heading", { name: "SKILLS" });
+			await expect(skillsSection).toBeVisible();
+			
+			// Now verify the Download button is enabled (no longer disabled)
+			await expect(page.getByRole("button", { name: "Download as PDF" })).toBeEnabled();
+		});
 
-			// Take a screenshot of whatever state we ended up in
-			await page.screenshot({ path: "test-results/server-only-result.png" });
+		await test.step("Download PDF Resume", async () => {
+			// Start waiting for download before clicking. Note: Adjust button name if different.
+			const downloadPromise = page.waitForEvent('download');
+			await page.getByRole("button", { name: "Download as PDF" }).click();
+			
+			const download = await downloadPromise;
+			
+			// Optional: Verify filename 
+			const suggestedFilename = download.suggestedFilename();
+			expect(suggestedFilename).toContain('.pdf'); // Basic check for PDF extension
+			console.log(`Downloaded file: ${suggestedFilename}`);
+			
+			// To be thorough, you could save the download and check file size/content,
+			// but simply verifying the download event occurred is often sufficient for E2E.
+			// await download.saveAs(`test-results/downloaded-resume-${jobId}.pdf`);
+		});
 
-			// Test passes if we get to this point, as we at least confirmed the UI is responding
-		} catch (_error) {
-			// If neither condition is met within timeout, the test will fail
-			throw new Error(
-				"The resume generation in server-only mode did not complete or show an error",
-			);
-		}
+		await test.step("Delete Job and Verify Removal", async () => {
+			// Navigate back to dashboard first
+			await page.goto("/dashboard");
+			await expect(page).toHaveTitle(/Resume Generator Dashboard/);
+			
+			// Find the specific job card again
+			const jobCard = page.locator('div.border.rounded-lg').filter({ has: page.getByRole('heading', { name: jobTitle, level: 3, exact: true }) });
+			await expect(jobCard).toBeVisible();
+			
+			// Find and click the delete button within the card
+			const deleteButton = jobCard.getByRole("button", { name: "Delete" });
+			await expect(deleteButton).toBeVisible();
+			
+			// Handle the confirmation dialog
+			page.on('dialog', dialog => dialog.accept());
+			
+			await deleteButton.click();
+			
+			// Wait for navigation or reload after delete (dashboard action reloads data)
+			await page.waitForLoadState('domcontentloaded');
+			
+			// Verify the job title heading is no longer present on the dashboard
+			await expect(page.getByRole("heading", { name: jobTitle, level: 3 })).not.toBeVisible();
+		});
 	});
 });
