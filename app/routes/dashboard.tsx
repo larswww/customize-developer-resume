@@ -83,13 +83,21 @@ export default function Dashboard() {
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Resume Generator Dashboard</h1>
-        <button
-          type="button"
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          onClick={() => setShowCreateForm(!showCreateForm)}
-        >
-          {showCreateForm ? "Cancel" : "Create New Job"}
-        </button>
+        <div className="flex gap-2">
+          <Link 
+            to="/settings/work-history"
+            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+          >
+            Edit Work History
+          </Link>
+          <button
+            type="button"
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => setShowCreateForm(!showCreateForm)}
+          >
+            {showCreateForm ? "Cancel" : "Create New Job"}
+          </button>
+        </div>
       </div>
 
       {actionData?.error && (
@@ -180,8 +188,8 @@ export default function Dashboard() {
                         viewBox="0 0 24 24" 
                         stroke="currentColor"
                         aria-hidden="true"
-                        title="Generate Content"
                       >
+                        <title>Generate Content</title>
                         <path 
                           strokeLinecap="round" 
                           strokeLinejoin="round" 
@@ -203,8 +211,8 @@ export default function Dashboard() {
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                         aria-hidden="true"
-                        title="Create Resume"
                       >
+                        <title>Create Resume</title>
                         <path 
                           strokeLinecap="round" 
                           strokeLinejoin="round" 
@@ -234,8 +242,8 @@ export default function Dashboard() {
                           viewBox="0 0 24 24" 
                           stroke="currentColor"
                           aria-hidden="true"
-                          title="Delete Job"
                         >
+                          <title>Delete Job</title>
                           <path 
                             strokeLinecap="round" 
                             strokeLinejoin="round" 

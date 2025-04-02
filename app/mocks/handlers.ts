@@ -272,25 +272,46 @@ export const anthropicHandler = http.post(
 	},
 );
 
+// Helper type for OpenAI request body
+interface OpenAIMessage {
+	role: string;
+	content: string;
+}
+interface OpenAIRequestBody {
+	model?: string;
+	messages?: OpenAIMessage[];
+	response_format?: { type: string };
+	// other potential fields...
+}
+
 // Mock OpenAI API
 const openAIHandler = http.post(
 	"https://api.openai.com/v1/chat/completions",
 	async ({ request }) => {
 		console.log("[MSW] OpenAI API call intercepted:", request.url);
-		const requestBody = await request.clone().json().catch(() => null);
+		
+		// Use type assertion after parsing
+		const requestBody = await request.clone().json().catch(() => null) as OpenAIRequestBody | null;
+		
 		console.log(
 			"[MSW] OpenAI API request body (parsed):",
 			JSON.stringify(requestBody, null, 2),
 		);
 
-		// Check if this is the structured resume generation request
+		// Check if requestBody is valid and has messages
+		if (!requestBody || !requestBody.messages || requestBody.messages.length === 0) {
+			console.warn("[MSW] OpenAI request body is invalid or empty. Returning default.");
+			return HttpResponse.json({
+				choices: [{ message: { content: "Default mock response: Invalid request body" } }],
+			});
+		}
+
+		// 1. Check for the specific structured resume generation request
 		if (
-			requestBody &&
 			requestBody.model === "gpt-4-turbo" &&
 			requestBody.response_format?.type === "json_object"
 		) {
 			console.log("[MSW] Handling structured resume generation request.");
-			// Return a mock structured ResumeData object
 			const mockResumeData = {
 				contactInfo: {
 					name: "Mocked Lars Wöldern",
@@ -333,9 +354,8 @@ const openAIHandler = http.post(
 					title: "Mock Other",
 					items: ["Mock Item 1"],
 				},
-				languages: ["🇺��", "🇸🇪"],
+				languages: ["🇺🇳", "🇸🇪"],
 			};
-
 			return HttpResponse.json({
 				choices: [
 					{
@@ -347,10 +367,35 @@ const openAIHandler = http.post(
 			});
 		}
 
-		// Default fallback for other OpenAI calls (if any)
+		// 2. Check for general workflow step requests based on prompt content
+		const userPrompt = requestBody.messages.find(m => m.role === 'user')?.content || '';
+		let mockResponseKey: keyof typeof mockResponses | null = null;
+
+		// Simple keyword matching for different steps (adjust keywords as needed)
+		if (userPrompt.includes("analyze the following job description")) {
+			mockResponseKey = "analyze-job";
+		} else if (userPrompt.includes("identify the most relevant experiences")) {
+			mockResponseKey = "match-experience";
+		} else if (userPrompt.includes("craft a professional resume")) {
+			mockResponseKey = "generate-resume";
+		} 
+		// Add more else-if blocks here for other steps like background-info, 5-qualities, write-cover-letter
+		// Example:
+		// else if (userPrompt.includes("provide some potential background information")) {
+		//     mockResponseKey = "background-info"; // Assuming you add this key to mockResponses
+		// }
+
+		if (mockResponseKey && mockResponses[mockResponseKey]) {
+			console.log(`[MSW] Handling OpenAI request for step: ${mockResponseKey}`);
+			return HttpResponse.json({
+				choices: [{ message: { content: mockResponses[mockResponseKey] } }],
+			});
+		}
+
+		// 3. Default fallback for other OpenAI calls
 		console.warn("[MSW] Unhandled OpenAI API call, returning default empty response.");
 		return HttpResponse.json({
-			choices: [{ message: { content: "Default mock response" } }],
+			choices: [{ message: { content: "Default mock response: Unhandled request" } }],
 		});
 	},
 );

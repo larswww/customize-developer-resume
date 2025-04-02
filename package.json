@@ -16,6 +16,7 @@
 		"copy-pdf-worker": "node scripts/copy-pdf-worker.mjs"
 	},
 	"dependencies": {
+		"@mdxeditor/editor": "^3.29.1",
 		"@react-router/express": "^7.4.0",
 		"@react-router/node": "^7.4.0",
 		"@types/better-sqlite3": "^7.6.12",

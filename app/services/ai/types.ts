@@ -29,6 +29,9 @@ export interface WorkflowContext {
 
 export interface WorkflowStep {
 	id: string;
+	name: string;
+	description: string;
+	systemPrompt: string;
 	provider: string;
 	prompt: string | ((context: WorkflowContext) => string);
 	options?: AIRequestOptions;

@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import type { ResumeData } from '../../components/ResumeTemplate';
+import { workHistory as initialWorkHistory } from '../../data/workHistory'; // Import initial history
 
 export interface Job {
   id: number;
@@ -29,13 +30,21 @@ export interface Resume {
   updatedAt?: string;
 }
 
-// Define the database file path
-const dbPath = './resume_app.db';
+export interface Settings {
+  key: string;
+  value: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Define the database file path based on the environment
+const isTestEnv = process.env.NODE_ENV === 'test';
+const dbPath = isTestEnv ? './test_resume_app.db' : './resume_app.db';
 let database: Database.Database;
 
 try {
   // Initialize better-sqlite3 database connection
-  database = new Database(dbPath, { verbose: console.log });
+  database = new Database(dbPath, { verbose: isTestEnv ? undefined : console.log }); // Reduce verbosity in tests
   
   // Enable WAL mode for better concurrency
   database.pragma('journal_mode = WAL');
@@ -100,14 +109,27 @@ class DbService {
         )
       `);
 
+      // Create settings table
+      this.db.exec(`
+        CREATE TABLE IF NOT EXISTS settings (
+          key TEXT PRIMARY KEY NOT NULL,
+          value TEXT NOT NULL,
+          createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
       // Create unique index on workflow_steps
       this.db.exec(`
         CREATE UNIQUE INDEX IF NOT EXISTS idx_workflow_steps_job_step
         ON workflow_steps (jobId, stepId)
       `);
       
-      // Add triggers for updatedAt timestamp
-      for (const tableName of ['jobs', 'workflow_steps', 'resumes']) {
+      // Explicitly drop any potentially incorrect trigger on settings first
+      this.db.exec('DROP TRIGGER IF EXISTS trigger_settings_updatedAt;');
+      
+      // Add triggers for updatedAt timestamp for tables WITH an 'id' column
+      for (const tableName of ['jobs', 'workflow_steps', 'resumes']) { // Remove 'settings' from this loop
         this.db.exec(`
           CREATE TRIGGER IF NOT EXISTS trigger_${tableName}_updatedAt
           AFTER UPDATE ON ${tableName}
@@ -117,7 +139,7 @@ class DbService {
           END;
         `);
       }
-
+      
       // Add a sample job for development if no jobs exist
       const jobCount = this.db.prepare('SELECT COUNT(*) as count FROM jobs').get() as { count: number };
       if (jobCount.count === 0) {
@@ -149,6 +171,20 @@ What we offer:
 - Opportunities for professional growth
 - Collaborative and supportive team culture`
         });
+      }
+
+      // Insert initial work history if it doesn't exist
+      try {
+        const stmt = this.db.prepare(`
+          INSERT OR IGNORE INTO settings (key, value) 
+          VALUES ('workHistory', ?)
+        `);
+        const result = stmt.run(initialWorkHistory);
+        if (result.changes > 0) {
+          console.log('Initial work history inserted into settings.');
+        }
+      } catch (err) {
+        console.error('Error inserting initial work history:', err);
       }
     });
 
@@ -299,7 +335,7 @@ What we offer:
     const stmt = this.db.prepare('SELECT * FROM resumes WHERE jobId = ?');
     const result = stmt.get(jobId) as any; // Get raw result
 
-    if (result && result.structuredData) {
+    if (result?.structuredData) {
       try {
         result.structuredData = JSON.parse(result.structuredData);
       } catch (e) {
@@ -310,10 +346,45 @@ What we offer:
     return result as Resume | null;
   }
   
+  // Settings methods
+  getWorkHistory(): string | null {
+    try {
+      const stmt = this.db.prepare("SELECT value FROM settings WHERE key = 'workHistory'");
+      const row = stmt.get() as { value: string } | undefined;
+      return row?.value ?? null;
+    } catch (error) {
+      console.error('Error getting work history:', error);
+      return null;
+    }
+  }
+
+  saveWorkHistory(content: string): boolean {
+    console.log("[saveWorkHistory] Attempting to save..."); // Log start
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO settings (key, value) 
+        VALUES ('workHistory', ?)
+        ON CONFLICT(key) DO UPDATE SET 
+          value = excluded.value, 
+          updatedAt = CURRENT_TIMESTAMP
+      `);
+      console.log("[saveWorkHistory] Statement prepared."); // Log after prepare
+      const result = stmt.run(content); // Execute and store result
+      console.log("[saveWorkHistory] Statement executed. Result:", result); // Log result
+      return true; // Return true if execution succeeded 
+    } catch (error) {
+      console.error('[saveWorkHistory] Error during save:', error); // Log error
+      return false;
+    }
+  }
+
+  // Close connection
   close() {
     if (this.db?.open) {
-      this.db.close();
-      console.log('Database connection closed.');
+      this.db?.close();
+      console.log('SQLite database connection closed.');
+    } else {
+      console.log('SQLite database connection was already closed.');
     }
   }
 }

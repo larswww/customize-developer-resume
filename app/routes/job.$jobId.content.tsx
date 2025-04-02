@@ -6,9 +6,9 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Await, useAsyncError } from "react-router";
 import { StepErrorBoundary } from "../components/StepErrorBoundary";
 import { workflowSteps } from "../config/workflow";
-import type { WorkflowStep } from "../config/workflow";
+import type { WorkflowContext, WorkflowStep } from "../services/ai/types";
 import { workHistory } from "../data/workHistory";
-import { executeWorkflow, validateApiKeys } from "../services/workflow/workflow-service";
+import { validateApiKeys } from "../services/workflow/workflow-service";
 import { WorkflowEngine } from "../services/workflow/workflow-engine";
 import dbService from "../services/db/dbService";
 
@@ -47,27 +47,25 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const jobDescription = formData.get("jobDescription") as string;
   const relevant = formData.get("relevant") as string;
-  const mode = formData.get("mode") as string; // 'withSteps' or 'serverOnly'
-  
+
   const jobId = Number(params.jobId);
-  
+
   if (Number.isNaN(jobId)) {
-    return { 
-      success: false, 
-      error: "Invalid job ID" 
+    return {
+      success: false,
+      error: "Invalid job ID"
     };
   }
 
-  // Update job with the new job description and relevant text
   const job = dbService.getJob(jobId);
-  
+
   if (!job) {
-    return { 
-      success: false, 
-      error: "Job not found" 
+    return {
+      success: false,
+      error: "Job not found"
     };
   }
-  
+
   // Update the job with the new job description and relevant text
   dbService.updateJob({
     ...job,
@@ -82,80 +80,68 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return {
       success: false,
       error: `Missing required API keys: ${missingKeys.join(", ")}. Please check your environment configuration.`,
-      mode,
     };
   }
 
   try {
-    if (mode === "serverOnly") {
-      // For server-only execution
-      const generatedResume = await executeWorkflow(jobDescription);
-      
-      // Save the result in the database
-      dbService.saveWorkflowStep({
-        jobId,
-        stepId: "craft-resume",
-        result: generatedResume,
-        status: "completed"
-      });
-      
-      return { success: true, result: generatedResume, mode };
-    }
-
-    // For step-by-step execution
+    // Always execute the full workflow on the server
     const engine = new WorkflowEngine(
       {
         anthropic: process.env.ANTHROPIC_API_KEY || "",
         openai: process.env.OPENAI_API_KEY || "",
         gemini: process.env.GEMINI_API_KEY || "",
       },
-      workflowSteps as unknown as WorkflowStep[],
+      workflowSteps as WorkflowStep[],
     );
 
-    // Create initial context with all needed fields
-    const initialContext = {
+    // Create initial context matching the WorkflowContext from ai/types
+    const initialContext: WorkflowContext = {
       jobDescription,
-      workHistory,
+      workHistory: JSON.stringify(workHistory),
       relevant: relevant || "",
-      experience: workHistory,
-      workExperience: workHistory,
+      experience: JSON.stringify(workHistory),
+      workExperience: JSON.stringify(workHistory),
+      resume: "",
+      intermediateResults: {},
     };
 
-    // Create promises for each step
-    const stepPromises = engine.createCustomStepPromises(initialContext);
-    const stepResults: Record<string, Promise<unknown>> = {};
+    // Execute all steps sequentially
+    console.log("Starting workflow execution...");
+    const finalContext = await engine.execute(initialContext);
+    console.log("Workflow execution completed.", finalContext);
 
-    // Store the promises by step ID for client-side resolution
-    workflowSteps.forEach((step, index) => {
-      // Create a wrapped promise that saves results to the database
-      stepResults[step.id] = stepPromises[index]().then((result) => {
-        // Save the result in the database
-        dbService.saveWorkflowStep({
-          jobId,
-          stepId: step.id,
-          result: result as string,
-          status: "completed"
-        });
-        
-        return result;
-      });
-    });
+    // Save results of each completed step to the database
+    console.log("Saving workflow step results to database...");
+    for (const step of workflowSteps) {
+      const result = finalContext.intermediateResults[step.id];
+      if (result !== undefined) {
+        try {
+          dbService.saveWorkflowStep({
+            jobId,
+            stepId: step.id,
+            result: String(result),
+            status: "completed"
+          });
+          console.log(`Saved result for step: ${step.id}`);
+        } catch (dbError) {
+          console.error(`Failed to save result for step ${step.id}:`, dbError);
+        }
+      }
+    }
+    console.log("Finished saving workflow step results.");
 
-    // Return the promises for client-side resolution
+    // Return the final context containing all results
     return {
       success: true,
-      mode,
-      stepPromises: stepResults,
+      results: finalContext.intermediateResults,
       totalSteps: workflowSteps.length,
     };
-  } catch (error) {
-    // Enhanced error logging
-    console.error("Error in action handler:", error);
 
+  } catch (error) {
+    console.error("Error in workflow action handler:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unknown error occurred",
-      mode,
+      error: error instanceof Error ? error.message : "An unknown error occurred during workflow execution",
     };
   }
 }
@@ -181,10 +167,8 @@ export default function JobContent() {
 
   const actionData = useActionData<{
     success?: boolean;
-    result?: string;
+    results?: Record<string, unknown>;
     error?: string;
-    mode?: string;
-    stepPromises?: Record<string, Promise<unknown>>;
     totalSteps?: number;
   }>();
   
@@ -213,142 +197,133 @@ export default function JobContent() {
     }
   };
 
-  // Function to render the workflow steps
+  // Updated function to render workflow steps based on actionData.results
   const renderWorkflowSteps = () => {
-    if (
-      !actionData?.stepPromises ||
-      !actionData.success ||
-      actionData.mode !== "withSteps"
-    ) {
-      // If we don't have pending steps but have completed steps in the database, render them
-      if (workflowStepsData.length > 0) {
-        return (
-          <div className="mb-8 grid grid-cols-2 gap-4">
-            {workflowSteps.map((step, index) => {
-              const stepData = workflowStepsData.find(s => s.stepId === step.id);
-              
-              return (
-                <div key={step.id} className="mb-4 border rounded p-4">
-                  <div className="flex items-center mb-2">
-                    <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 mr-2">
-                      {index + 1}
-                    </div>
-                    <h3 className="font-medium">{getStepName(step.id)}</h3>
-                  </div>
-                  
-                  {stepData && stepData.status === "completed" ? (
-                    <div className="p-3 rounded bg-green-50">
-                      <div className="flex items-center text-green-700 mb-2">
-                        <svg
-                          className="w-5 h-5 mr-2"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                          aria-hidden="true"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span>Complete</span>
-                      </div>
-                      
-                      <div className="markdown-content max-h-64 overflow-y-auto">
-                        <ReactMarkdown className="prose max-w-none">
-                          {stepData.result}
-                        </ReactMarkdown>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="p-3 rounded bg-gray-50">
-                      <p className="text-gray-500">Not yet processed</p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        );
-      }
-      
-      return null;
-    }
+    // Display results from actionData if available, otherwise fallback to loader data (initial load)
+    const resultsToShow = actionData?.results 
+      ? actionData.results 
+      : workflowStepsData.reduce((acc, step) => {
+          acc[step.stepId] = step.result;
+          return acc;
+        }, {} as Record<string, unknown>);
+        
+    const statusesToShow = actionData?.results
+      ? workflowSteps.reduce((acc, step) => {
+          acc[step.id] = actionData.results?.[step.id] ? 'completed' : 'pending';
+          return acc;
+        }, {} as Record<string, string>)
+      : workflowStepsData.reduce((acc, step) => {
+          acc[step.stepId] = step.status;
+          return acc;
+        }, {} as Record<string, string>); 
 
-    // Component to handle errors from Await
-    const StepErrorElement = ({ stepId }: { stepId: string }) => {
-      const error = useAsyncError() as Error;
-      return <StepErrorBoundary stepId={stepId} error={error} />;
-    };
+    // Don't render anything if there are no results from action or loader
+    if (Object.keys(resultsToShow).length === 0 && workflowStepsData.length === 0 && !actionData?.error) {
+        if (navigation.state === "submitting" || navigation.state === "loading") {
+             return (
+                <div className="mb-8 grid grid-cols-2 gap-4">
+                    {workflowSteps.map((step, index) => (
+                        <div key={step.id} className="mb-4 border rounded p-4">
+                            <div className="flex items-center mb-2">
+                                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 mr-2">
+                                    {index + 1}
+                                </div>
+                                <h3 className="font-medium">{getStepName(step.id)}</h3>
+                            </div>
+                            <div className="p-3 rounded bg-gray-50">
+                                <div className="animate-pulse flex space-x-4">
+                                    <div className="flex-1 space-y-4 py-1">
+                                        <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                        <div className="space-y-2">
+                                            <div className="h-4 bg-gray-200 rounded" />
+                                            <div className="h-4 bg-gray-200 rounded w-5/6" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-sm text-gray-500">
+                                    Processing {getStepName(step.id)}...
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        return null; // Nothing to show yet
+    }
 
     return (
       <div className="mb-8 grid grid-cols-2 gap-4">
-        {workflowSteps.map((step, index) => (
-          <div key={step.id} className="mb-4 border rounded p-4">
-            <div className="flex items-center mb-2">
-              <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 mr-2">
-                {index + 1}
-              </div>
-              <h3 className="font-medium">{getStepName(step.id)}</h3>
-            </div>
+        {workflowSteps.map((step, index) => {
+          const stepResult = resultsToShow[step.id];
+          const stepStatus = statusesToShow[step.id] || 'pending'; 
 
-            <Suspense
-              fallback={
-                <div className="p-3 rounded bg-gray-50">
-                  <div className="animate-pulse flex space-x-4">
-                    <div className="flex-1 space-y-4 py-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4" />
-                      <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded" />
-                        <div className="h-4 bg-gray-200 rounded w-5/6" />
-                      </div>
-                    </div>
+          const isResultString = typeof stepResult === 'string';
+
+          return (
+            <div key={step.id} className="mb-4 border rounded p-4">
+              <div className="flex items-center mb-2">
+                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-100 mr-2">
+                  {index + 1}
+                </div>
+                <h3 className="font-medium">{getStepName(step.id)}</h3>
+              </div>
+
+              {stepStatus === 'completed' && stepResult ? (
+                <div className="p-3 rounded bg-green-50">
+                  <div className="flex items-center text-green-700 mb-2">
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span>Complete</span>
                   </div>
-                  <div className="mt-2 text-sm text-gray-500">
-                    Processing {getStepName(step.id)}...
+                  <div className="markdown-content max-h-64 overflow-y-auto">
+                    {isResultString && (
+                       <ReactMarkdown className="prose max-w-none">
+                         {stepResult as string /* Cast to string after check */}
+                       </ReactMarkdown>
+                    )}
+                    {!isResultString && (
+                      <pre className="text-sm text-gray-600 whitespace-pre-wrap">
+                        {JSON.stringify(stepResult, null, 2) as string}
+                      </pre>
+                    )}
                   </div>
                 </div>
-              }
-            >
-              <Await
-                resolve={actionData.stepPromises?.[step.id]}
-                errorElement={<StepErrorElement stepId={step.id} />}
-              >
-                {(result) => (
-                  <div className="p-3 rounded bg-green-50">
-                    <div className="flex items-center text-green-700 mb-2">
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span>Complete</span>
-                    </div>
-
-                    <div className="markdown-content max-h-64 overflow-y-auto">
-                      <ReactMarkdown className="prose max-w-none">
-                        {typeof result === "string" ? result : String(result)}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-                )}
-              </Await>
-            </Suspense>
-          </div>
-        ))}
+              ) : stepStatus === 'error' ? (
+                 <div className="p-3 rounded bg-red-50">
+                   <p className="text-red-600">Error processing step.</p> 
+                 </div>
+              ) : (
+                <div className="p-3 rounded bg-gray-50">
+                   { (navigation.state === "submitting" || navigation.state === "loading") && actionData === undefined ? (
+                     <div className="animate-pulse flex space-x-4">
+                       <div className="flex-1 space-y-4 py-1">
+                         <div className="h-4 bg-gray-200 rounded w-3/4" />
+                         <div className="space-y-2">
+                           <div className="h-4 bg-gray-200 rounded" />
+                           <div className="h-4 bg-gray-200 rounded w-5/6" />
+                         </div>
+                       </div>
+                     </div>
+                   ) : ( <p className="text-gray-500">Not yet processed</p> ) }
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -407,33 +382,15 @@ export default function JobContent() {
         <div className="flex gap-4">
           <button
             type="submit"
-            name="mode"
-            value="withSteps"
             className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Processing..." : "Generate All Sections"}
           </button>
-
-          <button
-            type="submit"
-            name="mode"
-            value="serverOnly"
-            className="px-4 py-2 bg-gray-500 text-white rounded disabled:bg-gray-400"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Generating..." : "Generate Resume (Server only)"}
-          </button>
         </div>
       </Form>
 
       {renderWorkflowSteps()}
-
-      {navigation.state === "loading" && actionData === undefined && (
-        <div className="mb-4 p-4 border rounded bg-blue-50">
-          Loading results...
-        </div>
-      )}
 
       {actionData?.error && (
         <div className="text-red-500 mb-4 p-4 border border-red-200 rounded bg-red-50">
@@ -441,42 +398,16 @@ export default function JobContent() {
         </div>
       )}
 
-      {actionData?.success &&
-        actionData.result &&
-        actionData.mode === "serverOnly" && (
-          <div className="border rounded p-4">
-            <h2 className="text-xl font-bold mb-4">Generated Resume</h2>
-            <div className="flex justify-end mb-4">
-              <Link
-                to={`/job/${job.id}/resume`}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Create Resume from Content
-              </Link>
-            </div>
-            <ReactMarkdown>{actionData.result}</ReactMarkdown>
+      {actionData?.success && actionData.results?.['craft-resume'] && (
+         <div className="mt-4 flex justify-end">
+            <Link
+              to={`/job/${job.id}/resume`}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Create Resume from Content
+            </Link>
           </div>
-        )}
-
-      {/* For workflow mode, add a link to create resume when craft-resume is complete */}
-      {actionData?.success &&
-        actionData.mode === "withSteps" &&
-        actionData.stepPromises && (
-          <Suspense fallback={null}>
-            <Await resolve={actionData.stepPromises["craft-resume"]}>
-              {(_resumeContent) => (
-                <div className="mt-4 flex justify-end">
-                  <Link
-                    to={`/job/${job.id}/resume`}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Create Resume from Content
-                  </Link>
-                </div>
-              )}
-            </Await>
-          </Suspense>
-        )}
+      )}
     </div>
   );
 } 
