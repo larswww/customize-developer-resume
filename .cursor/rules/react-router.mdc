@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# react router
+- We are using react-router-framework. 
+- always import from react-router, not react-router-dom or @remix.run/node. 
