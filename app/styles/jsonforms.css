@@ -1,0 +1,221 @@
+/* JsonForms Styles using Tailwind CSS */
+@import "../app.css";
+/* Wrapper styling */
+.jsonforms-wrapper {
+  @apply rounded bg-white w-full h-full p-2;
+}
+
+/* Basic Controls */
+.control {
+  @apply mb-6 w-full;
+}
+
+.control .wrapper {
+  @apply mb-2 w-full;
+}
+
+.control .label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+.control .description {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.control .input,
+.control .text-area,
+.control .select {
+  @apply w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white;
+  min-height: 38px;
+}
+
+.control .text-area {
+  @apply min-h-20 resize-y;
+}
+
+.control .option {
+  @apply py-1;
+}
+
+.control .error {
+  @apply text-red-500 text-xs mt-1;
+}
+
+.control .required {
+  @apply text-red-500;
+}
+
+.control .asterisk {
+  @apply text-red-500 ml-1;
+}
+
+/* Table styling for array items */
+table {
+  @apply w-full border-collapse;
+}
+
+table th {
+  @apply py-2 px-4 text-left text-sm font-medium text-gray-700 bg-gray-50 border-b;
+}
+
+table td {
+  @apply py-2 px-4 border-b border-gray-200;
+}
+
+/* Layouts */
+.vertical-layout {
+  @apply mb-4 w-full;
+}
+
+.vertical-layout-item {
+  @apply mb-4 w-full;
+}
+
+.horizontal-layout {
+  @apply flex flex-wrap gap-4 mb-4 w-full;
+}
+
+.horizontal-layout-item {
+  @apply flex-1 min-w-[200px];
+}
+
+/* Groups */
+.group {
+  @apply border border-gray-200 rounded p-4 mb-6 bg-gray-50 w-full;
+}
+
+.group-label {
+  @apply text-lg font-medium text-gray-700 mb-3 pb-2 border-b border-gray-200;
+}
+
+.group-item {
+  @apply mb-4 w-full;
+}
+
+/* Array Lists */
+.array-list {
+  @apply border border-gray-200 rounded p-4 mb-6 bg-gray-50 w-full;
+}
+
+.array-list-legend {
+  @apply text-lg font-medium text-gray-700 mb-3;
+}
+
+.array-list-label {
+  @apply font-medium text-gray-700;
+}
+
+.array-list-add {
+  @apply mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 inline-flex items-center text-sm;
+}
+
+.array-list-add::before {
+  content: "+";
+  @apply mr-1 font-bold;
+}
+
+.array-list-no-data {
+  @apply text-gray-500 italic my-2;
+}
+
+.array-list-item {
+  @apply border border-gray-300 rounded p-4 mb-3 bg-white shadow-sm w-full;
+}
+
+.array-list-item-wrapper {
+  @apply relative;
+}
+
+.array-list-item-toolbar {
+  @apply flex justify-end gap-2 mt-2 pt-2 border-t border-gray-200;
+}
+
+.array-list-item-label {
+  @apply font-medium;
+}
+
+.array-list-item-content {
+  @apply pt-2;
+}
+
+.array-list-item-move-up, 
+.array-list-item-move-down, 
+.array-list-item-delete {
+  @apply px-2 py-1 rounded text-xs flex items-center justify-center;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.array-list-item-move-up::before {
+  content: "↑";
+}
+
+.array-list-item-move-down::before {
+  content: "↓";
+}
+
+.array-list-item-delete::before {
+  content: "✕";
+}
+
+.array-list-item-move-up, 
+.array-list-item-move-down {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-700;
+}
+
+.array-list-item-delete {
+  @apply bg-red-100 hover:bg-red-200 text-red-700;
+}
+
+.expanded {
+  @apply border-blue-300;
+}
+
+/* Categorization */
+.categorization {
+  @apply mb-6;
+}
+
+.categorization-category {
+  @apply px-4 py-2 border-b cursor-pointer;
+}
+
+.categorization-selected {
+  @apply font-medium border-b-2 border-blue-500;
+}
+
+.categorization-panel {
+  @apply p-4;
+}
+
+/* Override labels for specific fields */
+[id$="workExperience-item"] .group-label,
+[id$="skills-item"] .group-label,
+[id$="education-item"] .group-label {
+  @apply text-blue-700 font-semibold;
+}
+
+/* Specific field styling for array items */
+[id^="workExperience"] .array-list-item {
+  @apply bg-white border-l-4 border-l-blue-200;
+}
+
+[id^="education"] .array-list-item {
+  @apply bg-white border-l-4 border-l-green-200;
+}
+
+[id^="skills"] .array-list-item {
+  @apply bg-white border-l-4 border-l-purple-200;
+}
+
+/* Spacing adjustments for nested items */
+[id^="workExperience"] .array-list-item .array-list-item,
+[id^="education"] .array-list-item .array-list-item,
+[id^="skills"] .array-list-item .array-list-item {
+  @apply ml-2 border-l-2;
+}
+
+/* Improve Button Styling */
+button {
+  @apply transition-colors duration-200;
+} 

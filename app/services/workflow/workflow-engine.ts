@@ -35,6 +35,18 @@ export class WorkflowEngine {
 		// Execute each step in order
 		for (const step of this.steps) {
 			try {
+				const promptTemplate = typeof step.prompt === 'function' ? step.prompt(context) : step.prompt;
+				const placeholders = promptTemplate.match(/{([^}]+)}/g) || [];
+
+				for (const placeholder of placeholders) {
+					const key = placeholder.replace('{', '').replace('}', '');
+					const value = context[key as keyof WorkflowContext] ?? context.intermediateResults[key];
+					
+					if (value === undefined) {
+						throw new Error(`Missing required context variable '{${key}}' for step '${step.id}'`);
+					}
+				}
+
 				const result = await this.executeStep(step, context);
 				// Add result to context with step ID as key
 				context = {
@@ -45,7 +57,11 @@ export class WorkflowEngine {
 					},
 				};
 			} catch (error) {
-				console.error(`Error executing step ${step.id}:`, error);
+				if (error instanceof Error && error.message.startsWith('Missing required context variable')) {
+					console.error(`Workflow halted at step ${step.id}: ${error.message}`);
+				} else {
+					console.error(`Error executing step ${step.id}:`, error);
+				}
 				throw error;
 			}
 		}

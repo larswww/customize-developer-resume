@@ -6,3 +6,11 @@ alwaysApply: true
 # react router
 - We are using react-router-framework. 
 - always import from react-router, not react-router-dom or @remix.run/node. 
+
+## Data mutations
+- For data mutations, use Actions (Form, action, useSubmit, clientAction)
+
+## Routing
+- https://reactrouter.com/start/framework/routing
+- Routes are defined in routes.ts
+- 

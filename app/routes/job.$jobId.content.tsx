@@ -98,10 +98,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     const initialContext: WorkflowContext = {
       jobDescription,
       workHistory: JSON.stringify(workHistory),
-      relevant: relevant || "",
-      experience: JSON.stringify(workHistory),
-      workExperience: JSON.stringify(workHistory),
-      resume: "",
       intermediateResults: {},
     };
 
@@ -398,7 +394,9 @@ export default function JobContent() {
         </div>
       )}
 
-      {actionData?.success && actionData.results?.['craft-resume'] && (
+      {Boolean(actionData?.success && 
+       actionData.results?.['extract-skills'] && 
+       actionData.results?.['craft-work-experience']) && (
          <div className="mt-4 flex justify-end">
             <Link
               to={`/job/${job.id}/resume`}

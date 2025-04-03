@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project
+- pnpm is using for installing packages and running the app
+- playwright mcp is installed, use it to test functionality
+- use 'pnpm playwright test' to test your work, and update test cases when functionality is added

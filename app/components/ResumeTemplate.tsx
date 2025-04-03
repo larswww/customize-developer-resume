@@ -1,75 +1,26 @@
-import React from "react";
-
-// Define the structured data interfaces
-export interface WorkExperience {
-	title: string;
-	company: string;
-	location: string;
-	dates: string;
-	description: string[];
-	highlights?: string[];
-}
-
-export interface Education {
-	degree: string;
-	institution: string;
-	dates: string;
-	location: string;
-}
-
-export interface Skill {
-	category: string;
-	items: string[];
-}
-
-export interface ContactInfo {
-	name: string;
-	title: string;
-	location: string;
-	phone: string;
-	email: string;
-	github: string;
-	linkedin: string;
-}
-
-export interface ResumeData {
-	contactInfo: ContactInfo;
-	workExperience: WorkExperience[];
-	education: Education[];
-	skills: Skill[];
-	otherInfo?: {
-		title: string;
-		items: string[];
-	};
-	languages?: string[];
-}
-
+import type { ResumeData } from "../config/resumeTemplates.config";
 interface ResumeTemplateProps {
 	data: ResumeData;
 }
 
 export function ResumeTemplate({ data }: ResumeTemplateProps) {
-	// Hardcoded contact info (can be replaced with data from props if needed)
-	const contactInfo = {
-		name: "LARS WÖLDERN",
-		title: "Product Engineer",
-		location: "Amsterdam & Remote",
-		phone: "+31 6 2526 6752",
-		email: "lars@productworks.nl",
-		github: "github.com/larswww",
-		linkedin: "linkedin.com/in/larswo",
-	};
+	const contactInfo = data.contactInfo;
+	const education = data.education?.[0] ?? null;
+	const skills = data.skills || [];
+
+	const otherInfo = data.otherInfo;
+	const languages = data.languages;
 
 	return (
-		<div className="resume-container w-[8.5in] h-[11in] flex flex-col bg-white shadow-lg print:shadow-none">
+		<div className="resume-container print:w-full print:h-auto flex flex-col bg-white shadow-lg print:shadow-none">
 			{/* Split layout with sidebar */}
-			<div className="flex flex-row h-full">
+			<div className="flex flex-row h-full flex-grow">
 				{/* Left sidebar */}
 				<div
 					className="w-[30%] bg-gray-50 flex flex-col"
 					style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
 				>
-					{/* Yellow contact section at top */}
+					{/* Yellow contact section at top - Uses dynamic contactInfo */}
 					<div
 						className="bg-yellow-300 p-5 pb-5"
 						style={{
@@ -80,10 +31,10 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					>
 						<div className="mb-3">
 							<h1 className="text-3xl font-bold uppercase leading-tight">
-								LARS
+								{contactInfo.name.split(' ')[0]} {/* Simple split for first name */}
 							</h1>
 							<h1 className="text-3xl font-bold uppercase mb-0 leading-tight">
-								WÖLDERN
+								{contactInfo.name.split(' ').slice(1).join(' ')} {/* Rest of name */} 
 							</h1>
 							<p className="text-lg italic">{contactInfo.title}</p>
 						</div>
@@ -96,98 +47,115 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								<span className="mr-2">📞</span> {contactInfo.phone}
 							</p>
 							<p className="flex items-center text-sm">
-								<span className="mr-2">✉️</span> {contactInfo.email}
+								<span className="mr-2">✉️</span> 
+								<a href={`mailto:${contactInfo.email}`} className="hover:underline">{contactInfo.email}</a>
 							</p>
+							{contactInfo.portfolio && (
+								<p className="flex items-center text-sm">
+									<span className="mr-2">💼</span> 
+									<a 
+										href={contactInfo.portfolio.startsWith('http') ? contactInfo.portfolio : `https://${contactInfo.portfolio}`}
+										target="_blank" 
+										rel="noopener noreferrer"
+										className="hover:underline"
+									>
+										{contactInfo.portfolio.replace(/^https?:\/\//, '')}
+									</a>
+								</p>
+							)}
 							<p className="flex items-center text-sm">
-								<span className="mr-2">🔗</span> {contactInfo.github}
-							</p>
-							<p className="flex items-center text-sm">
-								<span className="mr-2">🔗</span> {contactInfo.linkedin}
+								<span className="mr-2">🔗</span> 
+								<a 
+									href={contactInfo.linkedin.startsWith('http') ? contactInfo.linkedin : `https://${contactInfo.linkedin}`}
+									target="_blank" 
+									rel="noopener noreferrer"
+									className="hover:underline"
+								>
+									{contactInfo.linkedin.replace(/^https?:\/\//, '')} {/* Display without protocol */}
+								</a>
 							</p>
 						</div>
 					</div>
 
 					{/* Rest of sidebar in grey */}
 					<div className="p-5 pt-4">
-						<h2 className="text-xl font-bold uppercase mb-2">EDUCATION</h2>
-						<p className="font-bold text-sm">B.S. Computer Science</p>
-						<p className="text-sm">Linnaeus University</p>
-						<p className="text-sm">2015-2018</p>
-						<p className="text-sm">Kalmar, Sweden</p>
+						{education && (
+							<>
+								<h2 className="text-xl font-bold uppercase mb-2">EDUCATION</h2>
+								<p className="font-bold text-sm">{education.degree}</p>
+								<p className="text-sm">{education.institution}</p>
+								<p className="text-sm">{education.dates}</p>
+								<p className="text-sm">{education.location}</p>
+							</>
+						)}
 
 						<h2 className="text-xl font-bold uppercase mt-5 mb-2">SKILLS</h2>
 
-						{/* Frontend skills */}
-						<div className="mb-3">
-							<p className="font-bold text-gray-700 text-sm">Frontend</p>
-							<div className="space-y-0">
-								<p className="text-sm">TypeScript</p>
-								<p className="text-sm">E2E Testing</p>
-								<p className="text-sm">Frontend & Frameworks (React/Vue)</p>
-								<p className="text-sm">Mobile-first</p>
-								<p className="text-sm">Browser APIs & Service Workers</p>
-								<p className="text-sm">SEO & Performance</p>
+						{/* --- Dynamic Skills Section --- */}
+						{skills.map((skillCategory) => (
+							<div key={skillCategory.category} className="mb-3">
+								<p className="font-bold text-gray-700 text-sm uppercase">{skillCategory.category}</p>
+								<div className="space-y-0">
+									{skillCategory.items.map((item) => (
+										<p key={item.name} className="text-sm">
+											{item.name}
+											{item.context && (
+												<span className="text-xs text-gray-500 ml-1">({item.context})</span>
+											)}
+										</p>
+									))}
+								</div>
 							</div>
-						</div>
+						))}
+						{/* --- End Dynamic Skills Section --- */}
 
-						{/* Backend skills */}
-						<div className="mb-3">
-							<p className="font-bold text-gray-700 text-sm">Backend</p>
-							<div className="space-y-0">
-								<p className="text-sm">Python</p>
-								<p className="text-sm">Postgres & SQL modelling</p>
-								<p className="text-sm">Docker & multi-container deploy</p>
-								<p className="text-sm">AWS & Cloud</p>
-								<p className="text-sm">DevOps & Release strategies</p>
+						{/* --- Dynamic Other Info Section (Optional) --- */}
+						{otherInfo?.items?.length > 0 && (
+							<>
+								<h2 className="text-xl font-bold uppercase mt-5 mb-2">{otherInfo.title || 'OTHER'}</h2>
+								{otherInfo.items.map((item) => (
+									<p key={item} className="text-sm">{item}</p>
+								))}
+							</>
+						)}
+						{/* --- End Dynamic Other Info Section --- */}
+
+						{/* --- Dynamic Languages Section (Optional) --- */}
+						{languages && languages.length > 0 && (
+							<div className="mt-3 flex items-center space-x-1">
+								{languages.map((lang) => (
+									<span key={lang} className="w-5 h-5">{lang}</span>
+								))}
 							</div>
-						</div>
-
-						{/* Soft skills */}
-						<div className="mb-3">
-							<p className="font-bold text-gray-700 text-sm">Soft</p>
-							<div className="space-y-0">
-								<p className="text-sm">Client Relationship Management</p>
-								<p className="text-sm">Team Leadership</p>
-								<p className="text-sm">Design Sprint</p>
-								<p className="text-sm">Agile</p>
-							</div>
-						</div>
-
-						<h2 className="text-xl font-bold uppercase mt-5 mb-2">OTHER</h2>
-						<p className="text-sm">Volunteer at HackYourFuture</p>
-
-						<div className="mt-3 flex items-center space-x-1">
-							<span className="w-5 h-5">🇸🇪</span>
-							<span className="w-5 h-5">🇬🇧</span>
-							<span className="w-5 h-5">🇳🇱</span>
-						</div>
+						)}
+						{/* --- End Dynamic Languages Section --- */}
 					</div>
 				</div>
 
-				{/* Right content area */}
-				<div className="w-[70%] p-8">
-					<h2 className="text-2xl font-bold uppercase mb-6">WORK EXPERIENCE</h2>
+				{/* Right content area - Work Experience */}
+				<div className="w-[70%] p-8 overflow-y-auto flex-grow">
+					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">WORK EXPERIENCE</h2>
 
 					{data.workExperience.map((job) => (
-						<div key={`job-${job.company}-${job.title}`} className="mb-8">
-							<div className="mb-2">
-								<div className="flex justify-between items-baseline">
-									<span className="font-bold text-lg">{job.title},</span>
-									<span className="text-right">{job.dates}</span>
+						<div key={`job-${job.company}-${job.title}`} className="mb-6">
+							<div className="mb-1">
+								<div className="flex justify-between items-baseline mb-0.5">
+									<span className="font-bold text-lg text-gray-900">{job.title}</span>
+									<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">{job.dates}</span>
 								</div>
-								<p>
+								<p className="text-sm text-gray-600">
 									{job.company}, {job.location}
 								</p>
 							</div>
 
 							{job.description.map((desc, idx) => (
-								<p key={`desc-${job.company}-${idx}`} className="mb-2">
+								<p key={`desc-${job.company}-${idx}`} className="mb-2 text-gray-800">
 									{desc}
 								</p>
 							))}
 
 							{job.highlights && (
-								<ul className="list-disc pl-5 mt-2">
+								<ul className="list-disc pl-5 mt-2 text-gray-700">
 									{job.highlights.map((highlight, idx) => (
 										<li
 											key={`highlight-${job.company}-${idx}`}
