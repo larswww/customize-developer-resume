@@ -55,6 +55,18 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+// Helper debounce function (you might want to put this in a utils file later)
+function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+  return (...args: Parameters<F>): void => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => func(...args), waitFor);
+  };
+}
+
 // --- Removed Reusable Components (they are now in separate files) ---
 
 export default function EditWorkHistory() {
@@ -92,13 +104,35 @@ export default function EditWorkHistory() {
     }
 }, [initialWorkHistory, navigation.state]); // Added navigation.state dependency
 
+  // --- Debounced Handler ---
+  // Debounce the state update function with a 300ms delay
+  const debouncedSetEditorContent = useRef(
+    debounce((markdown: string) => {
+        setEditorContent(markdown);
+        // Update hasChanges based on the debounced value compared to initial
+        if (!hasChanges && markdown !== initialWorkHistory) {
+            setHasChanges(true);
+        } else if (hasChanges && markdown === initialWorkHistory) {
+            // If content reverts to initial, reset hasChanges
+            setHasChanges(false);
+        }
+    }, 300)
+  ).current;
 
+  // This function is passed to the editor's onChange prop
   const handleEditorChange = (markdown: string) => {
-    setEditorContent(markdown);
-    if (!hasChanges && markdown !== initialWorkHistory) {
-        setHasChanges(true);
-    }
+    // Call the debounced function to update state and check changes
+    debouncedSetEditorContent(markdown);
   };
+  // --- End Debounced Handler ---
+
+  // Cleanup debounce timer on component unmount
+  useEffect(() => {
+      // For this simple case, we'll omit explicit cleanup, but be aware in production.
+      return () => {
+        // potential cleanup logic if debounce was implemented differently
+      };
+  }, []); // <-- Remove debouncedSetEditorContent from dependencies
 
   const formId = "work-history-form";
 

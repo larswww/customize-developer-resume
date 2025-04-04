@@ -1,58 +1,74 @@
-import type { AIClient, AIRequestOptions, AIResponse } from "./types";
+import Anthropic from "@anthropic-ai/sdk";
+import type {
+	TextBlockParam,
+	MessageParam,
+} from "@anthropic-ai/sdk/resources/messages";
+import type {
+	AIClient,
+	AIRequestOptions,
+	AIResponse,
+	AnthropicSystemParam,
+} from "./types";
 
 export class AnthropicClient implements AIClient {
-	private apiKey: string;
+	private client: Anthropic;
 
 	constructor(apiKey: string) {
-		this.apiKey = apiKey;
+		this.client = new Anthropic({ apiKey });
 	}
 
 	async generate(
 		prompt: string,
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
-		console.log("[Anthropic Client] Making request to Anthropic API");
+		console.log("[Anthropic Client] Making request to Anthropic API via SDK");
 
-		// Use these exact headers and method to ensure MSW intercepts the request
-		const response = await fetch("https://api.anthropic.com/v1/messages", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"x-api-key": this.apiKey,
-				"anthropic-version": "2023-06-01",
+		const messages: MessageParam[] = [
+			{
+				role: "user",
+				content: prompt,
 			},
-			body: JSON.stringify({
-				messages: [
-					{
-						role: "user",
-						content: prompt,
-					},
-				],
-				model: options.model || "claude-3-7-sonnet-20250219",
-				max_tokens: options.maxTokens || 1000,
-				temperature: options.temperature || 0.7,
-				system: options.systemPrompt,
-			}),
-		});
+		];
 
-		if (!response.ok) {
-			const errorText = await response.text();
-			const errorData = errorText ? JSON.parse(errorText) : {};
-			console.error("[Anthropic Client] Error response:", errorData);
-			throw new Error(
-				`Anthropic API error: ${response.statusText} - ${JSON.stringify(errorData)}`,
-			);
+		// Handle system prompt for Anthropic SDK
+		let systemForSdk: string | TextBlockParam[] | undefined;
+		if (typeof options.systemPrompt === "string") {
+			systemForSdk = options.systemPrompt; // Pass simple string directly
+		} else if (Array.isArray(options.systemPrompt)) {
+			// Use type assertion to allow cache_control
+			systemForSdk = options.systemPrompt as TextBlockParam[];
 		}
 
-		const data = await response.json();
-		console.log("[Anthropic Client] Received response from Anthropic API");
+		try {
+			const response = await this.client.messages.create({
+				model: options.model || "claude-3-sonnet-20240229",
+				max_tokens: options.maxTokens || 4096,
+				messages: messages,
+				temperature: options.temperature || 0.7,
+				// Use the prepared system prompt for the SDK call
+				system: systemForSdk,
+			});
 
-		return {
-			text: data.content[0].text,
-			metadata: {
-				model: data.model,
-				usage: data.usage,
-			},
-		};
+			console.log("[Anthropic Client] Received response from Anthropic API via SDK");
+
+			const textContent =
+				response.content.find((block) => block.type === "text")?.text || "";
+
+			return {
+				text: textContent,
+				metadata: {
+					model: response.model,
+					usage: response.usage,
+				},
+			};
+		} catch (error: any) {
+			console.error(
+				"[Anthropic Client] Error calling Anthropic API:",
+				error.message,
+			);
+			throw new Error(
+				`Anthropic SDK error: ${error.message || "Unknown error"}`,
+			);
+		}
 	}
 }

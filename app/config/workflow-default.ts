@@ -43,7 +43,8 @@ Instructions:
 """{jobDescription}"""
 
 Work experience:
-"""{workHistory}"""`
+"""{workHistory}"""`,
+	useInResume: true
   },
   {
     id: "craft-work-experience",
@@ -66,7 +67,8 @@ Customizations instructions:
 """{job-description-analysis}"""
 
 Work experience:
-"""{workHistory}"""`
+"""{workHistory}"""`,
+	useInResume: true
   },
   {
     id: "generate-motivation",

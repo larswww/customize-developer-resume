@@ -6,6 +6,7 @@ import {
   useLoaderData,
   useNavigation,
   useSubmit,
+  useSearchParams,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { generateStructuredResume } from "../services/ai/resumeStructuredDataService";
@@ -13,34 +14,25 @@ import { printResumeElement } from "../utils/print.client";
 import { downloadResumeAsPdf } from "../utils/pdf.client";
 import dbService from "../services/db/dbService";
 import {
-  defaultTemplateConfig,
-  ResumeCoreDataSchema,
-} from "../config/resumeTemplates.config";
-import type {
-  ResumeData,
-  ContactInfo,
-  ResumeCoreData,
-} from "../config/resumeTemplates.config";
+  availableTemplates,
+  defaultTemplateId,
+  type ContactInfo,
+  type ResumeTemplateConfig,
+  globalResumeConstants
+} from "../templates";
+import type { DefaultResumeData } from "../templates/default";
+import type { SimpleConsultantData } from "../templates/simpleConsultant";
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { JsonForms } from "@jsonforms/react";
 import { vanillaCells, vanillaRenderers } from "@jsonforms/vanilla-renderers";
+import {
+  materialRenderers,
+  materialCells,
+} from '@jsonforms/material-renderers';
 import type { JsonSchema } from "@jsonforms/core";
-import { PageLayout } from "~/components/PageLayout";
-const outputSchema = zodToJsonSchema(ResumeCoreDataSchema);
-
-// Default/Fallback Contact Info (from image)
-const defaultContactInfo: ContactInfo = {
-  name: "LARS WÖLDERN",
-  title: "Product Engineer",
-  location: "Amsterdam & Remote",
-  phone: "+31 6 2526 6752",
-  email: "lars@productworks.nl",
-  linkedin: "linkedin.com/in/larswo",
-  portfolio: "productworks.nl",
-};
-
-// Use the config for the component
-const CurrentResumeTemplate = defaultTemplateConfig.component;
+import { workflows, defaultWorkflowId } from "../config/workflows";
+import type { WorkflowStep } from "../services/ai/types";
+import { JobControlsHeader } from "../components/JobControlsHeader";
 
 export function meta() {
   return [
@@ -49,88 +41,96 @@ export function meta() {
   ];
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
+export async function loader({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
+  const url = new URL(request.url);
+  const selectedWorkflowId = url.searchParams.get("workflow") || defaultWorkflowId;
+  const selectedTemplateId = url.searchParams.get("template") || defaultTemplateId;
 
   if (Number.isNaN(jobId)) {
     throw new Response("Invalid job ID", { status: 400 });
   }
 
-  // Get job from database
   const job = dbService.getJob(jobId);
 
   if (!job) {
     throw new Response("Job not found", { status: 404 });
   }
 
-  // Get resume data if exists (this contains the full structure including contactInfo)
   const resumeData = dbService.getResume(jobId);
 
-  // Get relevant workflow step results
-  const skillsStep = dbService.getWorkflowStep(jobId, "extract-skills");
-  const workExperienceStep = dbService.getWorkflowStep(
-    jobId,
-    "craft-work-experience"
-  );
+  const selectedWorkflow: { steps: WorkflowStep[] } | undefined = workflows[selectedWorkflowId];
+  if (!selectedWorkflow) {
+    throw new Error(`Workflow '${selectedWorkflowId}' not found.`);
+  }
 
-  const skillsText = skillsStep?.result || "";
-  const workExperienceText = workExperienceStep?.result || "";
+  const selectedTemplateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
+  if (!selectedTemplateConfig) {
+      throw new Error(`Default template config not found.`);
+  }
+
+  const resumeSourceSteps = selectedWorkflow.steps.filter(step => step.useInResume);
+
+  const sourceTexts: Record<string, string> = {};
+  for (const step of resumeSourceSteps) {
+    const stepResult = dbService.getWorkflowStep(jobId, step.id);
+    sourceTexts[step.id] = stepResult?.result || "";
+  }
+
+  const availableWorkflows = Object.entries(workflows).map(([id, config]: [string, { label: string }]) => ({
+	id,
+	label: config.label,
+  }));
+
+  const templatesList = Object.values(availableTemplates).map((config: ResumeTemplateConfig) => ({
+    id: config.id,
+    name: config.name,
+  }));
 
   return {
     job,
-    resumeData, // Contains previously generated structuredData (incl. contactInfo) if available
-    skillsText, // Pass the raw texts needed for generation
-    workExperienceText,
+    resumeData,
+    sourceTexts,
+    resumeSourceSteps: resumeSourceSteps.map(s => ({ id: s.id, name: s.name })),
+    selectedWorkflowId,
+    availableWorkflows,
+    selectedTemplateId,
+    templatesList,
+    currentDefaultContactInfo: selectedTemplateConfig.defaultContactInfo,
   };
 }
 
-// --- Helper function to extract contact info --- (New)
-function getContactInfoFromFormData(formData: FormData): ContactInfo {
+function getContactInfoFromFormData(
+  formData: FormData,
+  currentDefaults: ContactInfo
+): ContactInfo {
   return {
-    name:
-      (formData.get("name") as string) ||
-      defaultTemplateConfig.defaultContactInfo.name,
-    title:
-      (formData.get("title") as string) ||
-      defaultTemplateConfig.defaultContactInfo.title,
-    location:
-      (formData.get("location") as string) ||
-      defaultTemplateConfig.defaultContactInfo.location,
-    phone:
-      (formData.get("phone") as string) ||
-      defaultTemplateConfig.defaultContactInfo.phone,
-    email:
-      (formData.get("email") as string) ||
-      defaultTemplateConfig.defaultContactInfo.email,
-    linkedin:
-      (formData.get("linkedin") as string) ||
-      defaultTemplateConfig.defaultContactInfo.linkedin,
-    portfolio:
-      (formData.get("portfolio") as string) ||
-      defaultTemplateConfig.defaultContactInfo.portfolio,
+    name: (formData.get("name") as string) || currentDefaults.name,
+    title: (formData.get("title") as string) || currentDefaults.title,
+    location: (formData.get("location") as string) || currentDefaults.location,
+    phone: (formData.get("phone") as string) || currentDefaults.phone,
+    email: (formData.get("email") as string) || currentDefaults.email,
+    linkedin: (formData.get("linkedin") as string) || currentDefaults.linkedin,
+    portfolio: (formData.get("portfolio") as string) || currentDefaults.portfolio,
   };
 }
 
-// --- NEW Helper function to save resume and format response ---
 async function saveAndFormatResumeResponse(
   jobId: number,
   contactInfo: ContactInfo,
-  coreData: ResumeCoreData,
+  coreData: any,
   actionType: "generate" | "save"
 ) {
-  // Combine contact info and core data
-  const finalResumeData: ResumeData = {
+  const finalResumeData: any = {
     contactInfo,
     ...coreData,
   };
 
-  // Save to the database
   dbService.saveResume({
     jobId: jobId,
     structuredData: finalResumeData,
   });
 
-  // Return success response
   return {
     success: true,
     resumeData: finalResumeData,
@@ -138,33 +138,46 @@ async function saveAndFormatResumeResponse(
   };
 }
 
-// --- Helper function for the 'generate' action --- (Refactored)
 async function handleGenerateResume(
   formData: FormData,
   job: { id: number; title: string; jobDescription: string },
-  contactInfo: ContactInfo
+  contactInfo: ContactInfo,
+  resumeSourceSteps: { id: string; name: string }[],
+  selectedTemplateId: string
 ) {
-  // Get Text Inputs from Form Data
-  const skillsText = (formData.get("skillsText") as string) || "";
-  const workExperienceText = (formData.get("workExperienceText") as string) || "";
-  const jobDescription = job.jobDescription;
+  const sourceTexts: Record<string, string> = {};
+  let missingSteps: string[] = [];
 
-  if (!skillsText || !workExperienceText) {
+  for (const step of resumeSourceSteps) {
+    const text = formData.get(step.id) as string | null;
+    if (!text || text.trim() === '') {
+        missingSteps.push(step.name);
+    }
+    sourceTexts[step.id] = text || '';
+  }
+
+  if (missingSteps.length > 0) {
     return {
       success: false,
-      error:
-        "Missing required input: Skills or Work Experience text cannot be empty.",
+      error: `Missing required input: Text for ${missingSteps.join(', ')} cannot be empty. Please ensure all source text sections are filled.`,
     };
   }
 
-  // Generate structured data
-  const generatedCoreData: ResumeCoreData = await generateStructuredResume(
-    `SKILLS: ${skillsText}\n\nWORK EXPERIENCE: ${workExperienceText}`,
+  const combinedSourceText = resumeSourceSteps
+    .map(step => `${step.name.toUpperCase()}:\n${sourceTexts[step.id]}`)
+    .join('\n\n---\n\n');
+
+  const jobDescription = job.jobDescription;
+
+  const templateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
+  const outputSchemaForGeneration = templateConfig.outputSchema;
+
+  const generatedCoreData: any = await generateStructuredResume(
+    combinedSourceText,
     jobDescription,
-    defaultTemplateConfig.outputSchema
+    outputSchemaForGeneration
   );
 
-  // Save and format response using the new helper
   return await saveAndFormatResumeResponse(
     job.id,
     contactInfo,
@@ -173,15 +186,13 @@ async function handleGenerateResume(
   );
 }
 
-// --- Helper function for the 'save' action --- (Refactored)
 async function handleSaveResume(
   formData: FormData,
   jobId: number,
   contactInfo: ContactInfo
 ) {
-  // Get Edited Core Data from Form Data
   const formDataJson = formData.get("formData") as string | null;
-  let editedCoreData: ResumeCoreData | null = null;
+  let editedCoreData: any = null;
 
   if (!formDataJson) {
     return {
@@ -207,62 +218,56 @@ async function handleSaveResume(
     };
   }
 
-  // Create a validated core data structure
-  const validatedCoreData: ResumeCoreData = {
-    workExperience: editedCoreData.workExperience || [],
-    education: editedCoreData.education || [],
-    skills: editedCoreData.skills || [],
-  };
+  const validatedCoreData = editedCoreData;
 
-  // Save and format response using the new helper
   return await saveAndFormatResumeResponse(
     jobId,
     contactInfo,
-    validatedCoreData, // Use the validated data
+    validatedCoreData,
     "save"
   );
 }
 
-// --- Main Action Function (Refactored) ---
 export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const actionType = formData.get("actionType") as "generate" | "save";
   const jobId = Number(params.jobId);
 
   if (Number.isNaN(jobId)) {
-    return {
-      success: false,
-      error: "Invalid job ID",
-    };
+    return { success: false, error: "Invalid job ID" };
   }
 
-  // Get job from database
   const job = dbService.getJob(jobId);
   if (!job) {
-    return {
-      success: false,
-      error: "Job not found",
-    };
+    return { success: false, error: "Job not found" };
   }
 
-  // Extract contact info once
-  const contactInfo = getContactInfoFromFormData(formData);
+  const url = new URL(request.url);
+  const selectedWorkflowId = url.searchParams.get("workflow") || defaultWorkflowId;
+  const selectedTemplateId = url.searchParams.get("template") || defaultTemplateId;
+
+  const selectedWorkflow = workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
+  if (!selectedWorkflow) {
+      return { success: false, error: `Workflow config not found for ID: ${selectedWorkflowId}` };
+  }
+  const resumeSourceSteps = selectedWorkflow.steps
+      .filter(step => step.useInResume)
+      .map(s => ({ id: s.id, name: s.name }));
+
+  const templateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
+  const currentDefaults = templateConfig.defaultContactInfo;
+  const contactInfo = getContactInfoFromFormData(formData, currentDefaults);
 
   try {
-    // Delegate to helper functions based on actionType
     if (actionType === "generate") {
-      return await handleGenerateResume(formData, job, contactInfo);
+      return await handleGenerateResume(formData, job, contactInfo, resumeSourceSteps, selectedTemplateId);
     }
 
     if (actionType === "save") {
       return await handleSaveResume(formData, jobId, contactInfo);
     }
 
-    // Invalid action type
-    return {
-      success: false,
-      error: "Invalid action type specified",
-    };
+    return { success: false, error: "Invalid action type specified" };
   } catch (error) {
     console.error(`Error in resume action handler (${actionType}):`, error);
     return {
@@ -275,7 +280,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-// --- NEW: ContactInfoForm Component ---
 interface ContactInfoFormProps {
   contactInfo: ContactInfo;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -298,7 +302,7 @@ function ContactInfoForm({ contactInfo, onChange }: ContactInfoFormProps) {
           <input
             type="text"
             id="name"
-            name="name" // Ensure name attribute matches state key
+            name="name"
             value={contactInfo.name}
             onChange={onChange}
             className="w-full p-2 border rounded shadow-sm"
@@ -405,86 +409,74 @@ function ContactInfoForm({ contactInfo, onChange }: ContactInfoFormProps) {
   );
 }
 
-// --- NEW: SourceTextInputs Component ---
 interface SourceTextInputsProps {
-  skillsText: string;
-  onSkillsChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  workExperienceText: string;
-  onWorkExperienceChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  sourceSteps: { id: string; name: string }[];
+  sourceTexts: Record<string, string>;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-function SourceTextInputs({
-  skillsText,
-  onSkillsChange,
-  workExperienceText,
-  onWorkExperienceChange,
-}: SourceTextInputsProps) {
+function SourceTextInputs({ sourceSteps, sourceTexts, onChange }: SourceTextInputsProps) {
+  if (!sourceSteps || sourceSteps.length === 0) {
+      return (
+          <div className="mb-6 p-4 border rounded bg-yellow-50 text-yellow-700">
+              No source text sections configured for this workflow in the resume step.
+          </div>
+      );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-      <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200">
-        <label
-          htmlFor="skillsText"
-          className="block text-lg font-semibold mb-2 text-gray-700"
-        >
-          Skills Text
-        </label>
-        <p className="text-sm text-gray-500 mb-2">
-          Edit the AI-generated skills list below before generating the final
-          resume sections.
-        </p>
-        <textarea
-          id="skillsText"
-          name="skillsText"
-          value={skillsText}
-          onChange={onSkillsChange}
-          className="w-full h-60 p-2 border rounded font-mono text-sm bg-gray-50"
-          placeholder="Skills text generated from previous step..."
-        />
-      </div>
-      <div className="bg-white shadow-md rounded-lg p-4 border border-gray-200">
-        <label
-          htmlFor="workExperienceText"
-          className="block text-lg font-semibold mb-2 text-gray-700"
-        >
-          Work Experience Text
-        </label>
-        <p className="text-sm text-gray-500 mb-2">
-          Edit the AI-generated work experience below before generating the final
-          resume sections.
-        </p>
-        <textarea
-          id="workExperienceText"
-          name="workExperienceText"
-          value={workExperienceText}
-          onChange={onWorkExperienceChange}
-          className="w-full h-60 p-2 border rounded font-mono text-sm bg-gray-50"
-          placeholder="Work experience text generated from previous step..."
-        />
-      </div>
+    <div className={`grid grid-cols-1 ${sourceSteps.length > 1 ? 'md:grid-cols-2' : ''} gap-6 mb-6`}>
+      {sourceSteps.map((step) => (
+        <div key={step.id} className="bg-white shadow-md rounded-lg p-4 border border-gray-200">
+          <label
+            htmlFor={step.id}
+            className="block text-lg font-semibold mb-2 text-gray-700"
+          >
+            {step.name} Text
+          </label>
+          <p className="text-sm text-gray-500 mb-2">
+            Edit the AI-generated {step.name.toLowerCase()} below before generating the final
+            resume sections.
+          </p>
+          <textarea
+            id={step.id}
+            name={step.id}
+            value={sourceTexts[step.id] || ''}
+            onChange={onChange}
+            className="w-full h-60 p-2 border rounded font-mono text-sm bg-gray-50"
+            placeholder={`${step.name} text generated from previous step...`}
+          />
+        </div>
+      ))}
     </div>
   );
 }
 
-// --- NEW: ResumeGenerationControls Component ---
 interface ResumeGenerationControlsProps {
   isSubmitting: boolean;
   isGenerating: boolean;
   isSaving: boolean;
-  skillsText: string;
-  workExperienceText: string;
-  formDataExists: boolean; // Pass whether formData is non-null
+  sourceSteps: { id: string; name: string }[];
+  sourceTexts: Record<string, string>;
+  formDataExists: boolean;
 }
 
 function ResumeGenerationControls({
   isSubmitting,
   isGenerating,
   isSaving,
-  skillsText,
-  workExperienceText,
+  sourceSteps,
+  sourceTexts,
   formDataExists,
 }: ResumeGenerationControlsProps) {
-  const generateDisabled = isSubmitting || !skillsText || !workExperienceText;
+
+  const allSourceTextsPresent = sourceSteps.every(step => sourceTexts[step.id] && sourceTexts[step.id].trim() !== '');
+  const generateDisabled = isSubmitting || !allSourceTextsPresent;
   const saveDisabled = isSubmitting || !formDataExists;
+  const missingTexts = sourceSteps
+    .filter(step => !sourceTexts[step.id] || sourceTexts[step.id].trim() === '')
+    .map(step => step.name)
+    .join(', ');
 
   return (
     <div className="bg-white shadow-md rounded-lg p-6 mb-8 border border-gray-200">
@@ -493,9 +485,7 @@ function ResumeGenerationControls({
         to generate or save the structured resume sections.
       </p>
 
-      {/* Action Buttons: Generate and Save */}
       <div className="flex items-center gap-4 mt-4">
-        {/* Generate Button */}
         <button
           type="submit"
           name="actionType"
@@ -503,34 +493,14 @@ function ResumeGenerationControls({
           className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center"
           disabled={generateDisabled}
           title={
-            !skillsText || !workExperienceText
-              ? "Skills or Work Experience text is empty"
+            generateDisabled
+              ? `Cannot generate: Required text missing for: ${missingTexts || 'Unknown sections'}`
               : "Generate structured resume sections"
           }
         >
-          {isGenerating ? (
+           {isGenerating ? (
             <>
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
               Generating...
             </>
           ) : (
@@ -538,7 +508,6 @@ function ResumeGenerationControls({
           )}
         </button>
 
-        {/* Save Changes Button */}
         <button
           type="submit"
           name="actionType"
@@ -546,34 +515,14 @@ function ResumeGenerationControls({
           className="px-6 py-3 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 disabled:bg-gray-400 flex items-center"
           disabled={saveDisabled}
           title={
-            !formDataExists
-              ? "Generate resume first or load existing data"
+            saveDisabled
+              ? "Generate resume first or load existing data before saving"
               : "Save current edits"
           }
         >
           {isSaving ? (
             <>
-              <svg
-                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
               Saving...
             </>
           ) : (
@@ -581,16 +530,15 @@ function ResumeGenerationControls({
           )}
         </button>
       </div>
-      {(!skillsText || !workExperienceText) && (
+      {!allSourceTextsPresent && (
         <p className="mt-2 text-sm text-yellow-700">
-          Skills or Work Experience text cannot be empty.
+          Required text missing for: {missingTexts || 'Unknown sections'}. Please fill all sections before generating.
         </p>
       )}
     </div>
   );
 }
 
-// --- NEW: ResumePreviewActions Component ---
 interface ResumePreviewActionsProps {
   onPrint: () => void;
   onDownloadPdf: () => Promise<void>;
@@ -601,27 +549,12 @@ function ResumePreviewActions({ onPrint, onDownloadPdf }: ResumePreviewActionsPr
     <div className="mb-4 flex justify-between items-center">
       <h2 className="text-xl font-bold">Generated Resume Preview</h2>
       <div className="flex gap-3">
-        <button
+         <button
           type="button"
           onClick={onPrint}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center gap-2"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <title>Print</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-            />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><title>Print</title><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
           Print
         </button>
         <button
@@ -629,22 +562,7 @@ function ResumePreviewActions({ onPrint, onDownloadPdf }: ResumePreviewActionsPr
           onClick={onDownloadPdf}
           className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 flex items-center gap-2"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <title>Download as PDF</title>
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><title>Download as PDF</title><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           Download as PDF
         </button>
       </div>
@@ -652,28 +570,33 @@ function ResumePreviewActions({ onPrint, onDownloadPdf }: ResumePreviewActionsPr
   );
 }
 
-// --- NEW: ResumePreview Component ---
 interface ResumePreviewProps {
-  displayData: ResumeData | null;
+  displayData: DefaultResumeData | SimpleConsultantData | null;
   resumeRef: React.RefObject<HTMLDivElement | null>;
-  TemplateComponent: React.ComponentType<{ data: ResumeData }>;
+  TemplateComponent: React.ComponentType<{ 
+    data: DefaultResumeData | SimpleConsultantData;
+  }> | null;
   isGenerating: boolean;
 }
 
-function ResumePreview({
-  displayData,
-  resumeRef,
-  TemplateComponent,
+function ResumePreview({ 
+  displayData, 
+  resumeRef, 
+  TemplateComponent, 
   isGenerating,
 }: ResumePreviewProps) {
   return (
     <div className="mb-20">
       <div className="bg-white shadow-xl rounded-lg overflow-hidden">
         <div ref={resumeRef} id="printable-resume">
-          {displayData ? (
-            <TemplateComponent data={displayData} />
+          {TemplateComponent && displayData ? (
+            <TemplateComponent 
+              data={displayData} 
+            />
           ) : isGenerating ? (
             <p className="p-8 text-center text-gray-500">Generating preview...</p>
+          ) : !TemplateComponent ? (
+            <p className="p-8 text-center text-red-500">Selected template component not found.</p>
           ) : null}
         </div>
       </div>
@@ -681,139 +604,108 @@ function ResumePreview({
   );
 }
 
-// Default export: The main React component for this route
 export default function JobResume() {
   const {
     job,
     resumeData,
-    skillsText: initialSkillsText,
-    workExperienceText: initialWorkExperienceText,
+    sourceTexts: initialSourceTexts,
+    resumeSourceSteps,
+    selectedWorkflowId: initialSelectedWorkflowId,
+    availableWorkflows,
+    selectedTemplateId: initialSelectedTemplateId,
+    templatesList,
+    currentDefaultContactInfo,
   } = useLoaderData<{
-    job: {
-      id: number;
-      title: string;
-      jobDescription: string;
-    };
-    resumeData: {
-      structuredData?: ResumeData; // Full data structure from DB
-    } | null;
-    skillsText: string;
-    workExperienceText: string;
+    job: { id: number; title: string; jobDescription: string };
+    resumeData: { structuredData?: any } | null;
+    sourceTexts: Record<string, string>;
+    resumeSourceSteps: { id: string; name: string }[];
+    selectedWorkflowId: string;
+    availableWorkflows: Array<{ id: string; label: string }>;
+    selectedTemplateId: string;
+    templatesList: Array<{ id: string; name: string }>;
+    currentDefaultContactInfo: ContactInfo;
   }>();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState(initialSelectedWorkflowId);
+  const [selectedTemplateId, setSelectedTemplateId] = useState(initialSelectedTemplateId);
+
+  const handleWorkflowChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newWorkflowId = event.target.value;
+    setSearchParams({ workflow: newWorkflowId, template: selectedTemplateId }, { replace: true });
+  };
+
+  const handleTemplateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTemplateId = event.target.value;
+    setSearchParams({ workflow: selectedWorkflowId, template: newTemplateId }, { replace: true });
+  };
 
   const [error, setError] = useState<string | null>(null);
   const resumeRef = useRef<HTMLDivElement>(null);
   const submit = useSubmit();
 
-  // --- State for Editable Contact Info (Consolidated) ---
-  const initialContactInfo =
-    resumeData?.structuredData?.contactInfo || defaultContactInfo;
-  const [contactInfo, setContactInfo] = useState<ContactInfo>(initialContactInfo);
-
-  // --- Single handler for contact info changes --- (New)
+  const [contactInfo, setContactInfo] = useState<ContactInfo>(currentDefaultContactInfo);
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setContactInfo((prev) => ({
-      ...prev,
-      [name]: value, // Use input name attribute to update the correct key
-    }));
+    setContactInfo((prev: ContactInfo) => ({ ...prev, [name]: value }));
   };
 
-  // --- State for Editable Text Inputs ---
-  const [currentSkillsText, setCurrentSkillsText] = useState(
-    initialSkillsText || ""
+  const [currentSourceTexts, setCurrentSourceTexts] = useState<Record<string, string>>(
+    initialSourceTexts || {}
   );
-  const [currentWorkExperienceText, setCurrentWorkExperienceText] = useState(
-    initialWorkExperienceText || ""
-  );
+  const handleSourceTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCurrentSourceTexts((prev) => ({ ...prev, [name]: value }));
+  };
 
-  // --- State for JsonForms Data ---
-  // Ensure formData is initialized with a valid structure, even if empty
-  const initialCoreData: ResumeCoreData = resumeData?.structuredData
-    ? {
-        workExperience: resumeData.structuredData.workExperience || [],
-        education: resumeData.structuredData.education || [],
-        skills: resumeData.structuredData.skills || [],
-      }
-    : {
-        workExperience: [],
-        education: [],
-        skills: [],
-      };
-  const [formData, setFormData] = useState<ResumeCoreData>(initialCoreData);
+  const [formData, setFormData] = useState<any>({});
+  const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] = useState(false);
 
-  // NEW: State to track if data exists (loaded or generated)
-  const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] = useState(
-    !!resumeData?.structuredData // Initialize based on loader data
-  );
-
-  const actionData = useActionData<{
-    success?: boolean;
-    resumeData?: ResumeData; // Action returns the full ResumeData now
-    actionType?: "generate" | "save";
-    error?: string;
-  }>();
-
+  const actionData = useActionData<{ success?: boolean; resumeData?: any; error?: string }>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
-  const isGenerating =
-    isSubmitting &&
-    navigation.formData?.get("actionType") === "generate";
-  const isSaving =
-    isSubmitting && navigation.formData?.get("actionType") === "save";
+  const isGenerating = isSubmitting && navigation.formData?.get("actionType") === "generate";
+  const isSaving = isSubmitting && navigation.formData?.get("actionType") === "save";
 
-  // Use formData state for the live preview of core data
-  const currentCoreData = formData;
+  const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
+  const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
-  // This structure will be passed to the template
-  // Combine live contact info (state), live core data (formData state),
-  // and optional sections from the last full data load/generation.
-  const latestFullData = actionData?.resumeData || resumeData?.structuredData;
-  const displayData: ResumeData | null = currentCoreData
-    ? {
-        contactInfo: contactInfo, // Use the contactInfo state directly
-        ...currentCoreData, // Use the live edited data from formData state
-        // Get optional sections from the most recent full data source
-        otherInfo: latestFullData?.otherInfo,
-        languages: latestFullData?.languages,
-      }
-    : null;
+  const displayData: DefaultResumeData | SimpleConsultantData | null = 
+    formData && Object.keys(formData).length > 0
+      ? {
+          education: globalResumeConstants.education,
+          contactInfo: contactInfo,
+          ...formData,
+        } as DefaultResumeData | SimpleConsultantData
+      : null;
 
-  // Update state if action returns new data (Updated for consolidated state)
   useEffect(() => {
-    if (actionData?.success && actionData?.resumeData?.contactInfo) {
-      // Update contact info state directly
-      setContactInfo(actionData.resumeData.contactInfo);
-    }
-    // Update formData state (remains the same)
     if (actionData?.success && actionData?.resumeData) {
-      const { contactInfo, ...coreData } = actionData.resumeData;
-      setFormData({
-        workExperience: coreData.workExperience || [],
-        education: coreData.education || [],
-        skills: coreData.skills || [],
-      });
-      setHasLoadedOrGeneratedData(true); // Mark data as available upon successful action
+      const { contactInfo: _, ...coreDataFromAction } = actionData.resumeData;
+      setFormData(coreDataFromAction);
+      setHasLoadedOrGeneratedData(true);
+      setError(null);
     }
-    // Handle error (remains the same)
     if (actionData?.error) {
       setError(actionData.error);
     }
   }, [actionData]);
 
-  // Initialize formData state from loader data (remains the same)
   useEffect(() => {
-    if (formData === null && resumeData?.structuredData) {
-      const { contactInfo, ...coreData } = resumeData.structuredData;
-      setFormData({
-        workExperience: coreData.workExperience || [],
-        education: coreData.education || [],
-        skills: coreData.skills || [],
-      });
-    }
-  }, [resumeData, formData]);
+    const loadedCoreData = resumeData?.structuredData 
+        ? (({ contactInfo, education, ...core }) => core)(resumeData.structuredData)
+        : {};
+    setFormData(loadedCoreData);
+    
+    const initialContact = resumeData?.structuredData?.contactInfo || currentDefaultContactInfo;
+    setContactInfo(initialContact);
+    
+    setCurrentSourceTexts(initialSourceTexts || {});
+    
+    setHasLoadedOrGeneratedData(!!resumeData?.structuredData);
+  }, [resumeData, currentDefaultContactInfo, initialSourceTexts]);
 
-  // --- Define handlers for preview actions ---
   const handlePrintClick = () => {
     setError(null);
     printResumeElement("printable-resume", setError);
@@ -833,16 +725,18 @@ export default function JobResume() {
     });
   };
 
-  const formId = "resume-form"; // Added formId for PageLayout
+  const formId = "resume-form";
+  const formActionUrl = `/job/${job.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
 
   return (
     <>
       <div className="max-w-6xl mx-auto px-6 pt-6 mb-6 flex justify-between items-start">
         <div>
           <h1 className="text-2xl font-bold">{`Resume Builder for ${job.title}`}</h1>
-          <p className="text-sm text-gray-500">
-            Preview the generated resume on the left and edit the structured data on the right.
-          </p>
+          <div className="text-sm text-gray-500 flex gap-4">
+            <span>Workflow: {workflows[selectedWorkflowId]?.label || 'Unknown'}</span>
+            <span>Template: {CurrentTemplateConfig?.name || 'Unknown'}</span>
+          </div>
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <Link
@@ -852,44 +746,59 @@ export default function JobResume() {
             Back to Dashboard
           </Link>
           <Link
-            to={`/job/${job.id}/content`}
+            to={`/job/${job.id}/content?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`}
             className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
           >
-            View Generated Content
+            View/Edit Source Content
           </Link>
         </div>
       </div>
 
-      <Form method="post" id={formId}>
+      <Form method="post" id={formId} action={formActionUrl}>
         <div className="max-w-6xl mx-auto px-6 pt-0">
+          <JobControlsHeader
+            availableWorkflows={availableWorkflows}
+            currentWorkflowId={selectedWorkflowId}
+            onWorkflowChange={handleWorkflowChange}
+            workflowLabel="Select Resume Generation Workflow"
+            availableTemplates={templatesList}
+            currentTemplateId={selectedTemplateId}
+            onTemplateChange={handleTemplateChange}
+            templateLabel="Select Resume Template"
+          />
+          
           <ContactInfoForm contactInfo={contactInfo} onChange={handleContactChange} />
+
           <SourceTextInputs
-            skillsText={currentSkillsText}
-            onSkillsChange={(e) => setCurrentSkillsText(e.target.value)}
-            workExperienceText={currentWorkExperienceText}
-            onWorkExperienceChange={(e) => setCurrentWorkExperienceText(e.target.value)}
+            sourceSteps={resumeSourceSteps}
+            sourceTexts={currentSourceTexts}
+            onChange={handleSourceTextChange}
           />
 
           {error && (
-            <div className="text-red-500 mb-4 p-4 border border-red-200 rounded bg-red-50">
-              {error}
-            </div>
-          )}
-          <ResumeGenerationControls
-            isSubmitting={isSubmitting}
-            isGenerating={isGenerating}
-            isSaving={isSaving}
-            skillsText={currentSkillsText}
-            workExperienceText={currentWorkExperienceText}
-            formDataExists={!!formData}
-          />
-          {/* Render actions only if data is loaded/generated */}
-          {hasLoadedOrGeneratedData && (
-            <ResumePreviewActions
-              onPrint={handlePrintClick}
-              onDownloadPdf={handleDownloadPdfClick}
-            />
-          )}
+             <div className="text-red-500 mb-4 p-4 border border-red-200 rounded bg-red-50">
+               {error}
+             </div>
+           )}
+
+           <div className="flex justify-between items-center mb-6">
+               <ResumeGenerationControls
+                 isSubmitting={navigation.state === "submitting"}
+                 isGenerating={isGenerating}
+                 isSaving={isSaving}
+                 sourceSteps={resumeSourceSteps}
+                 sourceTexts={currentSourceTexts}
+                 formDataExists={!!formData && Object.keys(formData).length > 0} 
+               />
+           </div>
+
+           {hasLoadedOrGeneratedData && (
+             <ResumePreviewActions
+               onPrint={handlePrintClick}
+               onDownloadPdf={handleDownloadPdfClick}
+             />
+           )}
+
           {navigation.state === "loading" && actionData === undefined && (
             <div className="my-4 p-4 border rounded bg-blue-50">
               <p>Loading previous results...</p>
@@ -897,52 +806,50 @@ export default function JobResume() {
           )}
         </div>
 
-        {/* NEW: Container for Preview and Editor columns */}
-        <div className="grid grid-cols-1  gap-6 max-w-6xl mx-auto px-6">
-          {/* Left Column: Preview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto px-6">
           <div className="p-1 h-full flex flex-col">
-            {/* Conditionally render the preview section */}
             {hasLoadedOrGeneratedData ? (
               <div className="flex flex-col flex-grow">
-                <div className="flex-grow overflow-auto">
-                  <ResumePreview
-                    displayData={displayData}
-                    resumeRef={resumeRef}
-                    TemplateComponent={CurrentResumeTemplate}
-                    isGenerating={isGenerating}
-                  />
-                </div>
-              </div>
+                 {resumeSourceSteps.map(step => (
+                     <input
+                         key={`${step.id}-hidden`}
+                         type="hidden"
+                         name={step.id}
+                         value={currentSourceTexts[step.id] || ''}
+                     />
+                 ))}
+                 <div className="flex-grow overflow-auto">
+                   <ResumePreview
+                     displayData={displayData}
+                     resumeRef={resumeRef}
+                     TemplateComponent={CurrentTemplateComponent}
+                     isGenerating={isGenerating}
+                   />
+                 </div>
+               </div>
             ) : (
               <div className="text-center text-gray-500 py-10 flex-grow flex items-center justify-center h-full border rounded bg-gray-50">
-                {navigation.state !== "submitting" &&
-                  navigation.state !== "loading" && (
-                    <p>
-                      Generate the resume sections using the button above to see a
-                      preview and edit the structured data.
-                    </p>
-                  )}
-                {(navigation.state === "submitting" ||
-                  navigation.state === "loading") &&
-                  !actionData?.success && (
-                    <p>Loading or generating data...</p>
-                  )}
+                 {(navigation.state === "submitting" || navigation.state === "loading") && !actionData?.success ? (
+                   <p>Loading or generating data...</p>
+                 ) : (
+                   <p>
+                     Generate the resume sections using the button above to see a preview and edit the structured data.
+                   </p>
+                 )}
               </div>
             )}
-
             <style>
               {`
                 @page {
-                  size: A4; /* Or Letter */
+                  size: A4;
                   margin: 0;
                 }
                 @media print {
                   html, body {
-                    /* Ensure html/body take up full print page height */
                     height: 100%;
                     margin: 0;
                     padding: 0;
-                    box-sizing: border-box; /* Include padding/border in height */
+                    box-sizing: border-box;
                   }
                   body * {
                     visibility: hidden;
@@ -951,37 +858,31 @@ export default function JobResume() {
                     visibility: visible;
                   }
                   #printable-resume {
-                    /* position: absolute;  REMOVED */
                     left: 0; 
                     top: 0;
                     width: 100%;
-                    height: 100%; /* Make it fill the body height */
-                    min-height: 100%; /* Ensure it at least fills */
+                    height: 100%;
+                    min-height: 100%;
                     box-shadow: none !important;
                     box-sizing: border-box;
                   }
-                  /* Target the direct child (ResumeContainer) */
                   #printable-resume > .resume-container {
                       box-shadow: none !important;
-                      height: auto !important; /* Override fixed screen height */
-                      min-height: 100%; /* Fill the parent (#printable-resume) */
-                      display: flex !important; /* Maintain flex */
-                      flex-direction: column !important; /* Maintain flex direction */
-                      width: 100% !important; /* Ensure full width */
+                      height: auto !important;
+                      min-height: 100%;
+                      display: flex !important;
+                      flex-direction: column !important;
+                      width: 100% !important;
                       box-sizing: border-box;
                   }
-                  /* Target the inner flex container (holds sidebar and content) */
                   #printable-resume > .resume-container > .flex-row {
-                      flex-grow: 1 !important; /* Allow inner container to grow */
-                      height: 100% !important; /* Make this fill its flex parent */
+                      flex-grow: 1 !important;
+                      height: 100% !important;
                       box-sizing: border-box;
                   }
-                   /* Target the right content area specifically */
                   #printable-resume .w-\[70\%\] {
-                       flex-grow: 1 !important; /* Ensure right panel grows */
-                       overflow: visible !important; /* Remove potential scrollbars for print */
-                       /* Add page break avoidance if needed later */
-                       /* page-break-inside: avoid; */
+                       flex-grow: 1 !important;
+                       overflow: visible !important;
                    }
                   .page-layout-header, .page-layout-sidebar, .page-layout-bottom-bar {
                     display: none;
@@ -991,7 +892,6 @@ export default function JobResume() {
                      padding: 0;
                      margin: 0;
                    }
-                   /* Ensure no shadow on nested divs either */
                    #printable-resume > div > div {
                       box-shadow: none !important;
                    }
@@ -1000,13 +900,11 @@ export default function JobResume() {
             </style>
           </div>
 
-          {/* Right Column: Editor */}
           <div className="p-1 h-full flex flex-col">
-            {/* Conditionally render the editor section */}
             {hasLoadedOrGeneratedData ? (
               <>
                 <h3 className="text-lg font-semibold mb-3 text-gray-700">
-                  Edit Structured Data
+                  Edit Structured Data ({CurrentTemplateConfig?.name || 'Unknown'} Schema)
                 </h3>
                 <input
                   type="hidden"
@@ -1014,19 +912,23 @@ export default function JobResume() {
                   value={JSON.stringify(formData)}
                 />
                 <div className="jsonforms-wrapper overflow-y-auto flex-grow">
-                  <JsonForms
-                    schema={outputSchema as JsonSchema}
-                    renderers={vanillaRenderers}
-                    cells={vanillaCells}
-                    data={formData}
-                    onChange={({ data }) => setFormData(data)}
-                  />
+                  {CurrentTemplateConfig ? (
+                    <JsonForms
+                      schema={zodToJsonSchema(CurrentTemplateConfig.outputSchema) as JsonSchema}
+                      renderers={materialRenderers}
+                      cells={materialCells}
+                      data={formData}
+                      onChange={({ data }) => setFormData(data)}
+                    />
+                  ) : (
+                    <p className="text-red-500">Error: Could not load schema for the selected template.</p>
+                  )}
                 </div>
               </>
             ) : (
-              <div className="text-center text-gray-400 py-10 flex-grow flex items-center justify-center h-full border rounded bg-gray-50">
-                <p>Edit form will appear here after generation.</p>
-              </div>
+               <div className="text-center text-gray-400 py-10 flex-grow flex items-center justify-center h-full border rounded bg-gray-50">
+                  <p>Edit form will appear here after generation.</p>
+               </div>
             )}
           </div>
         </div>

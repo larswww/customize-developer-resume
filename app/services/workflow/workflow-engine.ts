@@ -6,6 +6,7 @@ import type {
 	AIProvider,
 	AIClient,
 	WorkflowContext,
+	AnthropicSystemParam,
 } from "../../services/ai/types";
 
 type ApiKeys = {
@@ -35,7 +36,8 @@ export class WorkflowEngine {
 		// Execute each step in order
 		for (const step of this.steps) {
 			try {
-				const promptTemplate = typeof step.prompt === 'function' ? step.prompt(context) : step.prompt;
+				// Assuming step.prompt is always a string based on current types
+				const promptTemplate = step.prompt;
 				const placeholders = promptTemplate.match(/{([^}]+)}/g) || [];
 
 				for (const placeholder of placeholders) {
@@ -158,16 +160,35 @@ export class WorkflowEngine {
 				throw new Error(`Unsupported AI provider: ${provider}`);
 		}
 
-		// Determine the prompt to use (function or string)
-		const promptTemplate = typeof step.prompt === 'function' ? step.prompt(context) : step.prompt;
+		// Determine the prompt to use (should be a string based on types)
+		const promptTemplate = step.prompt;
 		
-		// Interpolate the prompt with context values
+		// Interpolate the main prompt with context values
 		const finalPrompt = this.interpolatePrompt(promptTemplate, context);
 
-		// Prepare options for the AI client
+		// Interpolate the system prompt as well
+		let interpolatedSystemPrompt: string | AnthropicSystemParam[] | undefined;
+		if (typeof step.systemPrompt === "string") {
+			interpolatedSystemPrompt = this.interpolatePrompt(step.systemPrompt, context);
+		} else if (Array.isArray(step.systemPrompt)) {
+			interpolatedSystemPrompt = step.systemPrompt.map(param => {
+				if (typeof param === 'object' && param !== null && 'text' in param) {
+					return {
+						...param,
+						text: this.interpolatePrompt(param.text, context),
+					};
+				} 
+				// Should not happen with current AnthropicSystemParam type, but handle defensively
+				return param; 
+			});
+		} else {
+			interpolatedSystemPrompt = undefined;
+		}
+
+		// Prepare options for the AI client, using the interpolated system prompt
 		const options = {
 			...(step.options || {}),
-			systemPrompt: step.systemPrompt, // Pass system prompt in options
+			systemPrompt: interpolatedSystemPrompt, // Use interpolated version
 		};
 
 		try {

@@ -1,6 +1,11 @@
-import type { ResumeData } from "../config/resumeTemplates.config";
+import React from 'react';
+import type { DefaultResumeData } from "../templates/default";
+
+
 interface ResumeTemplateProps {
-	data: ResumeData;
+	data: DefaultResumeData;
+	onDataChange: (path: (string | number)[], value: string) => void;
+	onItemDelete: (path: (string | number)[]) => void;
 }
 
 export function ResumeTemplate({ data }: ResumeTemplateProps) {
@@ -110,14 +115,16 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 						{/* --- End Dynamic Skills Section --- */}
 
 						{/* --- Dynamic Other Info Section (Optional) --- */}
-						{otherInfo?.items?.length > 0 && (
+						{otherInfo?.items?.length ? (
 							<>
-								<h2 className="text-xl font-bold uppercase mt-5 mb-2">{otherInfo.title || 'OTHER'}</h2>
+								<h2 className="text-xl font-bold uppercase mt-5 mb-2">
+									{otherInfo.title || 'OTHER'} 
+								</h2>
 								{otherInfo.items.map((item) => (
 									<p key={item} className="text-sm">{item}</p>
 								))}
 							</>
-						)}
+						) : null}
 						{/* --- End Dynamic Other Info Section --- */}
 
 						{/* --- Dynamic Languages Section (Optional) --- */}

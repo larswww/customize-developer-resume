@@ -4,13 +4,17 @@ test.describe("Resume Generation E2E Flow", () => {
 	// Increase timeout for the entire test suite due to AI generation steps
 	test.setTimeout(120000); // 2 minutes
 
+	test.beforeEach(async ({ page }) => {
+		// Navigate to the dashboard before each test in this describe block
+		await page.goto('/dashboard');
+	});
+
 	test("should create a job, generate content, verify persistence, create resume, and download PDF", async ({ page }) => {
 		const jobTitle = `E2E Test Job ${Date.now()}`;
 		const jobDescription = "This is a test job description for the E2E flow.";
 		let jobId: string | null = null;
 
 		await test.step("Navigate to Dashboard and Reveal Create Job Form", async () => {
-			await page.goto("/dashboard");
 			await expect(page).toHaveTitle(/Resume Generator Dashboard/);
 			// Click the button to show the form
 			await page.getByRole("button", { name: "Create New Job" }).click();
@@ -136,10 +140,6 @@ test.describe("Resume Generation E2E Flow", () => {
 		});
 
 		await test.step("Delete Job and Verify Removal", async () => {
-			// Navigate back to dashboard first
-			await page.goto("/dashboard");
-			await expect(page).toHaveTitle(/Resume Generator Dashboard/);
-			
 			// Find the specific job card again
 			const jobCard = page.locator('div.border.rounded-lg').filter({ has: page.getByRole('heading', { name: jobTitle, level: 3, exact: true }) });
 			await expect(jobCard).toBeVisible();
@@ -159,5 +159,36 @@ test.describe("Resume Generation E2E Flow", () => {
 			// Verify the job title heading is no longer present on the dashboard
 			await expect(page.getByRole("heading", { name: jobTitle, level: 3 })).not.toBeVisible();
 		});
+	});
+
+	test('allows selecting and running different workflows', async ({ page }) => {
+		// Navigate directly to the job content page for a specific job
+		await page.goto('/job/1/content');
+
+		// 1. Assert default workflow is selected
+		await expect(page.locator('select[name="workflowId"]')).toHaveValue('default');
+		await expect(page.getByRole('heading', { name: 'Job Description Analysis' })).toBeVisible();
+
+		// 2. Select Alternative Workflow
+		await page.selectOption('select[name="workflowId"]', 'alternative');
+
+		// 3. Assert URL updates
+		await expect(page).toHaveURL(/\?workflow=alternative$/);
+
+		// 4. Assert displayed steps match the alternative workflow
+		// Wait for potential dynamic updates if any
+		await page.waitForTimeout(100); // Small wait for UI update consistency
+		await expect(page.getByRole('heading', { name: 'Placeholder Step' })).toBeVisible();
+		await expect(page.getByRole('heading', { name: 'Job Description Analysis' })).not.toBeVisible();
+
+		// 5. (Optional) Submit and check if workflow was used (basic check)
+		// This relies on MSW mock returning something for the placeholder step
+		await page.getByRole('button', { name: 'Generate All Sections' }).click();
+		
+		// Wait for the placeholder step result to appear
+		const placeholderResult = page.locator('.mb-4:has(h3:text("Placeholder Step"))');
+		await expect(placeholderResult.locator('span:text("Complete")')).toBeVisible({ timeout: 10000 }); // Increased timeout for potential network mock delays
+		// Check if the mock response text is present
+		await expect(placeholderResult).toContainText('Default mock response'); 
 	});
 });
