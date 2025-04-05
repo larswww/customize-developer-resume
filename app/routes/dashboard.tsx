@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Form, Link, useActionData, useLoaderData } from "react-router";
+import { Form, useActionData, useLoaderData } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import dbService, { type Job } from "../services/db/dbService";
+import { DocumentIcon, TrashIcon } from "~/components/Icons";
+import { Link } from "~/components/ui/Link";
+import { Button } from "~/components/ui/Button";
 
 export function meta() {
   return [
@@ -86,17 +89,20 @@ export default function Dashboard() {
         <div className="flex gap-2">
           <Link 
             to="/settings/work-history"
-            className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-100"
+            variant="secondary"
+            size="md"
           >
             Edit Work History
           </Link>
-          <button
+          <Button
             type="button"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            variant="primary"
+            size="md"
+            className="bg-blue-600 text-white hover:bg-blue-700"
             onClick={() => setShowCreateForm(!showCreateForm)}
           >
             {showCreateForm ? "Cancel" : "Create New Job"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -131,19 +137,23 @@ export default function Dashboard() {
               />
             </div>
             <div className="flex gap-2">
-              <button
+              <Button
                 type="submit"
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                variant="primary"
+                size="md"
+                className="bg-green-600 hover:bg-green-700 text-white"
               >
                 Create Job
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                variant="secondary"
+                size="md"
+                className="bg-gray-500 hover:bg-gray-600 text-white"
                 onClick={() => setShowCreateForm(false)}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </Form>
         </div>
@@ -155,13 +165,15 @@ export default function Dashboard() {
         {jobs.length === 0 ? (
           <div className="text-center p-8 bg-gray-50 border rounded">
             <p className="text-gray-600 mb-4">You don't have any resume jobs yet.</p>
-            <button
+            <Button
               type="button"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              variant="primary"
+              size="md"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
               onClick={() => setShowCreateForm(true)}
             >
               Create Your First Job
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -179,80 +191,41 @@ export default function Dashboard() {
                   <div className="flex flex-wrap gap-2">
                     <Link
                       to={`/job/${job.id}/content`}
-                      className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm flex items-center"
+                      variant="primary"
+                      size="sm"
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center"
                     >
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-4 w-4 mr-1" 
-                        fill="none" 
-                        viewBox="0 0 24 24" 
-                        stroke="currentColor"
-                        aria-hidden="true"
-                      >
-                        <title>Generate Content</title>
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
-                        />
-                      </svg>
+                      <DocumentIcon />
                       Generate Content
                     </Link>
                     
                     <Link
                       to={`/job/${job.id}/resume`}
-                      className="px-3 py-1.5 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-sm flex items-center"
+                      variant="primary"
+                      size="sm"
+                      className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 flex items-center"
                     >
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        className="h-4 w-4 mr-1" 
-                        fill="none" 
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        aria-hidden="true"
-                      >
-                        <title>Create Resume</title>
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
-                        />
-                      </svg>
+                      <DocumentIcon />
                       Create Resume
                     </Link>
                     
                     <Form method="post">
                       <input type="hidden" name="action" value="delete" />
                       <input type="hidden" name="jobId" value={job.id} />
-                      <button
+                      <Button
                         type="submit"
-                        className="px-3 py-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm flex items-center"
+                        variant="destructive"
+                        size="sm"
+                        className="flex items-center"
                         onClick={(e) => {
                           if (!confirm('Are you sure you want to delete this job?')) {
                             e.preventDefault();
                           }
                         }}
                       >
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          className="h-4 w-4 mr-1" 
-                          fill="none" 
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                          aria-hidden="true"
-                        >
-                          <title>Delete Job</title>
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" 
-                          />
-                        </svg>
+                        <TrashIcon />
                         Delete
-                      </button>
+                      </Button>
                     </Form>
                   </div>
                 </div>

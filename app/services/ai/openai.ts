@@ -1,4 +1,4 @@
-import type { AIClient, AIRequestOptions, AIResponse } from "./types";
+import type { AIClient, AIRequestOptions, AIResponse, AnthropicSystemParam } from "./types";
 
 export class OpenAIClient implements AIClient {
 	private apiKey: string;
@@ -30,7 +30,7 @@ export class OpenAIClient implements AIClient {
 		const modelType = getModelType(model);
 
 		// Prepare messages based on model type
-		let messages: { role: string; content: string }[] = [];
+		let messages: { role: string; content: string | AnthropicSystemParam[] }[] = [];
 
 		switch (modelType) {
 			case "o1":

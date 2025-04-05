@@ -1,4 +1,4 @@
-import { test, expect, beforeAll, afterAll } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import dbService from './dbService'; // Import the singleton instance
@@ -8,7 +8,7 @@ const testDbPath = path.resolve('./test_resume_app.db'); // Absolute path for re
 // Ensure NODE_ENV is set correctly for the dbService initialization logic
 process.env.NODE_ENV = 'test';
 
-beforeAll(() => {
+test.beforeAll(() => {
   // Clean up any old test database file before starting
   if (fs.existsSync(testDbPath)) {
     fs.unlinkSync(testDbPath);
@@ -20,7 +20,7 @@ beforeAll(() => {
   console.log(`Test database initialized at: ${testDbPath}`);
 });
 
-afterAll(() => {
+test.afterAll(() => {
   // Close the database connection
   dbService.close(); 
   // Clean up the test database file after all tests run

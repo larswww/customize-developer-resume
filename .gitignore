@@ -6,5 +6,8 @@
 /.react-router/
 /build/
 
+# Database files
+/db-data/
+
 playwright-report/
 test-results/

@@ -7,6 +7,10 @@ import { renderToPipeableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 
+// --- MSW Setup ---
+// Removed the MSW setup block from here as it's handled in server.ts
+// --- End MSW Setup ---
+
 export const streamTimeout = 240_000;
 
 export default function handleRequest(

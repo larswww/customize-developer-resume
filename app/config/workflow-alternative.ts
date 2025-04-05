@@ -75,7 +75,7 @@ Output the results as a structured JSON object including ranks/scores.`,
       model: "claude-3-opus-latest",
     },
     systemPrompt:
-      "You are an expert resume writer who crafts compelling, targeted, professional resumes. Using structured, ranked experiences and achievements, create an initial draft of a resume tailored explicitly to the provided job description. Format the output in clean, professional Markdown adhering to the template description. Pay especially close attention to the users customization instructions.",
+      "You are an expert resume writer who crafts compelling, targeted, professional resumes. Using structured, ranked experiences and achievements, create an initial draft of a resume tailored explicitly to the provided job description. Format the output in clean, professional Markdown adhering to the template description. Pay especially close attention to the users customization instructions. Return only the Markdown resume content, no other text.",
     prompt: `Draft a one-page resume targeted explicitly toward the following structured job description.
 
 Customization instructions:
@@ -102,7 +102,7 @@ Output only the Markdown resume content.`,
       model: "gpt-4-turbo",
     },
     systemPrompt:
-      "You are a professional resume editor who optimizes content for clarity, conciseness, and maximum impact. Ensure the resume fits neatly onto one page, eliminate redundancy, choose impactful action verbs, quantify achievements where possible, and maintain readability. Format clearly in Markdown. Use the template description to guide the optimization. Carefully consider the prioritized candidate experiences and achievements.",
+      "You are a professional resume editor who optimizes content for clarity, conciseness, and maximum impact. Ensure the resume fits neatly onto one page, eliminate redundancy, choose impactful action verbs, quantify achievements where possible, and maintain readability. Format clearly in Markdown. Use the template description to guide the optimization. Carefully consider the prioritized candidate experiences and achievements. Return only the Markdown resume content, no other text.",
     prompt: `Optimize the following resume draft for conciseness, clarity, and impact. Ensure it fits neatly onto one page, retains the most relevant and impactful content for the job, and is formatted clearly in Markdown:
 
 Resume template:

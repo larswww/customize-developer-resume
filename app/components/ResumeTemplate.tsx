@@ -1,4 +1,3 @@
-import React from 'react';
 import type { DefaultResumeData } from "../templates/default";
 
 

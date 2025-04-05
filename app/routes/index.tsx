@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link } from "~/components/ui/Link";
 
 export function meta() {
 	return [
@@ -16,7 +16,9 @@ export default function Index() {
 			</p>
 			<Link 
 				to="/dashboard" 
-				className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+				variant="primary"
+				size="lg"
+				className="bg-blue-600 hover:bg-blue-700 text-white"
 			>
 				Go to Dashboard
 			</Link>

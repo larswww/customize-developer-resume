@@ -27,7 +27,7 @@ export function MarkdownEditor({ markdown, onChange, editorRef, isClient, placeh
           {isClient ? (
             <MDXEditor
               ref={editorRef}
-              markdown={markdown}
+              markdown={markdown.replace("```markdown", "").replace("```", "")}
               onChange={onChange}
               plugins={[
                   headingsPlugin(),

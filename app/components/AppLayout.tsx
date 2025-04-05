@@ -1,21 +1,12 @@
-import { NavLink, Outlet } from "react-router";
+import { Outlet } from "react-router";
+import { NavLink } from "~/components/ui/NavLink";
 
 const navLinks = [
   { to: "/dashboard", label: "Resume Generator" },
-  { to: "/resume-editor", label: "Resume Editor" },
-  { to: "/structured-resume", label: "Structured Resume" },
   { to: "/settings/work-history", label: "Work History" },
 ];
 
 export default function AppLayout() {
-  const getLinkClassName = ({ isActive }: { isActive: boolean }) => {
-    const baseStyle =
-      "px-3 py-2 rounded-md text-sm font-medium text-blue-100 hover:text-white hover:bg-blue-700";
-    const activeStyle =
-      "px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-900";
-    return isActive ? activeStyle : baseStyle;
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       <nav className="bg-blue-600">
@@ -31,7 +22,7 @@ export default function AppLayout() {
                     <NavLink
                       key={link.to}
                       to={link.to}
-                      className={getLinkClassName}
+                      size="sm"
                     >
                       {link.label}
                     </NavLink>

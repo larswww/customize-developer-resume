@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { Form, Link, useActionData, useLoaderData, useNavigation, useSearchParams } from "react-router";
+import { Form, useActionData, useLoaderData, useNavigation, useSearchParams } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { workflows, defaultWorkflowId } from "../config/workflows";
 import type { WorkflowContext, WorkflowStep } from "../services/ai/types";
@@ -8,6 +8,9 @@ import { validateApiKeys } from "../services/workflow/workflow-service";
 import { WorkflowEngine } from "../services/workflow/workflow-engine";
 import dbService from "../services/db/dbService";
 import { JobControlsHeader } from "../components/JobControlsHeader";
+import { LoadingSpinnerIcon } from "~/components/Icons";
+import { Button } from "~/components/ui/Button";
+import { Link } from "~/components/ui/Link";
 
 // --- NEW: Template Imports --- 
 import {
@@ -394,31 +397,31 @@ export default function JobContent() {
 
   return (
     <>
-      <div className="max-w-6xl mx-auto px-6 pt-6 mb-6 flex justify-between items-start">
-         <div>
-           <h1 className="text-2xl font-bold">{`Content Generation for ${job.title}`}</h1>
-           <div className="text-sm text-gray-500 flex gap-4">
-             <span>Workflow: {workflows[selectedWorkflowId]?.label || 'Unknown'}</span>
-             <span>Template: {availableTemplates[selectedTemplateId]?.name || 'Unknown'}</span>
-           </div>
-         </div>
-         <div className="flex gap-2 flex-shrink-0">
-            <Link
-              to={`/job/${job.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`}
-              className="px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
-            >
-              View/Edit Resume
-            </Link>
-            <Link
-              to="/dashboard"
-              className="px-3 py-1.5 border rounded hover:bg-gray-50 text-sm"
-            >
-              Back to Dashboard
-            </Link>
-         </div>
+      <div className="bg-white border-b border-gray-200 shadow-sm mb-6">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-gray-800">{`${job.title} - AI Content Generator`}</h1>
+            <div className="flex gap-3">
+              <Link
+                to="/dashboard"
+                variant="secondary"
+                size="md"
+              >
+                Back to Dashboard
+              </Link>
+              <Link
+                to={`/job/${job.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`}
+                variant="primary"
+                size="md"
+              >
+                Create Resume
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <Form method="post" className="max-w-6xl mx-auto px-6">
+      <Form method="post" className="max-w-6xl mx-auto px-6 py-4">
          <input type="hidden" name="workflowId" value={selectedWorkflowId} />
 
          <JobControlsHeader
@@ -441,16 +444,16 @@ export default function JobContent() {
              <textarea id="relevant" name="relevant" value={relevantDescription} onChange={(e) => setRelevantDescription(e.target.value)} rows={5} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Optionally add specific details, keywords, or experiences to highlight..." />
          </div>
          
-         <button type="submit" disabled={isSubmitting} className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-gray-400 flex items-center">
-             {isSubmitting ? 'Generating...' : 'Generate Content Steps'}
-             {isSubmitting && 
-               <svg className="animate-spin -mr-1 ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                 <title>Loading spinner</title>
-                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-               </svg>
-             }
-         </button>
+         <Button 
+           type="submit" 
+           disabled={isSubmitting} 
+           variant="primary"
+           size="md"
+           className="flex items-center bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 font-semibold"
+         >
+           {isSubmitting ? 'Generating...' : 'Generate Content Steps'}
+           {isSubmitting && <LoadingSpinnerIcon />}
+         </Button>
       </Form>
 
       <div className="max-w-6xl mx-auto px-6 mt-8">

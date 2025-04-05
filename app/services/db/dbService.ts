@@ -1,6 +1,5 @@
 import Database from 'better-sqlite3';
-import type { ResumeData } from '../../components/ResumeTemplate';
-import { workHistory as initialWorkHistory } from '../../data/workHistory'; // Import initial history
+import type { DefaultResumeData } from '../../templates/default';
 
 export interface Job {
   id: number;
@@ -25,7 +24,7 @@ export interface Resume {
   id?: number;
   jobId: number;
   resumeText?: string;
-  structuredData?: ResumeData;
+  structuredData?: DefaultResumeData;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -39,7 +38,7 @@ export interface Settings {
 
 // Define the database file path based on the environment
 const isTestEnv = process.env.NODE_ENV === 'test';
-const dbPath = isTestEnv ? './test_resume_app.db' : './resume_app.db';
+const dbPath = isTestEnv ? './db-data/test_resume_app.db' : './db-data/resume_app.db';
 let database: Database.Database;
 
 try {
@@ -138,53 +137,6 @@ class DbService {
             UPDATE ${tableName} SET updatedAt = CURRENT_TIMESTAMP WHERE id = OLD.id;
           END;
         `);
-      }
-      
-      // Add a sample job for development if no jobs exist
-      const jobCount = this.db.prepare('SELECT COUNT(*) as count FROM jobs').get() as { count: number };
-      if (jobCount.count === 0) {
-        console.log('Adding sample job for development');
-        this.createJob({
-          title: 'Sample Frontend Developer Job',
-          jobDescription: `Frontend Developer - React/TypeScript
-
-We're looking for a passionate Frontend Developer with expertise in React and TypeScript to join our growing team. The ideal candidate will be responsible for building and maintaining responsive web applications.
-
-Requirements:
-- 3+ years of experience with React
-- Strong proficiency in TypeScript
-- Experience with NextJS or similar React frameworks
-- Knowledge of modern frontend build tools
-- Good understanding of responsive design principles
-- Ability to write clean, maintainable code
-- Experience with RESTful APIs
-
-Nice to have:
-- Experience with GraphQL
-- Knowledge of testing frameworks (Jest, React Testing Library)
-- Understanding of CI/CD pipelines
-- Experience with state management solutions (Redux, MobX, Zustand)
-
-What we offer:
-- Competitive salary
-- Remote-friendly work environment
-- Opportunities for professional growth
-- Collaborative and supportive team culture`
-        });
-      }
-
-      // Insert initial work history if it doesn't exist
-      try {
-        const stmt = this.db.prepare(`
-          INSERT OR IGNORE INTO settings (key, value) 
-          VALUES ('workHistory', ?)
-        `);
-        const result = stmt.run(initialWorkHistory);
-        if (result.changes > 0) {
-          console.log('Initial work history inserted into settings.');
-        }
-      } catch (err) {
-        console.error('Error inserting initial work history:', err);
       }
     });
 
