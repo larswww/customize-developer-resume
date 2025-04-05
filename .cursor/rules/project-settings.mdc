@@ -9,3 +9,4 @@ alwaysApply: true
 - pnpm is using for installing packages and running the app
 - use 'pnpm playwright test  --reporter=line' to test your work, and update test cases when functionality is added
 Ok that the new feature works. 
+- do not add comments to code

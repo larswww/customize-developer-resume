@@ -1,6 +1,5 @@
 import React from 'react';
-import { WorkflowSelector } from './WorkflowSelector';
-import { TemplateSelector } from './TemplateSelector';
+import { Select, type SelectOption } from '~/components/ui/Select';
 
 interface WorkflowOption {
     id: string;
@@ -27,33 +26,60 @@ interface JobControlsHeaderProps {
 
     // Optional additional content or styling
     className?: string;
+    compact?: boolean; // Add option for compact layout vs boxed layout
 }
 
 export function JobControlsHeader({
     availableWorkflows,
     currentWorkflowId,
     onWorkflowChange,
-    workflowLabel,
+    workflowLabel = "Select Workflow",
     availableTemplates,
     currentTemplateId,
     onTemplateChange,
-    templateLabel,
-    className = ''
+    templateLabel = "Select Template",
+    className = '',
+    compact = false
 }: JobControlsHeaderProps) {
+    // Convert workflow options to format expected by Select component
+    const workflowOptions: SelectOption[] = availableWorkflows.map(wf => ({
+        value: wf.id,
+        label: wf.label
+    }));
+    
+    // Convert template options to format expected by Select component
+    const templateOptions: SelectOption[] = availableTemplates.map(template => ({
+        value: template.id,
+        label: template.name
+    }));
+    
+    // Use the nice styled container with background if not in compact mode
+    const containerClasses = compact 
+        ? `grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ${className}`
+        : `bg-gray-50 rounded-lg border border-gray-200 p-5 mb-6 ${className}`;
+        
     return (
-        <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ${className}`}>
-            <WorkflowSelector
-                availableWorkflows={availableWorkflows}
-                currentWorkflowId={currentWorkflowId}
-                onWorkflowChange={onWorkflowChange}
-                label={workflowLabel}
-            />
-            <TemplateSelector
-                availableTemplates={availableTemplates}
-                currentTemplateId={currentTemplateId}
-                onTemplateChange={onTemplateChange}
-                label={templateLabel}
-            />
+        <div className={containerClasses}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Select
+                    id="workflowId"
+                    name="workflowId"
+                    options={workflowOptions}
+                    value={currentWorkflowId}
+                    onChange={onWorkflowChange}
+                    label={workflowLabel}
+                    fullWidth
+                />
+                <Select
+                    id="template-selector"
+                    name="templateId"
+                    options={templateOptions}
+                    value={currentTemplateId}
+                    onChange={onTemplateChange}
+                    label={templateLabel}
+                    fullWidth
+                />
+            </div>
         </div>
     );
 } 

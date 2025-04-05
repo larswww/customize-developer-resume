@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { NavLink as RouterNavLink } from "react-router";
-import { cn } from "~/lib/utils";
+import { cn } from "~/utils/cn";
 
 export interface NavLinkProps extends React.ComponentPropsWithoutRef<typeof RouterNavLink> {
   variant?: "default" | "primary" | "secondary" | "destructive" | "ghost" | "outline";

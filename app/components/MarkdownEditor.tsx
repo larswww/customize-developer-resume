@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import {
     MDXEditor,
@@ -15,13 +16,14 @@ import '@mdxeditor/editor/style.css';
 
 interface MarkdownEditorProps {
     markdown: string;
-    onChange: (markdown: string) => void;
+    onChange?: (markdown: string) => void;
     editorRef: React.RefObject<MDXEditorMethods | null>; // Allow null for initial ref value
-    isClient: boolean;
+    isClient?: boolean;
     placeholder?: string;
 }
 
-export function MarkdownEditor({ markdown, onChange, editorRef, isClient, placeholder }: MarkdownEditorProps) {
+// Base editor component that requires explicit isClient prop
+export function MarkdownEditor({ markdown, onChange, editorRef, isClient = true, placeholder }: MarkdownEditorProps) {
     return (
         <div className="flex flex-col flex-grow border rounded-md bg-white border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 mb-20">
           {isClient ? (
@@ -56,4 +58,15 @@ export function MarkdownEditor({ markdown, onChange, editorRef, isClient, placeh
           )}
         </div>
     );
+}
+
+// Client-side wrapper that automatically handles isClient logic
+export function ClientMarkdownEditor(props: Omit<MarkdownEditorProps, 'isClient'>) {
+    const [isClient, setIsClient] = useState(false);
+    
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+    
+    return <MarkdownEditor {...props} isClient={isClient} />;
 } 

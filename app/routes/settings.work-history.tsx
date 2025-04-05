@@ -6,7 +6,7 @@ import dbService from '~/services/db/dbService';
 
 // Import the newly created components
 import { PageLayout } from '~/components/PageLayout';
-import { MarkdownEditor } from '~/components/MarkdownEditor';
+import { ClientMarkdownEditor } from '~/components/MarkdownEditor';
 import { SaveBottomBar } from '~/components/SaveBottomBar';
 import { FeedbackSidebar } from '~/components/FeedbackSidebar';
 
@@ -55,33 +55,14 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-// Helper debounce function (you might want to put this in a utils file later)
-function debounce<F extends (...args: any[]) => any>(func: F, waitFor: number) {
-  let timeoutId: ReturnType<typeof setTimeout> | null = null;
-
-  return (...args: Parameters<F>): void => {
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => func(...args), waitFor);
-  };
-}
-
-// --- Removed Reusable Components (they are now in separate files) ---
-
 export default function EditWorkHistory() {
   const { workHistory: initialWorkHistory } = useLoaderData<{ workHistory: string }>();
   const actionData = useActionData<{ success?: boolean; message?: string; error?: string }>();
   const navigation = useNavigation();
-  const editorRef = useRef<MDXEditorMethods | null>(null); // Initialize with null
+  const editorRef = useRef<MDXEditorMethods | null>(null);
 
-  const [editorContent, setEditorContent] = useState<string>(initialWorkHistory);
-  const [isClient, setIsClient] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  const [lastSavedContent, setLastSavedContent] = useState(initialWorkHistory);
 
   const isSubmitting = navigation.state === 'submitting';
   const isLoading = navigation.state === 'loading' && navigation.formData?.get('workHistoryContent') !== undefined;
@@ -91,48 +72,41 @@ export default function EditWorkHistory() {
       if (actionData?.success && actionData.message) {
           if (actionData.message !== 'No changes detected.') {
              setHasChanges(false);
+             // Update last saved content
+             if (editorRef.current) {
+                 setLastSavedContent(editorRef.current.getMarkdown());
+             }
           }
       }
   }, [actionData]);
 
-  // Effect to update editor content only when initial data changes
-  // and we are not in the middle of submitting
+  // Update the last saved content when initial data changes
   useEffect(() => {
-    if (navigation.state !== 'submitting') {
-        setEditorContent(initialWorkHistory);
-        setHasChanges(false); // Reset changes when loading initial data
-    }
-}, [initialWorkHistory, navigation.state]); // Added navigation.state dependency
+      if (navigation.state !== 'submitting') {
+          setLastSavedContent(initialWorkHistory);
+          setHasChanges(false); // Reset changes when loading initial data
+      }
+  }, [initialWorkHistory, navigation.state]);
 
-  // --- Debounced Handler ---
-  // Debounce the state update function with a 300ms delay
-  const debouncedSetEditorContent = useRef(
-    debounce((markdown: string) => {
-        setEditorContent(markdown);
-        // Update hasChanges based on the debounced value compared to initial
-        if (!hasChanges && markdown !== initialWorkHistory) {
-            setHasChanges(true);
-        } else if (hasChanges && markdown === initialWorkHistory) {
-            // If content reverts to initial, reset hasChanges
-            setHasChanges(false);
-        }
-    }, 300)
-  ).current;
-
-  // This function is passed to the editor's onChange prop
+  // Handle editor change to track if there are unsaved changes
   const handleEditorChange = (markdown: string) => {
-    // Call the debounced function to update state and check changes
-    debouncedSetEditorContent(markdown);
+      if (markdown !== lastSavedContent) {
+          setHasChanges(true);
+      } else {
+          setHasChanges(false);
+      }
   };
-  // --- End Debounced Handler ---
 
-  // Cleanup debounce timer on component unmount
-  useEffect(() => {
-      // For this simple case, we'll omit explicit cleanup, but be aware in production.
-      return () => {
-        // potential cleanup logic if debounce was implemented differently
-      };
-  }, []); // <-- Remove debouncedSetEditorContent from dependencies
+  // Handle form submission - get content directly from the editor ref
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+      if (editorRef.current) {
+          const markdown = editorRef.current.getMarkdown();
+          const hiddenInput = event.currentTarget.elements.namedItem('workHistoryContent') as HTMLInputElement;
+          if (hiddenInput) {
+              hiddenInput.value = markdown;
+          }
+      }
+  };
 
   const formId = "work-history-form";
 
@@ -149,13 +123,12 @@ export default function EditWorkHistory() {
             </Link>
         }
         mainContent={
-            <Form method="post" id={formId} className="flex flex-col flex-grow">
-                <input type="hidden" name="workHistoryContent" value={editorContent} />
-                <MarkdownEditor
+            <Form method="post" id={formId} className="flex flex-col flex-grow" onSubmit={handleFormSubmit}>
+                <input type="hidden" name="workHistoryContent" />
+                <ClientMarkdownEditor
                     editorRef={editorRef}
-                    markdown={editorContent}
+                    markdown={initialWorkHistory}
                     onChange={handleEditorChange}
-                    isClient={isClient}
                     placeholder="Enter your work history in Markdown format..."
                 />
             </Form>
@@ -171,7 +144,7 @@ export default function EditWorkHistory() {
                 formId={formId}
                 isSubmitting={isSubmitting}
                 hasChanges={hasChanges}
-                isClient={isClient}
+                isClient={true}
                 buttonText="Save Work History"
                 savingText="Saving..."
             />

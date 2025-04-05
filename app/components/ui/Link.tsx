@@ -1,6 +1,6 @@
 import { Link as RouterLink } from "react-router";
 import { forwardRef } from "react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/utils/cn";
 
 export interface LinkProps extends React.ComponentPropsWithoutRef<typeof RouterLink> {
   variant?: "default" | "primary" | "secondary" | "destructive" | "ghost" | "outline";
