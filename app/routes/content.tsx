@@ -13,6 +13,7 @@ import type { MDXEditorMethods } from '@mdxeditor/editor';
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { WorkflowSteps } from "~/components/WorkflowSteps";
 import { Collapsible } from "~/components/Collapsible";
+import { WorkflowProgressBar } from "~/components/WorkflowProgressBar";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
@@ -238,14 +239,25 @@ export default function JobContent() {
                       navigation.state !== "submitting" && 
                       navigation.state !== "loading");
 
+    // Calculate which steps are completed and the current step index
+    const completedStepIds = Object.keys(statusesToShow).filter(id => statusesToShow[id] === 'completed');
+    const currentStepIndex = completedStepIds.length < stepsToRender.length 
+      ? completedStepIds.length 
+      : stepsToRender.length - 1;
+
     return {
       stepsToRender,
       resultsToShow,
       statusesToShow,
       showSteps,
-      isLoading: navigation.state === "submitting" || navigation.state === "loading"
+      isLoading: navigation.state === "submitting" || navigation.state === "loading",
+      completedStepIds,
+      currentStepIndex
     };
   };
+
+  // Height that both the progress bar and workflow steps should use
+  const contentHeight = "min-h-[200px]";
 
   return (
     <>
@@ -278,24 +290,31 @@ export default function JobContent() {
 
       <div className="mt-8">
          <h2 className="text-xl font-semibold mb-4">Generated Content</h2>
+         
          {actionData?.error && (
              <div className="mb-4 p-4 border rounded bg-red-50 text-red-700">
                  Error: {actionData.error}
              </div>
          )}
+         
          {isSubmitting && (
-            <p>Generating content for {totalSteps} steps...</p>
+           <WorkflowProgressBar 
+             steps={getWorkflowData().stepsToRender}
+             currentStepIndex={getWorkflowData().currentStepIndex}
+             completedSteps={getWorkflowData().completedStepIds}
+             height={contentHeight}
+           />
          )}
-         {!isSubmitting && (
+         
+         {!isSubmitting && getWorkflowData().showSteps && (
            <div className="space-y-6">
-             {getWorkflowData().showSteps && (
-               <WorkflowSteps
-                 stepsToRender={getWorkflowData().stepsToRender}
-                 resultsToShow={getWorkflowData().resultsToShow}
-                 statusesToShow={getWorkflowData().statusesToShow}
-                 isLoading={getWorkflowData().isLoading}
-               />
-             )}
+             <WorkflowSteps
+               stepsToRender={getWorkflowData().stepsToRender}
+               resultsToShow={getWorkflowData().resultsToShow}
+               statusesToShow={getWorkflowData().statusesToShow}
+               isLoading={getWorkflowData().isLoading}
+               height={contentHeight}
+             />
            </div>
          )}
       </div>

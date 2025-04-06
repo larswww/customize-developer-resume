@@ -124,8 +124,8 @@ export default function EditWorkHistory() {
         }
         mainContent={
             <Form method="post" id={formId} className="flex flex-col flex-grow" onSubmit={handleFormSubmit}>
-                <input type="hidden" name="workHistoryContent" />
                 <ClientMarkdownEditor
+                    name="workHistoryContent"
                     editorRef={editorRef}
                     markdown={initialWorkHistory}
                     onChange={handleEditorChange}
