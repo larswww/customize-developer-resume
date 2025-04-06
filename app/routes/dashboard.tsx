@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { Form, redirect, useActionData, useLoaderData } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import dbService, { type Job } from "../services/db/dbService";
 import { DocumentIcon, TrashIcon } from "~/components/Icons";
@@ -14,7 +14,6 @@ export function meta() {
 }
 
 export async function loader() {
-  // Get all jobs from the database
   const jobs = dbService.getAllJobs();
   return { jobs };
 }
@@ -32,18 +31,14 @@ export async function action({ request }: ActionFunctionArgs) {
         error: "Job title is required" 
       };
     }
-
     // Create a new job with default empty job description
-    const jobId = dbService.createJob({
+    const job = dbService.createJob({
       title,
       jobDescription: "",
     });
 
-    return { 
-      success: true, 
-      jobId,
-      message: "Job created successfully" 
-    };
+    return redirect(`/job/${job.id}`);
+
   }
 
   if (action === "delete") {
@@ -69,6 +64,106 @@ export async function action({ request }: ActionFunctionArgs) {
     success: false, 
     error: "Invalid action" 
   };
+}
+
+function CreateJobForm({ onCancel }: { onCancel: () => void }) {
+  return (
+    <div className="mb-8 p-6 bg-gray-50 border rounded">
+      <h2 className="text-xl font-semibold mb-4">Create New Resume Job</h2>
+      <Form method="post">
+        <input type="hidden" name="action" value="create" />
+        <div className="mb-4">
+          <label htmlFor="title" className="block mb-2 font-medium">
+            Job Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            className="w-full px-3 py-2 border rounded"
+            placeholder="Enter a title for this job"
+            required
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            Create Job
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            className="bg-gray-500 hover:bg-gray-600 text-white"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        </div>
+      </Form>
+    </div>
+  );
+}
+
+function JobCard({ job }: { job: Job }) {
+  return (
+    <div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      <div className="p-4">
+        <h3 className="font-bold text-lg mb-2 truncate">{job.title}</h3>
+        <p className="text-sm text-gray-500 mb-2">
+          Created: {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '—'}
+        </p>
+        <p className="text-sm text-gray-500 mb-4">
+          Updated: {job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : '—'}
+        </p>
+        
+        <div className="flex flex-wrap gap-2">
+          <Link
+            to={`/job/${job.id}`}
+            variant="primary"
+            size="sm"
+            className="bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center"
+          >
+            <DocumentIcon />
+            Generate Content
+          </Link>
+
+          <Link
+            to={`/job/${job.id}/resume`}
+            variant="primary"
+            size="sm"
+            className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 flex items-center"
+          >
+            <DocumentIcon />
+            Create Resume
+          </Link>
+          
+          <Form method="post">
+            <input type="hidden" name="action" value="delete" />
+            <input type="hidden" name="jobId" value={job.id} />
+            <Button
+              type="submit"
+              variant="destructive"
+              size="sm"
+              className="flex items-center"
+              onClick={(e) => {
+                if (!confirm('Are you sure you want to delete this job?')) {
+                  e.preventDefault();
+                }
+              }}
+            >
+              <TrashIcon />
+              Delete
+            </Button>
+          </Form>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function Dashboard() {
@@ -119,44 +214,7 @@ export default function Dashboard() {
       )}
 
       {showCreateForm && (
-        <div className="mb-8 p-6 bg-gray-50 border rounded">
-          <h2 className="text-xl font-semibold mb-4">Create New Resume Job</h2>
-          <Form method="post">
-            <input type="hidden" name="action" value="create" />
-            <div className="mb-4">
-              <label htmlFor="title" className="block mb-2 font-medium">
-                Job Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                className="w-full px-3 py-2 border rounded"
-                placeholder="Enter a title for this job"
-                required
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Create Job
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="md"
-                className="bg-gray-500 hover:bg-gray-600 text-white"
-                onClick={() => setShowCreateForm(false)}
-              >
-                Cancel
-              </Button>
-            </div>
-          </Form>
-        </div>
+        <CreateJobForm onCancel={() => setShowCreateForm(false)} />
       )}
 
       <div>
@@ -178,58 +236,7 @@ export default function Dashboard() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {jobs.map((job) => (
-              <div key={job.id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="p-4">
-                  <h3 className="font-bold text-lg mb-2 truncate">{job.title}</h3>
-                  <p className="text-sm text-gray-500 mb-2">
-                    Created: {job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '—'}
-                  </p>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Updated: {job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : '—'}
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    <Link
-                      to={`/job/${job.id}/content`}
-                      variant="primary"
-                      size="sm"
-                      className="bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center"
-                    >
-                      <DocumentIcon />
-                      Generate Content
-                    </Link>
-                    
-                    <Link
-                      to={`/job/${job.id}/resume`}
-                      variant="primary"
-                      size="sm"
-                      className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 flex items-center"
-                    >
-                      <DocumentIcon />
-                      Create Resume
-                    </Link>
-                    
-                    <Form method="post">
-                      <input type="hidden" name="action" value="delete" />
-                      <input type="hidden" name="jobId" value={job.id} />
-                      <Button
-                        type="submit"
-                        variant="destructive"
-                        size="sm"
-                        className="flex items-center"
-                        onClick={(e) => {
-                          if (!confirm('Are you sure you want to delete this job?')) {
-                            e.preventDefault();
-                          }
-                        }}
-                      >
-                        <TrashIcon />
-                        Delete
-                      </Button>
-                    </Form>
-                  </div>
-                </div>
-              </div>
+              <JobCard key={job.id} job={job} />
             ))}
           </div>
         )}

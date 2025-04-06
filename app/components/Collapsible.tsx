@@ -65,7 +65,7 @@ export function Collapsible({
           contentClassName
         )}
         style={{
-          maxHeight: isOpen ? '2000px' : '0',
+          maxHeight: isOpen ? '100000px' : '0',
           overflow: 'hidden',
           visibility: isOpen ? 'visible' : 'hidden'
         }}

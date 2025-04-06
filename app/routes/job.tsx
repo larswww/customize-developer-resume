@@ -106,7 +106,7 @@ export default function JobLayout() {
       <div className="bg-white border-b border-gray-200 shadow-sm mb-6">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-800">{`${job.title} - AI Resume Builder`}</h1>
+            <h1 className="text-2xl font-bold text-gray-800">{`${job.title}`}</h1>
             <div className="flex gap-3">
               <Link
                 to="/dashboard"
@@ -116,25 +116,9 @@ export default function JobLayout() {
                 Back to Dashboard
               </Link>
               
-              {isContentRoute && (
-                <Link
-                  to={`/job/${job.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`}
-                  variant="primary"
-                  size="md"
-                >
-                  View Resume
-                </Link>
-              )}
+      
               
-              {isResumeRoute && (
-                <Link
-                  to={`/job/${job.id}/content?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`}
-                  variant="primary"
-                  size="md"
-                >
-                  Edit Source Content
-                </Link>
-              )}
+     
             </div>
           </div>
           <div className="mt-4">

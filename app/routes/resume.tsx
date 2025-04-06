@@ -25,6 +25,7 @@ import { SourceTextInputs } from "~/components/resume/SourceTextInputs";
 import { ResumeGenerationControls } from "~/components/resume/ResumeGenerationControls";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { ResumePreview } from "~/components/resume/ResumePreview";
+import { Button } from "~/components/ui/Button";
 
 // Define the outlet context type for TypeScript
 interface OutletContextType {
@@ -263,7 +264,7 @@ export default function JobResume() {
           </Collapsible>
 
            {/* Edit Resume Section */}
-           <Collapsible title="Edit Resume" defaultOpen={false}>
+           <Collapsible title="Edit Resume" defaultOpen={true}>
             <SourceTextInputs
               sourceSteps={resumeSourceSteps}
               sourceTexts={currentSourceTexts}
@@ -273,7 +274,7 @@ export default function JobResume() {
 
           {/* Generate Button */}
           <div className="mt-auto pt-4">
-            <button
+            <Button
               type="submit"
               name="actionType"
               value="generate"
@@ -281,7 +282,7 @@ export default function JobResume() {
               disabled={isSubmitting}
             >
               {isGenerating ? "Generating..." : "Generate Resume"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

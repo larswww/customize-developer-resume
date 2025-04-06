@@ -6,7 +6,7 @@ import type { WorkflowContext, WorkflowStep } from "../services/ai/types";
 import { validateApiKeys } from "../services/workflow/workflow-service";
 import { WorkflowEngine } from "../services/workflow/workflow-engine";
 import dbService from "../services/db/dbService";
-import { LoadingSpinnerIcon } from "~/components/Icons";
+import { LoadingSpinnerIcon, MagicWandIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
 import { availableTemplates, defaultTemplateId } from "../templates";
 import type { MDXEditorMethods } from '@mdxeditor/editor';
@@ -56,7 +56,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const workflowId = (formData.get("workflowId") as string) || defaultWorkflowId;
   const jobId = Number(params.jobId);
 
-  // Get Selected Template ID and Description 
   const url = new URL(request.url);
   const templateId = url.searchParams.get("template") || defaultTemplateId;
   const templateConfig = availableTemplates[templateId] ?? availableTemplates[defaultTemplateId];
@@ -81,14 +80,19 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
 
-  // Update the job with the new job description and relevant text
+  if (!jobDescription) {
+    return {
+      success: false,
+      error: "Please add a job description to generate resume"
+    };
+  }
+
   dbService.updateJob({
     ...job,
     jobDescription,
     relevantDescription: relevant || ""
   });
 
-  // Validate API keys
   const { missingKeys, isValid } = validateApiKeys();
 
   if (!isValid) {
@@ -98,7 +102,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     };
   }
   
-  // Get the selected workflow steps
   const selectedWorkflow = workflows[workflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
 	return {
@@ -109,7 +112,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const currentWorkflowSteps = selectedWorkflow.steps;
 
   try {
-    // Always execute the full workflow on the server
     const engine = new WorkflowEngine(
       {
         anthropic: process.env.ANTHROPIC_API_KEY || "",
@@ -121,7 +123,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
     const workHistory = dbService.getWorkHistory();
 
-    // Create initial context matching the WorkflowContext from ai/types
     const initialContext: WorkflowContext = {
       jobDescription,
       workHistory: JSON.stringify(workHistory),
@@ -130,12 +131,10 @@ export async function action({ request, params }: ActionFunctionArgs) {
       intermediateResults: {},
     };
 
-    // Execute all steps sequentially
     console.log(`Starting workflow execution (${workflowId})...`);
     const finalContext = await engine.execute(initialContext);
     console.log(`Workflow execution completed (${workflowId}).`, finalContext);
 
-    // Save results of each completed step to the database
     console.log("Saving workflow step results to database...");
     for (const step of currentWorkflowSteps) {
       const result = finalContext.intermediateResults[step.id];
@@ -155,8 +154,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
     }
     console.log("Finished saving workflow step results.");
 
-    // Redirect to the resume page after successful generation
-    return redirect(`/job/${jobId}/resume?workflow=${workflowId}&template=${templateId}`);
+    return redirect(`/job/${jobId}/resume?workflow=${workflowId}&template=${templateId}&t=${Date.now()}`);
 
   } catch (error) {
     console.error(`Error in workflow action handler (${workflowId}):`, error);
@@ -213,17 +211,6 @@ export default function JobContent() {
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // Get editor content and update form data before submission
-    if (jobDescEditorRef.current) {
-      const markdown = jobDescEditorRef.current.getMarkdown();
-      const jobDescInput = event.currentTarget.elements.namedItem("jobDescription") as HTMLInputElement;
-      if (jobDescInput) {
-        jobDescInput.value = markdown;
-      }
-    }
-  };
-
   const getWorkflowData = () => {
     const relevantWorkflowId = actionData?.selectedWorkflowId ?? selectedWorkflowId;
     const stepsToRender = workflows[relevantWorkflowId]?.steps ?? currentWorkflowSteps;
@@ -262,13 +249,12 @@ export default function JobContent() {
 
   return (
     <>
-      <Form method="post" className="py-4" onSubmit={handleFormSubmit}>
+      <Form method="post" className="py-4">
          <input type="hidden" name="workflowId" value={selectedWorkflowId} />
-         <input type="hidden" name="jobDescription" id="jobDescription" />
-
          <Collapsible title="Job Description" className="mb-6" defaultOpen={true}>
            <div className="min-h-[250px]">
              <ClientMarkdownEditor
+               name="jobDescription"
                markdown={job.jobDescription || ""}
                editorRef={jobDescEditorRef}
                placeholder="Paste job description here..."
@@ -276,16 +262,18 @@ export default function JobContent() {
            </div>
          </Collapsible>
 
-         <Button 
-           type="submit" 
-           disabled={isSubmitting} 
-           variant="primary"
-           size="md"
-           className="flex items-center bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 font-semibold"
-         >
-           {isSubmitting ? 'Generating...' : 'Generate Content Steps'}
-           {isSubmitting && <LoadingSpinnerIcon />}
-         </Button>
+         <div className="flex justify-end">
+           <Button 
+             type="submit" 
+             disabled={isSubmitting} 
+             variant="primary"
+             size="lg"
+             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
+           >
+             {isSubmitting ? <LoadingSpinnerIcon size="md" /> : <MagicWandIcon size="md" />}
+             {isSubmitting ? 'Generating...' : "Generate Resume Text"}
+           </Button>
+         </div>
       </Form>
 
       <div className="mt-8">

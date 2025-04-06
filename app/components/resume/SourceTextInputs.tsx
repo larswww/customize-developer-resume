@@ -21,8 +21,9 @@ export function SourceTextInputs({ sourceSteps, sourceTexts, editorRefs }: Sourc
     <div className="space-y-4">
       {sourceSteps.map((step) => (
  
-          <div key={step.id} className="min-h-[250px]">
+          <div key={step.id} className="min-h-[400px]">
             <ClientMarkdownEditor
+              name={step.id}
               markdown={sourceTexts[step.id] || ''}
               onChange={() => {}}
               editorRef={editorRefs[step.id]}
