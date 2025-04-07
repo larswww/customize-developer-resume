@@ -41,6 +41,7 @@ export interface WorkflowStep {
 	transform?: (response: AIResponse, context: WorkflowContext) => unknown;
 	useInResume?: boolean;
 	estimatedTimeInMinutes?: number;
+	dependencies?: string[];
 }
 
 export type AnthropicSystemParam = {

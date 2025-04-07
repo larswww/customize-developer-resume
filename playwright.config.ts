@@ -8,7 +8,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: "html",
 	use: {
-		baseURL: "http://localhost:3000",
+		baseURL: "http://localhost:4000",
 		trace: "on-first-retry",
 		screenshot: "only-on-failure",
 	},
@@ -19,8 +19,8 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "MSW_ENABLED=true pnpm dev",
-		port: 3000,
+		command: "MSW_ENABLED=true PORT=4000 pnpm dev",
+		port: 4000,
 		reuseExistingServer: !process.env.CI,
 		env: {
 			NODE_ENV: "development",

@@ -18,6 +18,7 @@ Job Description:
 {jobDescription}
 
 Output the results as a structured JSON object.`,
+    dependencies: []
   },
 
   {
@@ -43,6 +44,7 @@ Output the results as a structured JSON object.`,
     ],
     prompt: `Parse and structure the following professional history and achievements into clearly defined JSON sections. 
     Output the results as a structured JSON object. Strictly adhere to JSON format.`,
+    dependencies: []
   },
   {
     id: "relevance-matching",
@@ -64,6 +66,7 @@ Structured Candidate Profile:
 {work-history-parsing}
 
 Output the results as a structured JSON object including ranks/scores.`,
+    dependencies: ["job-description-analysis", "work-history-parsing"]
   },
 
   {
@@ -91,6 +94,7 @@ Structured Candidate Profile:
 {work-history-parsing}
 
 Output only the Markdown resume content.`,
+    dependencies: ["job-description-analysis", "work-history-parsing"]
   },
   {
     id: "resume-optimization",
@@ -115,6 +119,7 @@ Prioritized Candidate Experiences:
 {relevance-matching}
 
 Output only the optimized Markdown resume content.`,
+    dependencies: ["initial-resume-draft", "relevance-matching"]
   },
 //   {
 //     id: "final-proofreading",

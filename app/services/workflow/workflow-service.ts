@@ -6,12 +6,20 @@ import dbService from "../db/dbService";
 /**
  * Executes the entire workflow on the server side
  * @param jobDescription - The job description text.
+ * @param jobId - The job ID.
  * @param workflowId - Optional ID of the workflow to execute (defaults to defaultWorkflowId).
+ * @param templateDescription - Optional template description.
  */
-export async function executeWorkflow(
+export function executeWorkflow(
   jobDescription: string,
-  workflowId: string = defaultWorkflowId // Add optional workflowId parameter
-): Promise<string> {
+  jobId: number,
+  workflowId: string = defaultWorkflowId,
+  templateDescription = ""
+): Promise<{
+  workflowResults: Record<string, string>;
+  workflowSteps: WorkflowStep[];
+  success: boolean;
+}> {
   // Get work history from DB
   const workHistory = dbService.getWorkHistory();
   if (!workHistory) {
@@ -32,26 +40,102 @@ export async function executeWorkflow(
       openai: process.env.OPENAI_API_KEY || "",
       gemini: process.env.GEMINI_API_KEY || "",
     },
-    currentWorkflowSteps // Use dynamically loaded steps
+    currentWorkflowSteps
   );
 
   // Initial context with job description and work history from DB
   const initialContext: WorkflowContext = {
     jobDescription,
     workHistory,
+    templateDescription,
+    relevant: ' ',
     intermediateResults: {}
   };
 
-  // Execute all steps in sequence
-  const context = await engine.execute(initialContext);
+  return new Promise((resolve, reject) => {
+    engine.execute(initialContext)
+      .then(({ contextPromise, stepPromises }) => {
+        // Initialize all steps as "processing" in the database
+        for (const step of currentWorkflowSteps) {
+          dbService.saveWorkflowStep({
+            jobId,
+            stepId: step.id,
+            workflowId,
+            result: "",
+            status: "processing"
+          });
+        }
 
-  // Return the final resume
-  // TODO: Consider making the final step ID ('craft-resume') configurable per workflow
-  const finalResume = context.intermediateResults['craft-resume'];
-  if (typeof finalResume !== 'string') {
-    throw new Error(`Resume generation failed (step 'craft-resume') or returned unexpected type in workflow '${workflowId}'`);
-  }
-  return finalResume;
+        // Attach status updates to individual step promises
+        // but don't wait for them here for the final result.
+        for (const [stepId, stepPromise] of stepPromises.entries()) {
+          stepPromise
+            .then(({ result }) => {
+              // Save completed status
+              dbService.saveWorkflowStep({
+                jobId,
+                stepId,
+                workflowId,
+                result,
+                status: "completed",
+              });
+            })
+            .catch((error) => {
+              console.error(`Step ${stepId} failed:`, error);
+              // Save error status
+              dbService.saveWorkflowStep({
+                jobId,
+                stepId,
+                workflowId,
+                result: error.message,
+                status: "error",
+              });
+              // Don't re-throw here, let contextPromise handle overall failure
+            });
+        }
+
+        // Wait for the entire workflow context to resolve
+        return contextPromise;
+      })
+      .then((finalContext) => {
+        // Extract results from the final context, ensuring they are strings
+        const workflowResults: Record<string, string> = Object.entries(
+          finalContext.intermediateResults
+        ).reduce((acc, [key, value]) => {
+          acc[key] = String(value); // Ensure value is a string
+          return acc;
+        }, {} as Record<string, string>);
+
+        console.log(`Workflow execution completed for job ${jobId}`);
+
+        // Resolve with the workflow results and steps
+        resolve({
+          workflowResults,
+          workflowSteps: currentWorkflowSteps,
+          success: true,
+        });
+      })
+      .catch((error) => {
+        // Catch errors from engine.execute() or contextPromise
+        console.error(`Workflow execution failed overall for job ${jobId}:`, error);
+        // Ensure all steps that might have been running are marked as error if not completed
+        // Note: This might overwrite specific step errors, but provides a consistent final state
+        const currentStepsState = dbService.getWorkflowSteps(jobId, workflowId);
+        for (const step of currentWorkflowSteps) {
+          const stepState = currentStepsState.find(s => s.stepId === step.id);
+          if (stepState?.status === "processing") {
+            dbService.saveWorkflowStep({
+              jobId,
+              stepId: step.id,
+              workflowId,
+              result: "Workflow failed",
+              status: "error",
+            });
+          }
+        }
+        reject(error); // Reject the main promise
+      });
+  });
 }
 
 /**

@@ -18,6 +18,7 @@ Job Description:
 {jobDescription}
 
 Output strictly as JSON without extra information.`,
+    dependencies: []
   },
   {
     id: "work-history-parsing",
@@ -36,6 +37,7 @@ Candidate Profile:
 {workHistory}
 
 Output strictly as JSON without extra information.`,
+    dependencies: []
   },
   {
     id: "validation-cross-check",
@@ -57,6 +59,7 @@ Parsed Candidate Profile:
 {work-history-parsing}
 
 Output strictly corrected JSON.`,
+    dependencies: ["work-history-parsing"]
   },
   {
     id: "relevance-matching",
@@ -78,6 +81,7 @@ Verified Candidate Profile:
 {validation-cross-check}
 
 Output strictly as JSON with relevance scores.`,
+    dependencies: ["job-description-analysis", "validation-cross-check"]
   },
   {
     id: "initial-resume-draft",
@@ -101,6 +105,7 @@ Verified Candidate Profile:
 {validation-cross-check}
 
 Output strictly Markdown without extra information.`,
+    dependencies: ["job-description-analysis", "relevance-matching", "validation-cross-check"]
   },
   {
     id: "resume-optimization",
@@ -122,5 +127,6 @@ Ranked Verified Candidate Experiences:
 {relevance-matching}
 
 Output strictly optimized Markdown.`,
+    dependencies: ["initial-resume-draft", "relevance-matching"]
   },
 ];

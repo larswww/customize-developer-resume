@@ -7,6 +7,8 @@ import type {
 	AIClient,
 	WorkflowContext,
 	AnthropicSystemParam,
+	AIRequestOptions,
+	AIResponse,
 } from "../../services/ai/types";
 
 type ApiKeys = {
@@ -28,86 +30,118 @@ export class WorkflowEngine {
 	}
 
 	/**
-	 * Execute all workflow steps in sequence
+	 * Execute workflow steps in parallel where possible, respecting dependencies
+	 * Returns an array of individual step promises along with the final context promise
 	 */
-	async execute(initialContext: WorkflowContext): Promise<WorkflowContext> {
+	async execute(initialContext: WorkflowContext) {
 		let context: WorkflowContext = { ...initialContext };
-
-		// Execute each step in order
-		for (const step of this.steps) {
-			try {
-				// Assuming step.prompt is always a string based on current types
-				const promptTemplate = step.prompt;
-				const placeholders = promptTemplate.match(/{([^}]+)}/g) || [];
-
-				for (const placeholder of placeholders) {
-					const key = placeholder.replace('{', '').replace('}', '');
-					const value = context[key as keyof WorkflowContext] ?? context.intermediateResults[key];
-					
-					if (value === undefined) {
-						throw new Error(`Missing required context variable '{${key}}' for step '${step.id}'`);
+		const completedSteps = new Set<string>();
+		const stepPromises = new Map<string, Promise<{ stepId: string; result: string }>>();
+		
+		// Create a promise that will resolve when all steps are completed
+		const contextPromise = new Promise<WorkflowContext>((resolve, reject) => {
+			const executeSteps = async () => {
+				try {
+					while (completedSteps.size < this.steps.length) {
+						const readySteps = this.findReadySteps(completedSteps);
+						this.checkForCircularDependencies(readySteps, completedSteps);
+						
+						console.log(`Executing ${readySteps.length} steps in parallel: ${readySteps.map(s => s.id).join(", ")}`);
+						
+						const stepPromisesForBatch = readySteps.map(step => this.prepareAndExecuteStep(step, context));
+						
+						// Register these promises in our map
+						readySteps.forEach((step, index) => {
+							stepPromises.set(step.id, stepPromisesForBatch[index]);
+						});
+						
+						const results = await Promise.all(stepPromisesForBatch);
+						context = this.updateContextWithResults(context, results, completedSteps);
 					}
+					
+					resolve(context);
+				} catch (error) {
+					reject(error);
 				}
-
-				const result = await this.executeStep(step, context);
-				// Add result to context with step ID as key
-				context = {
-					...context,
-					intermediateResults: {
-						...context.intermediateResults,
-						[step.id]: result,
-					},
-				};
-			} catch (error) {
-				if (error instanceof Error && error.message.startsWith('Missing required context variable')) {
-					console.error(`Workflow halted at step ${step.id}: ${error.message}`);
-				} else {
-					console.error(`Error executing step ${step.id}:`, error);
-				}
-				throw error;
+			};
+			
+			executeSteps();
+		});
+		
+		return { contextPromise, stepPromises };
+	}
+	
+	private findReadySteps(completedSteps: Set<string>): WorkflowStep[] {
+		return this.steps.filter(step => {
+			if (completedSteps.has(step.id)) return false;
+			
+			const dependencies = step.dependencies || [];
+			return dependencies.every(depId => completedSteps.has(depId));
+		});
+	}
+	
+	private checkForCircularDependencies(readySteps: WorkflowStep[], completedSteps: Set<string>): void {
+		if (readySteps.length === 0) {
+			const pendingSteps = this.steps
+				.filter(step => !completedSteps.has(step.id))
+				.map(step => step.id)
+				.join(", ");
+			throw new Error(`Cannot proceed with workflow execution. Possible circular dependency among steps: ${pendingSteps}`);
+		}
+	}
+	
+	private async prepareAndExecuteStep(step: WorkflowStep, context: WorkflowContext): Promise<{ stepId: string, result: string }> {
+		try {
+			this.validateRequiredVariables(step, context);
+			const result = await this.executeStep(step, context);
+			return { stepId: step.id, result };
+		} catch (error) {
+			this.handleStepExecutionError(error, step);
+			throw error;
+		}
+	}
+	
+	private validateRequiredVariables(step: WorkflowStep, context: WorkflowContext): void {
+		const promptTemplate = step.prompt;
+		const placeholders = promptTemplate.match(/{([^}]+)}/g) || [];
+		
+		for (const placeholder of placeholders) {
+			const key = placeholder.replace('{', '').replace('}', '');
+			const value = context[key as keyof WorkflowContext] ?? context.intermediateResults[key];
+			
+			if (value === undefined) {
+				throw new Error(`Missing required context variable '{${key}}' for step '${step.id}'`);
 			}
 		}
-
-		return context;
 	}
-
-	/**
-	 * Creates a list of promises for each step that can be executed independently
-	 * (Note: This method is no longer used in the primary workflow but kept for potential future use)
-	 */
-	createCustomStepPromises(initialContext: WorkflowContext): Array<() => Promise<unknown>> {
-		let context: WorkflowContext = { ...initialContext };
-		const stepPromises: Array<() => Promise<unknown>> = [];
-
-		// For each step, create a promise factory function
-		this.steps.forEach((step, index) => {
-			// Create a function that when called, will execute the step
-			const promise = async () => {
-				// Wait for all previous steps to complete
-				if (index > 0) {
-					for (let i = 0; i < index; i++) {
-						// Ensure the previous step's result is available in the intermediateResults
-						if (!context.intermediateResults[this.steps[i].id]) {
-							const result = await stepPromises[i]();
-							context = {
-								...context,
-								intermediateResults: {
-									...context.intermediateResults,
-									[this.steps[i].id]: result,
-								},
-							};
-						}
-					}
-				}
-
-				// Now execute this step with the updated context
-				return this.executeStep(step, context);
+	
+	private handleStepExecutionError(error: unknown, step: WorkflowStep): void {
+		if (error instanceof Error && error.message.startsWith('Missing required context variable')) {
+			console.error(`Workflow halted at step ${step.id}: ${error.message}`);
+		} else {
+			console.error(`Error executing step ${step.id}:`, error);
+		}
+	}
+	
+	private updateContextWithResults(
+		context: WorkflowContext, 
+		results: Array<{ stepId: string, result: string }>, 
+		completedSteps: Set<string>
+	): WorkflowContext {
+		let updatedContext = { ...context };
+		
+		for (const { stepId, result } of results) {
+			updatedContext = {
+				...updatedContext,
+				intermediateResults: {
+					...updatedContext.intermediateResults,
+					[stepId]: result,
+				},
 			};
-
-			stepPromises.push(promise);
-		});
-
-		return stepPromises;
+			completedSteps.add(stepId);
+		}
+		
+		return updatedContext;
 	}
 
 	/**
@@ -119,15 +153,13 @@ export class WorkflowEngine {
 
 		for (const placeholder of placeholders) {
 			const key = placeholder.replace('{', '').replace('}', '');
-			// Access values from the main context or intermediate results
 			const value = context[key as keyof WorkflowContext] ?? context.intermediateResults[key];
 			
 			if (value !== undefined) {
-				// Ensure value is a string; handle objects/arrays appropriately if needed
 				prompt = prompt.replace(placeholder, String(value));
 			} else {
 				console.warn(`Placeholder '{${key}}' not found in context for step.`);
-				prompt = prompt.replace(placeholder, ''); // Replace with empty string or handle as error
+				prompt = prompt.replace(placeholder, '');
 			}
 		}
 		return prompt;
@@ -138,75 +170,83 @@ export class WorkflowEngine {
 	 */
 	private async executeStep(step: WorkflowStep, context: WorkflowContext): Promise<string> {
 		console.log(`Executing step: ${step.id} using provider: ${step.provider}`);
+		
+		const client = this.createAIClient(step.provider);
+		const finalPrompt = this.interpolatePrompt(step.prompt, context);
+		const interpolatedSystemPrompt = this.interpolateSystemPrompt(step.systemPrompt, context);
+		const options = this.prepareClientOptions(step.options, interpolatedSystemPrompt);
 
-		let client: AIClient;
-		const provider = step.provider as AIProvider;
-
-		// Instantiate the correct AI client based on the provider
+		try {
+			console.log(`Sending prompt to ${step.provider} for step ${step.id}`);
+			const response = await client.generate(finalPrompt, options);
+			console.log(`Received response from ${step.provider} for step ${step.id}`);
+			
+			return this.processStepResponse(response, step, context);
+		} catch (error) {
+			this.handleAIGenerationError(error, step);
+			throw error;
+		}
+	}
+	
+	private createAIClient(provider: "openai" | "anthropic" | "gemini" | "local"): AIClient {
 		switch (provider) {
 			case "openai":
 				if (!this.apiKeys.openai) throw new Error("OpenAI API key not configured");
-				client = new OpenAIClient(this.apiKeys.openai);
-				break;
+				return new OpenAIClient(this.apiKeys.openai);
 			case "anthropic":
 				if (!this.apiKeys.anthropic) throw new Error("Anthropic API key not configured");
-				client = new AnthropicClient(this.apiKeys.anthropic);
-				break;
+				return new AnthropicClient(this.apiKeys.anthropic);
 			case "gemini":
 				if (!this.apiKeys.gemini) throw new Error("Gemini API key not configured");
-				client = new GeminiClient(this.apiKeys.gemini);
-				break;
+				return new GeminiClient(this.apiKeys.gemini);
 			default:
 				throw new Error(`Unsupported AI provider: ${provider}`);
 		}
-
-		// Determine the prompt to use (should be a string based on types)
-		const promptTemplate = step.prompt;
+	}
+	
+	private interpolateSystemPrompt(
+		systemPrompt: string | AnthropicSystemParam[] | undefined, 
+		context: WorkflowContext
+	): string | AnthropicSystemParam[] | undefined {
+		if (typeof systemPrompt === "string") {
+			return this.interpolatePrompt(systemPrompt, context);
+		}
 		
-		// Interpolate the main prompt with context values
-		const finalPrompt = this.interpolatePrompt(promptTemplate, context);
-
-		// Interpolate the system prompt as well
-		let interpolatedSystemPrompt: string | AnthropicSystemParam[] | undefined;
-		if (typeof step.systemPrompt === "string") {
-			interpolatedSystemPrompt = this.interpolatePrompt(step.systemPrompt, context);
-		} else if (Array.isArray(step.systemPrompt)) {
-			interpolatedSystemPrompt = step.systemPrompt.map(param => {
+		if (Array.isArray(systemPrompt)) {
+			return systemPrompt.map(param => {
 				if (typeof param === 'object' && param !== null && 'text' in param) {
 					return {
 						...param,
 						text: this.interpolatePrompt(param.text, context),
 					};
-				} 
-				// Should not happen with current AnthropicSystemParam type, but handle defensively
-				return param; 
+				}
+				return param;
 			});
-		} else {
-			interpolatedSystemPrompt = undefined;
 		}
-
-		// Prepare options for the AI client, using the interpolated system prompt
-		const options = {
-			...(step.options || {}),
-			systemPrompt: interpolatedSystemPrompt, // Use interpolated version
+		
+		return undefined;
+	}
+	
+	private prepareClientOptions(
+		stepOptions: AIRequestOptions | undefined, 
+		systemPrompt: string | AnthropicSystemParam[] | undefined
+	): AIRequestOptions {
+		return {
+			...(stepOptions || {}),
+			systemPrompt,
 		};
-
-		try {
-			console.log(`Sending prompt to ${provider} for step ${step.id}`);
-			const response = await client.generate(finalPrompt, options);
-			console.log(`Received response from ${provider} for step ${step.id}`);
-			
-			// Optional transformation step
-			if (step.transform) {
-				const transformedResult = step.transform(response, context);
-				// Ensure the transformed result is a string for consistency
-				return typeof transformedResult === 'string' ? transformedResult : JSON.stringify(transformedResult);
-			}
-
-			return response.text;
-		} catch (error) {
-			console.error(`Error during AI generation for step ${step.id} with provider ${provider}:`, error);
-			throw new Error(`AI generation failed for step ${step.id}: ${error instanceof Error ? error.message : String(error)}`);
+	}
+	
+	private processStepResponse(response: AIResponse, step: WorkflowStep, context: WorkflowContext): string {
+		if (step.transform) {
+			const transformedResult = step.transform(response, context);
+			return typeof transformedResult === 'string' ? transformedResult : JSON.stringify(transformedResult);
 		}
+		return response.text;
+	}
+	
+	private handleAIGenerationError(error: unknown, step: WorkflowStep): void {
+		console.error(`Error during AI generation for step ${step.id} with provider ${step.provider}:`, error);
+		throw new Error(`AI generation failed for step ${step.id}: ${error instanceof Error ? error.message : String(error)}`);
 	}
 }

@@ -22,7 +22,8 @@ export const workflowSteps: WorkflowStep[] = [
 	- What type of strenghts and achievements would be most relevant for this job?
 	- how can the job descriptions language and tone of voice be mirrored?
 
-	Provide only the guide, no other text or commentary.`
+	Provide only the guide, no other text or commentary.`,
+    dependencies: []
   },
   {
     id: "extract-skills",
@@ -44,7 +45,8 @@ Instructions:
 
 Work experience:
 """{workHistory}"""`,
-	useInResume: true
+	useInResume: true,
+	dependencies: []
   },
   {
     id: "craft-work-experience",
@@ -68,7 +70,8 @@ Customizations instructions:
 
 Work experience:
 """{workHistory}"""`,
-	useInResume: true
+	useInResume: true,
+	dependencies: ["job-description-analysis"]
   },
   {
     id: "generate-motivation",
@@ -90,7 +93,8 @@ Job Description:
 Work History:
 """{workHistory}"""
 
-Provide only the motivation statement, no other text or commentary.`
+Provide only the motivation statement, no other text or commentary.`,
+	dependencies: []
   },
   {
     id: "generate-personal-background",
@@ -112,6 +116,7 @@ Job Description:
 Work History:
 """{workHistory}"""
 
-Provide only the personal background summary, no other text or commentary.`
+Provide only the personal background summary, no other text or commentary.`,
+	dependencies: []
   }
 ];

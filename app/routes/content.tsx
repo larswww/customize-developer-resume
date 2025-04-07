@@ -1,10 +1,8 @@
-import {  useRef } from "react";
-import { Form, useActionData, useLoaderData, useNavigation, useOutletContext, redirect, Outlet } from "react-router";
+import { useRef, Suspense } from "react";
+import { Form, useNavigation, useOutletContext, redirect, Outlet, Await } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { workflows, defaultWorkflowId } from "../config/workflows";
-import type { WorkflowContext, WorkflowStep } from "../services/ai/types";
-import { validateApiKeys } from "../services/workflow/workflow-service";
-import { WorkflowEngine } from "../services/workflow/workflow-engine";
+import { validateApiKeys, executeWorkflow } from "../services/workflow/workflow-service";
 import dbService from "../services/db/dbService";
 import { LoadingSpinnerIcon, MagicWandIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
@@ -13,7 +11,7 @@ import type { MDXEditorMethods } from '@mdxeditor/editor';
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { WorkflowSteps } from "~/components/WorkflowSteps";
 import { Collapsible } from "~/components/Collapsible";
-import { WorkflowProgressBar } from "~/components/WorkflowProgressBar";
+import type { Route } from "./+types/content";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
@@ -122,53 +120,28 @@ export async function action({ request, params }: ActionFunctionArgs) {
 	  error: `Selected workflow '${workflowId}' not found.`,
 	};
   }
-  const currentWorkflowSteps = selectedWorkflow.steps;
 
   try {
-    const engine = new WorkflowEngine(
-      {
-        anthropic: process.env.ANTHROPIC_API_KEY || "",
-        openai: process.env.OPENAI_API_KEY || "",
-        gemini: process.env.GEMINI_API_KEY || "",
-      },
-      currentWorkflowSteps,
+    console.log(`Starting workflow execution (${workflowId})...`);
+    
+    // Call the workflow service to execute the workflow (now synchronous)
+    const { workflowResults, workflowSteps, success } = await executeWorkflow(
+      jobDescription,
+      jobId,
+      workflowId,
+      templateDescription
     );
 
-    const workHistory = dbService.getWorkHistory();
-
-    const initialContext: WorkflowContext = {
-      jobDescription,
-      workHistory: JSON.stringify(workHistory),
-      templateDescription: templateDescription,
-      relevant: ' ',
-      intermediateResults: {},
+    console.log({workflowResults, workflowSteps})
+    
+    // Action now simply returns success/error; loader handles data fetching
+    return {
+      success: success, // Indicate success or failure based on workflow execution
+      // workflowResults and workflowSteps are no longer returned here
+      selectedWorkflowId: workflowId, // Still needed for error messages potentially
+      // Use the caught error message if execution failed, otherwise undefined
+      error: success ? undefined : "Workflow execution failed." 
     };
-
-    console.log(`Starting workflow execution (${workflowId})...`);
-    const finalContext = await engine.execute(initialContext);
-    console.log(`Workflow execution completed (${workflowId}).`, finalContext);
-
-    console.log("Saving workflow step results to database...");
-    for (const step of currentWorkflowSteps) {
-      const result = finalContext.intermediateResults[step.id];
-      if (result !== undefined) {
-        try {
-          dbService.saveWorkflowStep({
-            jobId,
-            stepId: step.id,
-            workflowId: workflowId,
-            result: String(result),
-            status: "completed"
-          });
-          console.log(`Saved result for step: ${step.id}`);
-        } catch (dbError) {
-          console.error(`Failed to save result for step ${step.id}:`, dbError);
-        }
-      }
-    }
-    console.log("Finished saving workflow step results.");
-
-    return redirect(`/job/${jobId}/resume?workflow=${workflowId}&template=${templateId}&t=${Date.now()}`);
 
   } catch (error) {
     console.error(`Error in workflow action handler (${workflowId}):`, error);
@@ -180,75 +153,51 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-interface ActionData {
-  success?: boolean;
-  results?: Record<string, unknown>;
-  error?: string;
-  totalSteps?: number;
-  selectedWorkflowId?: string;
-}
 
 interface OutletContextType {
   selectedWorkflowId: string;
   selectedTemplateId: string;
+  isWorkflowComplete: boolean; 
 }
 
-export default function JobContent() {
+
+export default function JobContent({loaderData, actionData}: Route.ComponentProps) {
   const {
     job,
     workflowStepsData,
     currentWorkflowSteps,
-    isWorkflowComplete
-  } = useLoaderData<typeof loader>();
+    isWorkflowComplete,
+    totalSteps
+  } = loaderData;
 
   const { selectedWorkflowId, selectedTemplateId } = useOutletContext<OutletContextType>();
   const jobDescEditorRef = useRef<MDXEditorMethods | null>(null);
 
-  const actionData = useActionData<typeof action>();
+
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  const getWorkflowData = () => {
-    const relevantWorkflowId = actionData?.selectedWorkflowId ?? selectedWorkflowId;
-    const stepsToRender = workflows[relevantWorkflowId]?.steps ?? currentWorkflowSteps;
+  // Derive state directly from loaderData
+  const stepsToRender = currentWorkflowSteps; // These are the steps defined in the workflow config
 
-    // Filter workflow steps to only include steps from the current workflow
-    const filteredWorkflowSteps = workflowStepsData.filter(step => 
-      step.workflowId === relevantWorkflowId
-    );
+  // Extract results and statuses from the loader data (DB state)
+  const resultsToShow = workflowStepsData.reduce((acc, step) => {
+    acc[step.stepId] = step.result;
+    return acc;
+  }, {} as Record<string, unknown>);
 
-    const resultsToShow = filteredWorkflowSteps.reduce((acc, step) => {
-          acc[step.stepId] = step.result;
-          return acc;
-        }, {} as Record<string, unknown>);
+  const statusesToShow = workflowStepsData.reduce((acc, step) => {
+    acc[step.stepId] = step.status;
+    return acc;
+  }, {} as Record<string, string>);
 
-    const statusesToShow = filteredWorkflowSteps.reduce((acc, step) => {
-          acc[step.stepId] = step.status;
-          return acc;
-        }, {} as Record<string, string>);
+  // Fill in pending statuses for steps not yet in the DB data
+  for (const stepConfig of stepsToRender) {
+    if (!(stepConfig.id in statusesToShow)) {
+      statusesToShow[stepConfig.id] = 'pending';
+    }
+  }
 
-    const showSteps = !(Object.keys(resultsToShow).length === 0 && 
-                      filteredWorkflowSteps.length === 0 && 
-                      !actionData?.error && 
-                      navigation.state !== "submitting" && 
-                      navigation.state !== "loading");
-
-    // Calculate which steps are completed and the current step index
-    const completedStepIds = Object.keys(statusesToShow).filter(id => statusesToShow[id] === 'completed');
-    const currentStepIndex = completedStepIds.length < stepsToRender.length 
-      ? completedStepIds.length 
-      : stepsToRender.length - 1;
-
-    return {
-      stepsToRender,
-      resultsToShow,
-      statusesToShow,
-      showSteps,
-      isLoading: navigation.state === "submitting" || navigation.state === "loading",
-      completedStepIds,
-      currentStepIndex
-    };
-  };
 
   // Height that both the progress bar and workflow steps should use
   const contentHeight = "min-h-[200px]";
@@ -291,26 +240,15 @@ export default function JobContent() {
              </div>
          )}
          
-         {isSubmitting && (
-           <WorkflowProgressBar 
-             steps={getWorkflowData().stepsToRender}
-             currentStepIndex={getWorkflowData().currentStepIndex}
-             completedSteps={getWorkflowData().completedStepIds}
-             height={contentHeight}
-           />
-         )}
-         
-         {!isSubmitting && getWorkflowData().showSteps && (
-           <div className="space-y-6">
-             <WorkflowSteps
-               stepsToRender={getWorkflowData().stepsToRender}
-               resultsToShow={getWorkflowData().resultsToShow}
-               statusesToShow={getWorkflowData().statusesToShow}
-               isLoading={getWorkflowData().isLoading}
-               height={contentHeight}
-             />
-           </div>
-         )}
+         {/* Render WorkflowSteps directly, using the data prepared from loaderData */}
+         <WorkflowSteps
+           stepsToRender={stepsToRender}
+           resultsToShow={resultsToShow}
+           statusesToShow={statusesToShow}
+           height={contentHeight}
+         />
+       
+  
       </div>
       <Outlet context={{ selectedWorkflowId, selectedTemplateId, isWorkflowComplete }} />
     </>
