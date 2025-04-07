@@ -13,8 +13,12 @@ import type {
 export class AnthropicClient implements AIClient {
 	private client: Anthropic;
 
-	constructor(apiKey: string) {
-		this.client = new Anthropic({ apiKey });
+	constructor(apiKey?: string) {
+		const key = apiKey || process.env.ANTHROPIC_API_KEY || '';
+		if (!key) {
+			throw new Error("Anthropic API key not configured. Set ANTHROPIC_API_KEY environment variable.");
+		}
+		this.client = new Anthropic({ apiKey: key });
 	}
 
 	async generate(

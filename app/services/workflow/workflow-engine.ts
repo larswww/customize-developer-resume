@@ -10,18 +10,11 @@ import type {
 	AIRequestOptions,
 	AIResponse,
 } from "../../services/ai/types";
-
-type ApiKeys = {
-	anthropic: string;
-	openai: string;
-	gemini?: string;
-};
-
-export type StepStatus = 'pending' | 'processing' | 'completed' | 'error';
+import type { WorkflowStepStatus } from "../db/dbService";
 
 export interface WorkflowStepUpdate {
 	id: string;
-	status: StepStatus;
+	status: WorkflowStepStatus;
 	result?: string;
 	error?: string;
 }
@@ -34,12 +27,10 @@ export interface DBService {
  * WorkflowEngine - Handles the execution of workflow steps
  */
 export class WorkflowEngine {
-	private apiKeys: ApiKeys;
 	private steps: WorkflowStep[];
 	private dbService?: DBService;
 
-	constructor(apiKeys: ApiKeys, steps: WorkflowStep[], dbService?: DBService) {
-		this.apiKeys = apiKeys;
+	constructor(steps: WorkflowStep[], dbService?: DBService) {
 		this.steps = steps;
 		this.dbService = dbService;
 	}
@@ -119,7 +110,7 @@ export class WorkflowEngine {
 			// Update step status to completed with result
 			await this.updateStepStatus({
 				id: step.id,
-				status: 'completed',
+				status: 'success',
 				result
 			});
 			
@@ -242,14 +233,11 @@ export class WorkflowEngine {
 	private createAIClient(provider: "openai" | "anthropic" | "gemini" | "local"): AIClient {
 		switch (provider) {
 			case "openai":
-				if (!this.apiKeys.openai) throw new Error("OpenAI API key not configured");
-				return new OpenAIClient(this.apiKeys.openai);
+				return new OpenAIClient();
 			case "anthropic":
-				if (!this.apiKeys.anthropic) throw new Error("Anthropic API key not configured");
-				return new AnthropicClient(this.apiKeys.anthropic);
+				return new AnthropicClient();
 			case "gemini":
-				if (!this.apiKeys.gemini) throw new Error("Gemini API key not configured");
-				return new GeminiClient(this.apiKeys.gemini);
+				return new GeminiClient();
 			default:
 				throw new Error(`Unsupported AI provider: ${provider}`);
 		}

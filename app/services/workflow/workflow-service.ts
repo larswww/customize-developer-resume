@@ -66,11 +66,6 @@ export async function executeWorkflow(
     
     // Create workflow engine with the selected steps and DB adapter
     const engine = new WorkflowEngine(
-      {
-        anthropic: process.env.ANTHROPIC_API_KEY || "",
-        openai: process.env.OPENAI_API_KEY || "",
-        gemini: process.env.GEMINI_API_KEY || "",
-      },
       currentWorkflowSteps,
       dbAdapter
     );
@@ -109,18 +104,3 @@ export async function executeWorkflow(
   }
 }
 
-/**
- * Validates that required API keys are present
- */
-export function validateApiKeys(): {
-  isValid: boolean;
-  missingKeys: string[];
-} {
-  const requiredKeys = ["ANTHROPIC_API_KEY", "OPENAI_API_KEY"];
-  const missingKeys = requiredKeys.filter((key) => !process.env[key]);
-
-  return {
-    isValid: missingKeys.length === 0,
-    missingKeys,
-  };
-}

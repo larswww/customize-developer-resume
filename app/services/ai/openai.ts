@@ -3,8 +3,11 @@ import type { AIClient, AIRequestOptions, AIResponse, AnthropicSystemParam } fro
 export class OpenAIClient implements AIClient {
 	private apiKey: string;
 
-	constructor(apiKey: string) {
-		this.apiKey = apiKey;
+	constructor(apiKey?: string) {
+		this.apiKey = apiKey || process.env.OPENAI_API_KEY || '';
+		if (!this.apiKey) {
+			throw new Error("OpenAI API key not configured. Set OPENAI_API_KEY environment variable.");
+		}
 	}
 
 	async generate(

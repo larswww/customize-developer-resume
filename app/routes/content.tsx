@@ -2,7 +2,7 @@ import { useRef, Suspense } from "react";
 import { Form, useNavigation, useOutletContext, redirect, Outlet, Await } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { workflows, defaultWorkflowId } from "../config/workflows";
-import { validateApiKeys, executeWorkflow } from "../services/workflow/workflow-service";
+import { executeWorkflow } from "../services/workflow/workflow-service";
 import dbService from "../services/db/dbService";
 import { LoadingSpinnerIcon, MagicWandIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
@@ -103,15 +103,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     jobDescription,
     relevantDescription: relevant || ""
   });
-
-  const { missingKeys, isValid } = validateApiKeys();
-
-  if (!isValid) {
-    return {
-      success: false,
-      error: `Missing required API keys: ${missingKeys.join(", ")}. Please check your environment configuration.` ,
-    };
-  }
   
   const selectedWorkflow = workflows[workflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
