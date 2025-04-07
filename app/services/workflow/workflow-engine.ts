@@ -17,16 +17,31 @@ type ApiKeys = {
 	gemini?: string;
 };
 
+export type StepStatus = 'pending' | 'processing' | 'completed' | 'error';
+
+export interface WorkflowStepUpdate {
+	id: string;
+	status: StepStatus;
+	result?: string;
+	error?: string;
+}
+
+export interface DBService {
+	updateStepStatus(update: WorkflowStepUpdate): Promise<void>;
+}
+
 /**
  * WorkflowEngine - Handles the execution of workflow steps
  */
 export class WorkflowEngine {
 	private apiKeys: ApiKeys;
 	private steps: WorkflowStep[];
+	private dbService?: DBService;
 
-	constructor(apiKeys: ApiKeys, steps: WorkflowStep[]) {
+	constructor(apiKeys: ApiKeys, steps: WorkflowStep[], dbService?: DBService) {
 		this.apiKeys = apiKeys;
 		this.steps = steps;
+		this.dbService = dbService;
 	}
 
 	/**
@@ -48,6 +63,12 @@ export class WorkflowEngine {
 						
 						console.log(`Executing ${readySteps.length} steps in parallel: ${readySteps.map(s => s.id).join(", ")}`);
 						
+						// Update status to processing for ready steps
+						await Promise.all(readySteps.map(step => this.updateStepStatus({
+							id: step.id,
+							status: 'processing'
+						})));
+						
 						const stepPromisesForBatch = readySteps.map(step => this.prepareAndExecuteStep(step, context));
 						
 						// Register these promises in our map
@@ -56,7 +77,7 @@ export class WorkflowEngine {
 						});
 						
 						const results = await Promise.all(stepPromisesForBatch);
-						context = this.updateContextWithResults(context, results, completedSteps);
+						context = await this.updateContextWithResults(context, results, completedSteps);
 					}
 					
 					resolve(context);
@@ -94,9 +115,25 @@ export class WorkflowEngine {
 		try {
 			this.validateRequiredVariables(step, context);
 			const result = await this.executeStep(step, context);
+			
+			// Update step status to completed with result
+			await this.updateStepStatus({
+				id: step.id,
+				status: 'completed',
+				result
+			});
+			
 			return { stepId: step.id, result };
 		} catch (error) {
 			this.handleStepExecutionError(error, step);
+			
+			// Update step status to error
+			await this.updateStepStatus({
+				id: step.id,
+				status: 'error',
+				error: error instanceof Error ? error.message : String(error)
+			});
+			
 			throw error;
 		}
 	}
@@ -123,11 +160,11 @@ export class WorkflowEngine {
 		}
 	}
 	
-	private updateContextWithResults(
+	private async updateContextWithResults(
 		context: WorkflowContext, 
 		results: Array<{ stepId: string, result: string }>, 
 		completedSteps: Set<string>
-	): WorkflowContext {
+	): Promise<WorkflowContext> {
 		let updatedContext = { ...context };
 		
 		for (const { stepId, result } of results) {
@@ -142,6 +179,20 @@ export class WorkflowEngine {
 		}
 		
 		return updatedContext;
+	}
+
+	/**
+	 * Updates the status of a step in the database if a DB service is provided
+	 */
+	private async updateStepStatus(update: WorkflowStepUpdate): Promise<void> {
+		if (this.dbService) {
+			try {
+				await this.dbService.updateStepStatus(update);
+				console.log(`Updated step ${update.id} status to ${update.status}`);
+			} catch (error) {
+				console.error(`Failed to update step ${update.id} status:`, error);
+			}
+		}
 	}
 
 	/**
