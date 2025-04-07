@@ -29,7 +29,8 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     throw new Response("Job not found", { status: 404 });
   }
 
-  const workflowStepsData = dbService.getWorkflowSteps(jobId);
+  // Get workflow steps for the specific workflow
+  const workflowStepsData = dbService.getWorkflowSteps(jobId, selectedWorkflowId);
   
   const selectedWorkflow = workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
@@ -41,9 +42,20 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
       throw new Error("Default template config not found.");
   }
 
+  // Check if the workflow is complete and redirect to resume if it is
+  const isWorkflowComplete = selectedWorkflow.steps.length > 0 && 
+    workflowStepsData.length === selectedWorkflow.steps.length &&
+    workflowStepsData.every(step => step.status === 'completed');
+
+  const isOnResume = url.pathname.includes('/resume');
+  if (isWorkflowComplete && !isOnResume) {
+    return redirect(`/job/${jobId}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`);
+  }
+
   return {
     job,
     workflowStepsData,
+    isWorkflowComplete,
     currentWorkflowSteps: selectedWorkflow.steps,
     totalSteps: selectedWorkflow.steps.length,
     templateDescription: selectedTemplateConfig.description,
@@ -144,6 +156,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
           dbService.saveWorkflowStep({
             jobId,
             stepId: step.id,
+            workflowId: workflowId,
             result: String(result),
             status: "completed"
           });
@@ -167,23 +180,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-interface LoaderData {
-  job: {
-    id: number;
-    title: string;
-    jobDescription: string;
-    relevantDescription: string;
-  };
-  workflowStepsData: Array<{
-    stepId: string;
-    result: string;
-    status: string;
-  }>;
-  currentWorkflowSteps: WorkflowStep[];
-  totalSteps: number;
-  templateDescription: string;
-}
-
 interface ActionData {
   success?: boolean;
   results?: Record<string, unknown>;
@@ -202,13 +198,13 @@ export default function JobContent() {
     job,
     workflowStepsData,
     currentWorkflowSteps,
-    totalSteps,
-  } = useLoaderData<LoaderData>();
+    isWorkflowComplete
+  } = useLoaderData<typeof loader>();
 
   const { selectedWorkflowId, selectedTemplateId } = useOutletContext<OutletContextType>();
   const jobDescEditorRef = useRef<MDXEditorMethods | null>(null);
 
-  const actionData = useActionData<ActionData>();
+  const actionData = useActionData<typeof action>();
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
@@ -216,25 +212,23 @@ export default function JobContent() {
     const relevantWorkflowId = actionData?.selectedWorkflowId ?? selectedWorkflowId;
     const stepsToRender = workflows[relevantWorkflowId]?.steps ?? currentWorkflowSteps;
 
-    const resultsToShow = actionData?.results
-      ? actionData.results
-      : workflowStepsData.reduce((acc, step) => {
+    // Filter workflow steps to only include steps from the current workflow
+    const filteredWorkflowSteps = workflowStepsData.filter(step => 
+      step.workflowId === relevantWorkflowId
+    );
+
+    const resultsToShow = filteredWorkflowSteps.reduce((acc, step) => {
           acc[step.stepId] = step.result;
           return acc;
         }, {} as Record<string, unknown>);
 
-    const statusesToShow = actionData?.results
-      ? stepsToRender.reduce((acc, step) => {
-          acc[step.id] = actionData.results?.[step.id] !== undefined ? 'completed' : 'pending';
-          return acc;
-        }, {} as Record<string, string>)
-      : workflowStepsData.reduce((acc, step) => {
+    const statusesToShow = filteredWorkflowSteps.reduce((acc, step) => {
           acc[step.stepId] = step.status;
           return acc;
         }, {} as Record<string, string>);
 
     const showSteps = !(Object.keys(resultsToShow).length === 0 && 
-                      workflowStepsData.length === 0 && 
+                      filteredWorkflowSteps.length === 0 && 
                       !actionData?.error && 
                       navigation.state !== "submitting" && 
                       navigation.state !== "loading");
@@ -318,7 +312,7 @@ export default function JobContent() {
            </div>
          )}
       </div>
-      <Outlet context={{ selectedWorkflowId, selectedTemplateId }} />
+      <Outlet context={{ selectedWorkflowId, selectedTemplateId, isWorkflowComplete }} />
     </>
   );
 } 

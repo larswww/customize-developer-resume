@@ -3,17 +3,20 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"build": "react-router build && npm run copy-pdf-worker",
+		"build": "react-router build",
 		"dev": "cross-env NODE_ENV=development tsx server.ts",
 		"dev:msw": "cross-env MSW_ENABLED=true tsx server.ts",
 		"start": "tsx server.ts",
 		"typecheck": "react-router typegen && tsc -b",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:ui": "vitest --ui",
+		"test:coverage": "vitest run --coverage",
 		"lint": "biome check --write .",
 		"lint:format": "biome format --write .",
-		"lint:lint": "biome lint --write .",
-		"copy-pdf-worker": "node scripts/copy-pdf-worker.mjs"
+		"lint:lint": "biome lint --write ."
 	},
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.39.0",
@@ -55,6 +58,7 @@
 		"@types/node": "^20",
 		"@types/react": "^19.0.1",
 		"@types/react-dom": "^19.0.1",
+		"@vitest/ui": "^3.1.1",
 		"cross-env": "^7.0.3",
 		"msw": "^2.7.3",
 		"playwright": "^1.51.1",
@@ -62,7 +66,8 @@
 		"tsx": "^4.19.3",
 		"typescript": "^5.7.2",
 		"vite": "^5.4.11",
-		"vite-tsconfig-paths": "^5.1.4"
+		"vite-tsconfig-paths": "^5.1.4",
+		"vitest": "^3.1.1"
 	},
 	"engines": {
 		"node": "20.17.0",

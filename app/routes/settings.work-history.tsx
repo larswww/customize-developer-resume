@@ -4,7 +4,6 @@ import type { ActionFunctionArgs } from 'react-router';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import dbService from '~/services/db/dbService';
 
-// Import the newly created components
 import { PageLayout } from '~/components/PageLayout';
 import { ClientMarkdownEditor } from '~/components/MarkdownEditor';
 import { SaveBottomBar } from '~/components/SaveBottomBar';
@@ -17,7 +16,6 @@ export function meta() {
   ];
 }
 
-// Loader function to get current work history
 export async function loader() {
   const workHistory = dbService.getWorkHistory();
   return {
@@ -25,7 +23,6 @@ export async function loader() {
   };
 }
 
-// Action function to save updated work history
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const newWorkHistory = formData.get('workHistoryContent') as string;
@@ -34,12 +31,10 @@ export async function action({ request }: ActionFunctionArgs) {
     return { success: false, error: 'Invalid content submitted.' };
   }
 
-  // Get current history from DB to compare
   const currentWorkHistory = dbService.getWorkHistory();
 
-  // Check if content has actually changed
   if (newWorkHistory === (currentWorkHistory ?? '')) {
-      return { success: true, message: 'No changes detected.' }; // Return success but indicate no change
+      return { success: true, message: 'No changes detected.' };
   }
 
   try {
@@ -67,12 +62,10 @@ export default function EditWorkHistory() {
   const isSubmitting = navigation.state === 'submitting';
   const isLoading = navigation.state === 'loading' && navigation.formData?.get('workHistoryContent') !== undefined;
 
-  // Effect to reset hasChanges on successful save
   useEffect(() => {
       if (actionData?.success && actionData.message) {
           if (actionData.message !== 'No changes detected.') {
              setHasChanges(false);
-             // Update last saved content
              if (editorRef.current) {
                  setLastSavedContent(editorRef.current.getMarkdown());
              }
@@ -80,15 +73,13 @@ export default function EditWorkHistory() {
       }
   }, [actionData]);
 
-  // Update the last saved content when initial data changes
   useEffect(() => {
       if (navigation.state !== 'submitting') {
           setLastSavedContent(initialWorkHistory);
-          setHasChanges(false); // Reset changes when loading initial data
+          setHasChanges(false);
       }
   }, [initialWorkHistory, navigation.state]);
 
-  // Handle editor change to track if there are unsaved changes
   const handleEditorChange = (markdown: string) => {
       if (markdown !== lastSavedContent) {
           setHasChanges(true);
@@ -97,7 +88,6 @@ export default function EditWorkHistory() {
       }
   };
 
-  // Handle form submission - get content directly from the editor ref
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
       if (editorRef.current) {
           const markdown = editorRef.current.getMarkdown();
@@ -151,4 +141,4 @@ export default function EditWorkHistory() {
         }
     />
   );
-} 
+}

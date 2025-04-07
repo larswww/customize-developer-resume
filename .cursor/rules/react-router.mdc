@@ -9,8 +9,8 @@ alwaysApply: true
 
 ## Data mutations
 - For data mutations, use Actions (Form, action, useSubmit, clientAction)
+- Avoid useState.
 
 ## Routing
 - https://reactrouter.com/start/framework/routing
 - Routes are defined in routes.ts
-- 

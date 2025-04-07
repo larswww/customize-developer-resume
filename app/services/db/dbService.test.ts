@@ -1,86 +1,429 @@
-import { test, expect } from '@playwright/test';
+import { describe, it, expect, beforeEach, afterEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
-import dbService from './dbService'; // Import the singleton instance
 
-const testDbPath = path.resolve('./test_resume_app.db'); // Absolute path for reliability
-
-// Ensure NODE_ENV is set correctly for the dbService initialization logic
+// Set the test environment
 process.env.NODE_ENV = 'test';
 
-test.beforeAll(() => {
-  // Clean up any old test database file before starting
-  if (fs.existsSync(testDbPath)) {
-    fs.unlinkSync(testDbPath);
-    console.log(`Deleted existing test database: ${testDbPath}`);
-  }
-  // dbService instance is created automatically when imported, 
-  // using the test DB path because NODE_ENV is 'test'.
-  // We just need to ensure it's ready.
-  console.log(`Test database initialized at: ${testDbPath}`);
-});
+// Import the real DbService and factory function
+import { createDbService, type WorkflowStepStatus } from './dbService';
+import type { DefaultResumeData } from '../../templates/default';
 
-test.afterAll(() => {
-  // Close the database connection
-  dbService.close(); 
-  // Clean up the test database file after all tests run
-  if (fs.existsSync(testDbPath)) {
-    fs.unlinkSync(testDbPath);
-    console.log(`Deleted test database: ${testDbPath}`);
-  } else {
-    console.log(`Test database file not found for deletion: ${testDbPath}`);
-  }
-  // Reset NODE_ENV to its original state or undefined
-  process.env.NODE_ENV = undefined; 
-});
+const TEST_DB_PATH = './db-data/test_resume_app.db';
 
-test.describe('DbService Work History', () => {
-  test('should get initial work history if available', () => {
-    // The initial history is inserted during initialization if the setting doesn't exist.
-    // We rely on the import '../../data/workHistory' having some default content.
-    const initialHistory = dbService.getWorkHistory();
-    // Check if it's a string (meaning it was found and read)
-    expect(typeof initialHistory).toBe('string'); 
-    // You might add a more specific check based on expected initial content if desired
-    expect(initialHistory?.length).toBeGreaterThan(0); 
+describe('DbService', () => {
+  let dbService: ReturnType<typeof createDbService>;
+
+  beforeEach(() => {
+    // Ensure the test directory exists
+    const dbDir = path.dirname(TEST_DB_PATH);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+    }
+    
+    // Delete test database if it exists
+    if (fs.existsSync(TEST_DB_PATH)) {
+      try {
+        fs.unlinkSync(TEST_DB_PATH);
+      } catch (error) {
+        console.error(`Error removing test database: ${error}`);
+      }
+    }
+
+    // Create a new instance for each test
+    dbService = createDbService(TEST_DB_PATH, false); // Disable verbose logging in tests
   });
 
-  test('should save and retrieve updated work history', () => {
-    const newWorkHistory = `
-# Updated Work History - ${new Date().toISOString()}
-
-## Company B
-- Position: Senior Developer
-- Dates: 2020 - Present
-- Responsibilities: Led team, developed features.
-
-## Company A
-- Position: Junior Developer
-- Dates: 2018 - 2020
-- Responsibilities: Fixed bugs, learned stuff.
-    `;
-
-    // Save the new work history
-    const saveResult = dbService.saveWorkHistory(newWorkHistory);
-    expect(saveResult).toBe(true); // Check if save operation reported success
-
-    // Retrieve the work history
-    const retrievedHistory = dbService.getWorkHistory();
-
-    // Verify the retrieved content matches the saved content
-    expect(retrievedHistory).toBe(newWorkHistory);
+  afterEach(() => {
+    // Clean up after each test
+    try {
+      if (dbService) {
+        dbService.close();
+      }
+    } catch (error) {
+      console.error('Error closing database:', error);
+    }
   });
 
-  test('should update existing work history', () => {
-    const firstUpdate = "Initial content for update test.";
-    const secondUpdate = `Second update. Replaced first. ${Date.now()}`;
+  afterAll(() => {
+    // Final cleanup after all tests
+    if (fs.existsSync(TEST_DB_PATH)) {
+      try {
+        fs.unlinkSync(TEST_DB_PATH);
+      } catch (error) {
+        console.error('Error deleting test database:', error);
+      }
+    }
+  });
 
-    // First save
-    expect(dbService.saveWorkHistory(firstUpdate)).toBe(true);
-    expect(dbService.getWorkHistory()).toBe(firstUpdate);
+  // Job CRUD operations tests
+  describe('Job operations', () => {
+    it('should create a job', () => {
+      const jobData = {
+        title: 'Software Engineer',
+        jobDescription: 'Develop software applications',
+        relevantDescription: 'Looking for React experience'
+      };
 
-    // Second save (should overwrite)
-    expect(dbService.saveWorkHistory(secondUpdate)).toBe(true);
-    expect(dbService.getWorkHistory()).toBe(secondUpdate);
+      const job = dbService.createJob(jobData);
+      
+      expect(job).toBeDefined();
+      expect(job.id).toBeDefined();
+      expect(job.title).toBe(jobData.title);
+      expect(job.jobDescription).toBe(jobData.jobDescription);
+      expect(job.relevantDescription).toBe(jobData.relevantDescription);
+      expect(job.createdAt).toBeDefined();
+      expect(job.updatedAt).toBeDefined();
+    });
+
+    it('should get a job by id', () => {
+      const jobData = {
+        title: 'Frontend Developer',
+        jobDescription: 'Build user interfaces',
+        relevantDescription: 'React expertise required'
+      };
+
+      const createdJob = dbService.createJob(jobData);
+      const retrievedJob = dbService.getJob(createdJob.id);
+      
+      expect(retrievedJob).toBeDefined();
+      if (retrievedJob) {
+        expect(retrievedJob.id).toBe(createdJob.id);
+        expect(retrievedJob.title).toBe(jobData.title);
+      }
+    });
+
+    it('should update a job', () => {
+      const jobData = {
+        title: 'Backend Developer',
+        jobDescription: 'Develop server-side logic',
+        relevantDescription: 'Node.js experience needed'
+      };
+
+      const createdJob = dbService.createJob(jobData);
+      
+      const updatedJobData = {
+        id: createdJob.id,
+        title: 'Senior Backend Developer',
+        relevantDescription: 'Node.js and AWS experience needed'
+      };
+
+      const updatedJob = dbService.updateJob(updatedJobData);
+      
+      expect(updatedJob.title).toBe(updatedJobData.title);
+      expect(updatedJob.relevantDescription).toBe(updatedJobData.relevantDescription);
+      expect(updatedJob.jobDescription).toBe(jobData.jobDescription); // Should remain unchanged
+    });
+
+    it('should delete a job', () => {
+      const jobData = {
+        title: 'DevOps Engineer',
+        jobDescription: 'Manage CI/CD pipelines',
+      };
+
+      const createdJob = dbService.createJob(jobData);
+      const deleteResult = dbService.deleteJob(createdJob.id);
+      
+      expect(deleteResult).toBe(true);
+      
+      const retrievedJob = dbService.getJob(createdJob.id);
+      expect(retrievedJob).toBeFalsy();
+    });
+
+    it('should get all jobs', () => {
+      const jobData1 = {
+        title: 'Job 1',
+        jobDescription: 'Description 1',
+      };
+      
+      const jobData2 = {
+        title: 'Job 2',
+        jobDescription: 'Description 2',
+      };
+
+      dbService.createJob(jobData1);
+      dbService.createJob(jobData2);
+
+      const allJobs = dbService.getAllJobs();
+      
+      expect(allJobs.length).toBeGreaterThanOrEqual(2);
+      expect(allJobs.some(job => job.title === 'Job 1')).toBe(true);
+      expect(allJobs.some(job => job.title === 'Job 2')).toBe(true);
+    });
+  });
+
+  // Workflow step tests
+  describe('Workflow step operations', () => {
+    it('should save a workflow step', () => {
+      const job = dbService.createJob({
+        title: 'Test Job',
+        jobDescription: 'Description',
+      });
+
+      const stepData = {
+        jobId: job.id,
+        stepId: 'analyze',
+        workflowId: 'default',
+        result: 'Analysis complete',
+        status: 'completed' as WorkflowStepStatus
+      };
+
+      const step = dbService.saveWorkflowStep(stepData);
+      
+      expect(step).toBeDefined();
+      expect(step.jobId).toBe(job.id);
+      expect(step.stepId).toBe(stepData.stepId);
+      expect(step.workflowId).toBe(stepData.workflowId);
+      expect(step.result).toBe(stepData.result);
+      expect(step.status).toBe(stepData.status);
+    });
+
+    it('should update an existing workflow step', () => {
+      const job = dbService.createJob({
+        title: 'Update Step Job',
+        jobDescription: 'Testing step updates',
+      });
+
+      // Initial step
+      const initialStep = {
+        jobId: job.id,
+        stepId: 'extract',
+        workflowId: 'default',
+        result: 'Initial result',
+        status: 'processing' as WorkflowStepStatus
+      };
+      
+      dbService.saveWorkflowStep(initialStep);
+      
+      // Update step
+      const updatedStep = {
+        jobId: job.id,
+        stepId: 'extract',
+        workflowId: 'default',
+        result: 'Updated result',
+        status: 'completed' as WorkflowStepStatus
+      };
+      
+      const result = dbService.saveWorkflowStep(updatedStep);
+      
+      expect(result.result).toBe(updatedStep.result);
+      expect(result.status).toBe(updatedStep.status);
+    });
+
+    it('should get workflow steps for a job', () => {
+      const job = dbService.createJob({
+        title: 'Multiple Steps Job',
+        jobDescription: 'Testing multiple steps',
+      });
+
+      const step1 = {
+        jobId: job.id,
+        stepId: 'step1',
+        workflowId: 'default',
+        result: 'Result 1',
+        status: 'completed' as WorkflowStepStatus
+      };
+      
+      const step2 = {
+        jobId: job.id,
+        stepId: 'step2',
+        workflowId: 'default',
+        result: 'Result 2',
+        status: 'completed' as WorkflowStepStatus
+      };
+      
+      dbService.saveWorkflowStep(step1);
+      dbService.saveWorkflowStep(step2);
+      
+      const steps = dbService.getWorkflowSteps(job.id, 'default');
+      
+      expect(steps.length).toBe(2);
+      expect(steps.some(s => s.stepId === 'step1')).toBe(true);
+      expect(steps.some(s => s.stepId === 'step2')).toBe(true);
+    });
+  });
+
+  // Resume tests
+  describe('Resume operations', () => {
+    it('should save a resume', () => {
+      const job = dbService.createJob({
+        title: 'Resume Job',
+        jobDescription: 'Testing resume save',
+      });
+
+      const resumeData = {
+        jobId: job.id,
+        resumeText: 'This is a test resume',
+        structuredData: {
+          contactInfo: {
+            title: 'Software Developer',
+            name: 'John Doe',
+            location: 'San Francisco, CA',
+            phone: '123-456-7890',
+            email: 'john.doe@example.com',
+            linkedin: 'linkedin.com/in/johndoe'
+          },
+          workExperience: [
+            {
+              title: 'Developer',
+              company: 'Tech Inc',
+              location: 'San Francisco, CA',
+              dates: '2020-2023',
+              description: ['Developed features', 'Fixed bugs']
+            }
+          ],
+          education: [
+            {
+              institution: 'University of Code',
+              degree: 'BS Computer Science',
+              location: 'San Francisco, CA',
+              dates: '2016-2020'
+            }
+          ],
+          skills: [
+            {
+              category: 'Programming',
+              items: [
+                { name: 'JavaScript' },
+                { name: 'React' },
+                { name: 'Node.js' }
+              ]
+            }
+          ]
+        } as DefaultResumeData
+      };
+
+      const resume = dbService.saveResume(resumeData);
+      
+      expect(resume).toBeDefined();
+      expect(resume.jobId).toBe(job.id);
+      expect(resume.resumeText).toBe(resumeData.resumeText);
+      expect(resume.structuredData).toEqual(resumeData.structuredData);
+    });
+
+    it('should get a resume by job id', () => {
+      const job = dbService.createJob({
+        title: 'Get Resume Job',
+        jobDescription: 'Testing resume retrieval',
+      });
+
+      const resumeData = {
+        jobId: job.id,
+        resumeText: 'Another test resume',
+        structuredData: {
+          contactInfo: {
+            title: 'UI Designer',
+            name: 'Jane Smith',
+            location: 'New York, NY',
+            phone: '123-456-7890',
+            email: 'jane.smith@example.com',
+            linkedin: 'linkedin.com/in/janesmith'
+          },
+          workExperience: [
+            {
+              title: 'Designer',
+              company: 'Creative Co',
+              location: 'New York, NY',
+              dates: '2019-2023',
+              description: ['Designed interfaces', 'Created prototypes']
+            }
+          ],
+          education: [
+            {
+              institution: 'Design Institute',
+              degree: 'BA Design',
+              location: 'New York, NY',
+              dates: '2015-2019'
+            }
+          ],
+          skills: [
+            {
+              category: 'Design',
+              items: [
+                { name: 'UI/UX' },
+                { name: 'Figma' },
+                { name: 'Adobe XD' }
+              ]
+            }
+          ]
+        } as DefaultResumeData
+      };
+
+      dbService.saveResume(resumeData);
+      
+      const resume = dbService.getResume(job.id);
+      
+      expect(resume).toBeDefined();
+      if (resume) {
+        expect(resume.jobId).toBe(job.id);
+        expect(resume.resumeText).toBe(resumeData.resumeText);
+        expect(resume.structuredData).toEqual(resumeData.structuredData);
+      }
+    });
+
+    it('should update an existing resume', () => {
+      const job = dbService.createJob({
+        title: 'Update Resume Job',
+        jobDescription: 'Testing resume updates',
+      });
+
+      // Initial resume
+      const initialResume = {
+        jobId: job.id,
+        resumeText: 'Initial resume text',
+        structuredData: {
+          contactInfo: {
+            title: 'Developer',
+            name: 'Initial Name',
+            location: 'Location',
+            phone: '123-456-7890',
+            email: 'initial@example.com',
+            linkedin: 'linkedin.com/in/initial'
+          },
+          workExperience: [],
+          education: [],
+          skills: []
+        } as DefaultResumeData
+      };
+      
+      dbService.saveResume(initialResume);
+      
+      // Update resume
+      const updatedResume = {
+        jobId: job.id,
+        resumeText: 'Updated resume text',
+        structuredData: {
+          contactInfo: {
+            title: 'Senior Developer',
+            name: 'Updated Name',
+            location: 'Updated Location',
+            phone: '123-456-7890',
+            email: 'updated@example.com',
+            linkedin: 'linkedin.com/in/updated'
+          },
+          workExperience: [],
+          education: [],
+          skills: []
+        } as DefaultResumeData
+      };
+      
+      const result = dbService.saveResume(updatedResume);
+      
+      expect(result.resumeText).toBe(updatedResume.resumeText);
+      expect(result.structuredData).toEqual(updatedResume.structuredData);
+    });
+  });
+
+  // Work history settings tests
+  describe('Work history settings', () => {
+    it('should save and retrieve work history', () => {
+      const workHistory = 'My detailed work history goes here';
+      
+      const saveResult = dbService.saveWorkHistory(workHistory);
+      expect(saveResult).toBe(true);
+      
+      const retrievedHistory = dbService.getWorkHistory();
+      expect(retrievedHistory).toBe(workHistory);
+    });
   });
 }); 

@@ -3,10 +3,9 @@ description:
 globs: 
 alwaysApply: true
 ---
-# workflow
-- run the application with "MSW_ENABLED=true NODE_ENV=development pnpm dev"
-- use playwright mcp to test new features in the browser
+# IMPORTANT AI RULES
+- run the application with "MSW_ENABLED=true PORT=4000 NODE_ENV=development pnpm dev". 
+- aftter implementing a feature, use playwright mcp to test new features in the browser
 - pnpm is using for installing packages and running the app
 - use 'pnpm playwright test  --reporter=line' to test your work, and update test cases when functionality is added
-Ok that the new feature works. 
 - do not add comments to code

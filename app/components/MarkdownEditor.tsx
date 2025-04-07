@@ -87,7 +87,7 @@ export function ClientMarkdownEditor(
 
   return (
     <>
-      <input type="hidden" name={props.name} id={props.name} />
+      <input type="hidden" name={props.name} id={props.name} value={props.markdown} />
       <MarkdownEditor {...props} onChange={handleChange} isClient={isClient} />
     </>
   );

@@ -24,32 +24,27 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     throw new Response("Invalid job ID", { status: 400 });
   }
   
-  // Get job from database
   const job = dbService.getJob(jobId);
   
   if (!job) {
     throw new Response("Job not found", { status: 404 });
   }
   
-  // Get the selected workflow configuration
   const selectedWorkflow = workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
     throw new Error(`Default workflow '${defaultWorkflowId}' not found.`);
   }
   
-  // Get Template Config
   const selectedTemplateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
   if (!selectedTemplateConfig) {
     throw new Error("Default template config not found.");
   }
   
-  // Prepare list of available workflows for dropdown
   const availableWorkflows = Object.entries(workflows).map(([id, config]: [string, { label: string }]) => ({
     id,
     label: config.label,
   }));
 
-  // Get Template List 
   const templatesList = Object.values(availableTemplates).map((config: ResumeTemplateConfig) => ({
     id: config.id,
     name: config.name,

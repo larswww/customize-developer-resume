@@ -28,6 +28,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             "text-gray-700 hover:bg-gray-100 hover:text-gray-900": variant === "ghost",
             "border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700": variant === "outline",
           },
+          // Disabled state styling - more visible changes
+          "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none disabled:border-gray-200",
+          {
+            "disabled:bg-gray-200 disabled:text-gray-400": variant !== "ghost" && variant !== "outline",
+            "disabled:bg-transparent disabled:text-gray-400 disabled:border-gray-200": variant === "outline",
+            "disabled:bg-transparent disabled:text-gray-400": variant === "ghost",
+          },
           className
         )}
         ref={ref}

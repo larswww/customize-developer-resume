@@ -7,7 +7,6 @@ interface IconProps {
   className?: string;
 }
 
-// Size mapping for icons
 const ICON_SIZES = {
   xs: 'h-3 w-3',
   sm: 'h-4 w-4',
@@ -16,7 +15,6 @@ const ICON_SIZES = {
   xl: 'h-8 w-8',
 };
 
-// Higher-order component to add sizing to icons
 function withIconSize(IconComponent: React.FC<React.SVGProps<SVGSVGElement>>) {
   return function SizedIcon({ size = 'md', className = '' }: IconProps) {
     const sizeClass = ICON_SIZES[size];
@@ -26,7 +24,6 @@ function withIconSize(IconComponent: React.FC<React.SVGProps<SVGSVGElement>>) {
   };
 }
 
-// Base icon components
 const LoadingSpinnerBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg 
     xmlns="http://www.w3.org/2000/svg" 
@@ -190,7 +187,6 @@ const CheckIconBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-// Export sized icon components
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
 export const DownloadIcon = withIconSize(DownloadBase);
@@ -201,4 +197,4 @@ export const TrashIcon = withIconSize(TrashBase);
 export const ChevronDownIcon = withIconSize(ChevronDownBase);
 export const ChevronUpIcon = withIconSize(ChevronUpBase);
 export const MagicWandIcon = withIconSize(MagicWandBase);
-export const CheckIcon = withIconSize(CheckIconBase); 
+export const CheckIcon = withIconSize(CheckIconBase);

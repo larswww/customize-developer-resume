@@ -21,7 +21,7 @@ export async function generateAndSaveResume(
 ): Promise<ResumeGenerationResult> {
   try {
     // Validate inputs
-    let missingSteps: string[] = [];
+    const missingSteps: string[] = [];
     for (const step of resumeSourceSteps) {
       const text = sourceTexts[step.id];
       if (!text || text.trim() === '') {
@@ -42,14 +42,14 @@ export async function generateAndSaveResume(
       .join('\n\n---\n\n');
 
     // Generate structured data using AI
-    const generatedCoreData: any = await generateStructuredResume(
+    const generatedCoreData = await generateStructuredResume(
       combinedSourceText,
       jobDescription,
       outputSchema
     );
 
     // Save to database
-    const finalResumeData: any = {
+    const finalResumeData = {
       contactInfo,
       ...generatedCoreData,
     };
@@ -57,6 +57,7 @@ export async function generateAndSaveResume(
     dbService.saveResume({
       jobId: jobId,
       structuredData: finalResumeData,
+      resumeText: combinedSourceText
     });
 
     return {

@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from 'react';
-import { cn } from '~/lib/utils';
-import { ChevronDownIcon, ChevronUpIcon } from './Icons';
+import { useState, type ReactNode } from "react";
+import { cn } from "~/lib/utils";
+import { ChevronDownIcon, ChevronUpIcon } from "./Icons";
 
 interface CollapsibleProps {
   title: ReactNode;
@@ -23,18 +23,18 @@ export function Collapsible({
   contentClassName,
   isControlled = false,
   isOpen: controlledIsOpen,
-  onToggle
+  onToggle,
 }: CollapsibleProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(defaultOpen);
-  
+
   // Use either controlled or uncontrolled state
-  const isOpen = isControlled ? (controlledIsOpen ?? false) : internalIsOpen;
+  const isOpen = isControlled ? controlledIsOpen ?? false : internalIsOpen;
 
   const handleToggle = () => {
     if (isControlled && onToggle) {
       onToggle();
     } else {
-      setInternalIsOpen(prev => !prev);
+      setInternalIsOpen((prev) => !prev);
     }
   };
 
@@ -46,18 +46,18 @@ export function Collapsible({
         className={cn(
           "w-full flex items-center justify-between p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-t-lg",
           titleClassName,
-            !isOpen && "rounded-b-lg"
+          !isOpen && "rounded-b-lg"
         )}
         aria-expanded={isOpen}
       >
-        {typeof title === 'string' ? (
+        {typeof title === "string" ? (
           <span className="font-medium text-gray-800">{title}</span>
         ) : (
           title
         )}
         {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
       </button>
-      
+
       <div
         className={cn(
           "transition-all duration-300 ease-in-out",
@@ -65,15 +65,13 @@ export function Collapsible({
           contentClassName
         )}
         style={{
-          maxHeight: isOpen ? '100000px' : '0',
-          overflow: 'hidden',
-          visibility: isOpen ? 'visible' : 'hidden'
+          maxHeight: isOpen ? "100000px" : "0",
+          overflow: "hidden",
+          visibility: isOpen ? "visible" : "hidden",
         }}
       >
-        <div className={cn("p-4 border-t")}>
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );
-} 
+}

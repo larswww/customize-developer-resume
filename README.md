@@ -48,6 +48,24 @@ You can use a `.env` file in the project root to set these variables.
 
 ## Testing
 
+### Unit Tests
+
+The project includes unit tests using Vitest. These tests focus on testing individual components and services in isolation.
+
+```bash
+# Run unit tests
+pnpm test
+
+# Run unit tests in watch mode (for development)
+pnpm test:watch
+
+# Run unit tests with UI
+pnpm test:ui
+
+# Run unit tests with coverage report
+pnpm test:coverage
+```
+
 ### End-to-End Tests
 
 The project includes end-to-end tests using Playwright. These tests use MSW to mock API responses, so you don't need real API keys to run them.

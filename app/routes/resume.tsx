@@ -20,17 +20,16 @@ import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { useResumeGenerator } from "~/hooks/useResumeGenerator";
 import { Collapsible } from "~/components/Collapsible";
 
-// Import the extracted components
 import { SourceTextInputs } from "~/components/resume/SourceTextInputs";
 import { ResumeGenerationControls } from "~/components/resume/ResumeGenerationControls";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { Button } from "~/components/ui/Button";
 
-// Define the outlet context type for TypeScript
 interface OutletContextType {
   selectedWorkflowId: string;
   selectedTemplateId: string;
+  isWorkflowComplete: boolean;
 }
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
@@ -64,11 +63,10 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
 
   const sourceTexts: Record<string, string> = {};
   for (const step of resumeSourceSteps) {
-    const stepResult = dbService.getWorkflowStep(jobId, step.id);
+    const stepResult = dbService.getWorkflowStep(jobId, step.id, selectedWorkflowId);
     sourceTexts[step.id] = stepResult?.result || "";
   }
 
-  // Get saved contact info from resumeData or use template default
   const contactInfo = resumeData?.structuredData?.contactInfo || selectedTemplateConfig.defaultContactInfo;
 
   return {
@@ -106,7 +104,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     .filter(step => step.useInResume)
     .map(s => ({ id: s.id, name: s.name }));
 
-  // Extract contact info directly from the form data
   const contactInfo: ContactInfo = {
     name: formData.get("name") as string,
     title: formData.get("title") as string,
@@ -117,7 +114,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
     portfolio: formData.get("portfolio") as string,
   };
 
-  // Extract source texts from form data
   const sourceTexts: Record<string, string> = {};
   for (const step of resumeSourceSteps) {
     sourceTexts[step.id] = formData.get(step.id) as string || '';
@@ -126,7 +122,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const templateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
   const outputSchema = templateConfig.outputSchema;
 
-  // Use the service to generate and save the resume
   return await generateAndSaveResume(
     jobId,
     contactInfo,
@@ -152,15 +147,13 @@ export default function JobResume() {
     contactInfo: ContactInfo;
   }>();
 
-  // Get selected workflow and template from parent layout
-  const { selectedWorkflowId, selectedTemplateId } = useOutletContext<OutletContextType>();
+  const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete } = useOutletContext<OutletContextType>();
   
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const isGenerating = isSubmitting && navigation.formData?.get("actionType") === "generate";
   const actionData = useActionData<{ success?: boolean; resumeData?: any; error?: string }>();
 
-  // Use the custom hook for resume functionality
   const {
     error,
     setError,
@@ -183,11 +176,9 @@ export default function JobResume() {
     initialContactInfo,
   });
 
-  // Get current template configuration and component
   const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
   const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
-  // Update state when action data changes
   useEffect(() => {
     if (actionData?.success && actionData?.resumeData) {
       const { contactInfo: _, ...coreDataFromAction } = actionData.resumeData;
@@ -206,9 +197,7 @@ export default function JobResume() {
   return (
     <Form method="post" id={formId} action={formActionUrl} onSubmit={handleFormSubmit} className="py-4">
       <div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
-        {/* Main Content Area */}
         <div className="col-span-6 ">
-          {/* Resume Preview */}
           {hasLoadedOrGeneratedData ? (
             <>
               {resumeSourceSteps.map(step => (
@@ -238,7 +227,6 @@ export default function JobResume() {
             </div>
           )}
 
-          {/* Error Display */}
           {error && (
             <div className="text-red-500 p-4 border border-red-200 rounded bg-red-50">
               {error}
@@ -247,23 +235,33 @@ export default function JobResume() {
 
          
         </div>
-
-        {/* Side Column */}
         <div className="col-span-6 space-y-6">
-          {/* Action Buttons */}
           {hasLoadedOrGeneratedData && (
             <ResumePreviewActions
               onPrint={handlePrintClick}
               onDownloadPdf={handleDownloadPdfClick}
             />
           )}
-          
-          {/* Contact Information (in side column) */}
+           <div className="mt-auto pt-4">
+            <Button
+              type="submit"
+              name="actionType"
+              value="generate"
+              className="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-blue-400"
+              disabled={isSubmitting || !isWorkflowComplete}
+            >
+              {isGenerating ? "Generating..." : "Generate Resume"}
+            </Button>
+            {!isWorkflowComplete && (
+              <p className="text-sm text-gray-500">
+                This workflow is not complete. Please complete the workflow before generating the resume.
+              </p>
+            )}
+          </div>
           <Collapsible title="Contact Information" defaultOpen={false}>
             <ContactInfoForm contactInfo={initialContactInfo} />
           </Collapsible>
 
-           {/* Edit Resume Section */}
            <Collapsible title="Edit Resume" defaultOpen={true}>
             <SourceTextInputs
               sourceSteps={resumeSourceSteps}
@@ -272,18 +270,7 @@ export default function JobResume() {
             />
           </Collapsible>
 
-          {/* Generate Button */}
-          <div className="mt-auto pt-4">
-            <Button
-              type="submit"
-              name="actionType"
-              value="generate"
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold"
-              disabled={isSubmitting}
-            >
-              {isGenerating ? "Generating..." : "Generate Resume"}
-            </Button>
-          </div>
+         
         </div>
       </div>
 

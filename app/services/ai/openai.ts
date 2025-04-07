@@ -102,10 +102,9 @@ export class OpenAIClient implements AIClient {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			const errorData = errorText ? JSON.parse(errorText) : {};
-			console.error("[OpenAI Client] Error response:", errorData);
+			console.error("[OpenAI Client] Error response:", errorText);
 			throw new Error(
-				`OpenAI API error: ${response.statusText} - ${JSON.stringify(errorData)}`,
+				`OpenAI API error: ${response.statusText} - ${errorText}`,
 			);
 		}
 
