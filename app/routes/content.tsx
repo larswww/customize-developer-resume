@@ -1,13 +1,19 @@
-import { useRef, Suspense } from "react";
-import { Form, useNavigation, useOutletContext, redirect, Outlet, Await } from "react-router";
+import { useRef } from "react";
+import {
+  Form,
+  useNavigation,
+  useOutletContext,
+  redirect,
+  Outlet,
+} from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { workflows, defaultWorkflowId } from "../config/workflows";
 import { executeWorkflow } from "../services/workflow/workflow-service";
 import dbService from "../services/db/dbService";
-import { LoadingSpinnerIcon, MagicWandIcon } from "~/components/Icons";
+import { LoadingSpinnerIcon, MagicWandIcon, RetryIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
 import { availableTemplates, defaultTemplateId } from "../templates";
-import type { MDXEditorMethods } from '@mdxeditor/editor';
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { WorkflowSteps } from "~/components/WorkflowSteps";
 import { Collapsible } from "~/components/Collapsible";
@@ -16,8 +22,10 @@ import type { Route } from "./+types/content";
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
   const url = new URL(request.url);
-  const selectedWorkflowId = url.searchParams.get("workflow") || defaultWorkflowId;
-  const selectedTemplateId = url.searchParams.get("template") || defaultTemplateId;
+  const selectedWorkflowId =
+    url.searchParams.get("workflow") || defaultWorkflowId;
+  const selectedTemplateId =
+    url.searchParams.get("template") || defaultTemplateId;
 
   if (Number.isNaN(jobId)) {
     throw new Response("Invalid job ID", { status: 400 });
@@ -28,26 +36,41 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   }
 
   // Get workflow steps for the specific workflow
-  const workflowStepsData = dbService.getWorkflowSteps(jobId, selectedWorkflowId);
-  
-  const selectedWorkflow = workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
+  const workflowStepsData = dbService.getWorkflowSteps(
+    jobId,
+    selectedWorkflowId
+  );
+
+  const selectedWorkflow =
+    workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
-	throw new Error(`Default workflow '${defaultWorkflowId}' not found.`);
+    throw new Error(`Default workflow '${defaultWorkflowId}' not found.`);
   }
-  
-  const selectedTemplateConfig = availableTemplates[selectedTemplateId] ?? availableTemplates[defaultTemplateId];
+
+  const selectedTemplateConfig =
+    availableTemplates[selectedTemplateId] ??
+    availableTemplates[defaultTemplateId];
   if (!selectedTemplateConfig) {
-      throw new Error("Default template config not found.");
+    throw new Error("Default template config not found.");
   }
 
   // Check if the workflow is complete and redirect to resume if it is
-  const isWorkflowComplete = selectedWorkflow.steps.length > 0 && 
+  const isWorkflowComplete =
+    selectedWorkflow.steps.length > 0 &&
     workflowStepsData.length === selectedWorkflow.steps.length &&
-    workflowStepsData.every(step => step.status === 'completed');
+    workflowStepsData.every((step) => step.status === "success");
 
-  const isOnResume = url.pathname.includes('/resume');
+  const isOnResume = url.pathname.includes("/resume");
   if (isWorkflowComplete && !isOnResume) {
-    return redirect(`/job/${jobId}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`);
+    return redirect(
+      `/job/${jobId}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`
+    );
+  }
+
+  if (!isWorkflowComplete && isOnResume) {
+    return redirect(
+      `/job/${jobId}/?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`
+    );
   }
 
   return {
@@ -64,21 +87,26 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
   const jobDescription = formData.get("jobDescription") as string;
   const relevant = formData.get("relevant") as string;
-  const workflowId = (formData.get("workflowId") as string) || defaultWorkflowId;
+  const workflowId =
+    (formData.get("workflowId") as string) || defaultWorkflowId;
   const jobId = Number(params.jobId);
 
   const url = new URL(request.url);
   const templateId = url.searchParams.get("template") || defaultTemplateId;
-  const templateConfig = availableTemplates[templateId] ?? availableTemplates[defaultTemplateId];
+  const templateConfig =
+    availableTemplates[templateId] ?? availableTemplates[defaultTemplateId];
   if (!templateConfig) {
-    return { success: false, error: `Template config '${templateId}' not found.` };
+    return {
+      success: false,
+      error: `Template config '${templateId}' not found.`,
+    };
   }
   const templateDescription = templateConfig.description;
 
   if (Number.isNaN(jobId)) {
     return {
       success: false,
-      error: "Invalid job ID"
+      error: "Invalid job ID",
     };
   }
 
@@ -87,161 +115,151 @@ export async function action({ request, params }: ActionFunctionArgs) {
   if (!job) {
     return {
       success: false,
-      error: "Job not found"
+      error: "Job not found",
     };
   }
 
   if (!jobDescription) {
     return {
       success: false,
-      error: "Please add a job description to generate resume"
+      error: "Please add a job description to generate resume",
     };
   }
 
   dbService.updateJob({
     ...job,
     jobDescription,
-    relevantDescription: relevant || ""
+    relevantDescription: relevant || "",
   });
-  
-  const selectedWorkflow = workflows[workflowId] ?? workflows[defaultWorkflowId];
+
+  const selectedWorkflow =
+    workflows[workflowId] ?? workflows[defaultWorkflowId];
   if (!selectedWorkflow) {
-	return {
+    return {
       success: false,
-	  error: `Selected workflow '${workflowId}' not found.`,
-	};
+      error: `Selected workflow '${workflowId}' not found.`,
+    };
   }
 
   try {
     console.log(`Starting workflow execution (${workflowId})...`);
-    
-    // Call the workflow service to execute the workflow (now synchronous)
-    const { workflowResults, workflowSteps, success } = await executeWorkflow(
+
+    const { success } = await executeWorkflow(
       jobDescription,
       jobId,
       workflowId,
       templateDescription
     );
 
-    console.log({workflowResults, workflowSteps})
-    
-    // Action now simply returns success/error; loader handles data fetching
     return {
-      success: success, // Indicate success or failure based on workflow execution
-      // workflowResults and workflowSteps are no longer returned here
-      selectedWorkflowId: workflowId, // Still needed for error messages potentially
-      // Use the caught error message if execution failed, otherwise undefined
-      error: success ? undefined : "Workflow execution failed." 
+      success: success,
+      selectedWorkflowId: workflowId,
+      error: success ? undefined : "Workflow execution failed.",
     };
-
   } catch (error) {
     console.error(`Error in workflow action handler (${workflowId}):`, error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unknown error occurred during workflow execution",
-	  selectedWorkflowId: workflowId,
+      error:
+        error instanceof Error
+          ? error.message
+          : "An unknown error occurred during workflow execution",
+      selectedWorkflowId: workflowId,
     };
   }
 }
 
-
 interface OutletContextType {
   selectedWorkflowId: string;
   selectedTemplateId: string;
-  isWorkflowComplete: boolean; 
+  isWorkflowComplete: boolean;
 }
 
-
-export default function JobContent({loaderData, actionData}: Route.ComponentProps) {
+export default function JobContent({
+  loaderData,
+  actionData,
+}: Route.ComponentProps) {
   const {
     job,
     workflowStepsData,
     currentWorkflowSteps,
     isWorkflowComplete,
-    totalSteps
   } = loaderData;
 
-  const { selectedWorkflowId, selectedTemplateId } = useOutletContext<OutletContextType>();
+  const { selectedWorkflowId, selectedTemplateId } =
+    useOutletContext<OutletContextType>();
   const jobDescEditorRef = useRef<MDXEditorMethods | null>(null);
-
-
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
-  // Derive state directly from loaderData
-  const stepsToRender = currentWorkflowSteps; // These are the steps defined in the workflow config
-
-  // Extract results and statuses from the loader data (DB state)
-  const resultsToShow = workflowStepsData.reduce((acc, step) => {
-    acc[step.stepId] = step.result;
-    return acc;
-  }, {} as Record<string, unknown>);
-
-  const statusesToShow = workflowStepsData.reduce((acc, step) => {
-    acc[step.stepId] = step.status;
-    return acc;
-  }, {} as Record<string, string>);
-
-  // Fill in pending statuses for steps not yet in the DB data
-  for (const stepConfig of stepsToRender) {
-    if (!(stepConfig.id in statusesToShow)) {
-      statusesToShow[stepConfig.id] = 'pending';
-    }
-  }
-
-
-  // Height that both the progress bar and workflow steps should use
   const contentHeight = "min-h-[200px]";
+
+  const hasWorkflowSteps = workflowStepsData.length > 0;
 
   return (
     <>
       <Form method="post" className="py-4">
-         <input type="hidden" name="workflowId" value={selectedWorkflowId} />
-         <Collapsible title="Job Description" className="mb-6" defaultOpen={true}>
-           <div className="min-h-[250px]">
-             <ClientMarkdownEditor
-               name="jobDescription"
-               markdown={job.jobDescription || ""}
-               editorRef={jobDescEditorRef}
-               placeholder="Paste job description here..."
-             />
-           </div>
-         </Collapsible>
+        <input type="hidden" name="workflowId" value={selectedWorkflowId} />
+        <Collapsible
+          title="Job Description"
+          className="mb-6"
+          defaultOpen={true}
+        >
+          <div className="min-h-[250px]">
+            <ClientMarkdownEditor
+              name="jobDescription"
+              markdown={job.jobDescription || ""}
+              editorRef={jobDescEditorRef}
+              placeholder="Paste job description here..."
+            />
+          </div>
+        </Collapsible>
 
-         <div className="flex justify-end">
-           <Button 
-             type="submit" 
-             disabled={isSubmitting} 
-             variant="primary"
-             size="lg"
-             className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
-           >
-             {isSubmitting ? <LoadingSpinnerIcon size="md" /> : <MagicWandIcon size="md" />}
-             {isSubmitting ? 'Generating...' : "Generate Resume Text"}
-           </Button>
-         </div>
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            variant="primary"
+            size="lg"
+            className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
+          >
+            {isSubmitting ? (
+              <LoadingSpinnerIcon size="md" />
+            ) : isWorkflowComplete ? (
+              <RetryIcon size="md" />
+            ) : (
+              <MagicWandIcon size="md" />
+            )}
+            {isSubmitting
+              ? "Generating..."
+              : isWorkflowComplete
+              ? "Regenerate Resume Text"
+              : "Generate Resume Text"}
+          </Button>
+        </div>
       </Form>
 
       <div className="mt-8">
-         <h2 className="text-xl font-semibold mb-4">Generated Content</h2>
-         
-         {actionData?.error && (
-             <div className="mb-4 p-4 border rounded bg-red-50 text-red-700">
-                 Error: {actionData.error}
-             </div>
-         )}
-         
-         {/* Render WorkflowSteps directly, using the data prepared from loaderData */}
-         <WorkflowSteps
-           stepsToRender={stepsToRender}
-           resultsToShow={resultsToShow}
-           statusesToShow={statusesToShow}
-           height={contentHeight}
-         />
-       
-  
+        <h2 className="text-xl font-semibold mb-4">Generated Content</h2>
+
+        {actionData?.error && (
+          <div className="mb-4 p-4 border rounded bg-red-50 text-red-700">
+            Error: {actionData.error}
+          </div>
+        )}
+
+        {hasWorkflowSteps && (
+          <WorkflowSteps
+            stepsToRender={currentWorkflowSteps}
+            workflowStepsData={workflowStepsData}
+            height={contentHeight}
+            isComplete={isWorkflowComplete}
+          />
+        )}
       </div>
-      <Outlet context={{ selectedWorkflowId, selectedTemplateId, isWorkflowComplete }} />
+      <Outlet
+        context={{ selectedWorkflowId, selectedTemplateId, isWorkflowComplete }}
+      />
     </>
   );
-} 
+}

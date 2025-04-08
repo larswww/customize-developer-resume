@@ -33,7 +33,7 @@ const JobSchema = z.object({
   relevantDescription: z.string().optional(),
 }).merge(TimeStampSchema);
 
-const WorkflowStepStatusSchema = z.enum(['pending', 'success', 'error', 'completed', 'processing']);
+const WorkflowStepStatusSchema = z.enum(['pending', 'success', 'error', 'processing']);
 
 const WorkflowStepInputSchema = z.object({
   jobId: z.number(),

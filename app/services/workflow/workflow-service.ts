@@ -58,6 +58,7 @@ export async function executeWorkflow(
     if (!selectedWorkflow) {
       throw new Error(`Workflow with ID '${workflowId}' not found.`);
     }
+    console.time(`Workflow ${workflowId} completed in`);
     
     const currentWorkflowSteps = selectedWorkflow.steps;
     
@@ -92,7 +93,7 @@ export async function executeWorkflow(
     }, {} as Record<string, string>);
 
     console.log(`Workflow execution completed for job ${jobId}`);
-
+    console.timeEnd(`Workflow ${workflowId} completed in`);
     return {
       workflowResults,
       workflowSteps: currentWorkflowSteps,

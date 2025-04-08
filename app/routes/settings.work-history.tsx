@@ -56,47 +56,9 @@ export default function EditWorkHistory() {
   const navigation = useNavigation();
   const editorRef = useRef<MDXEditorMethods | null>(null);
 
-  const [hasChanges, setHasChanges] = useState(false);
-  const [lastSavedContent, setLastSavedContent] = useState(initialWorkHistory);
-
   const isSubmitting = navigation.state === 'submitting';
   const isLoading = navigation.state === 'loading' && navigation.formData?.get('workHistoryContent') !== undefined;
 
-  useEffect(() => {
-      if (actionData?.success && actionData.message) {
-          if (actionData.message !== 'No changes detected.') {
-             setHasChanges(false);
-             if (editorRef.current) {
-                 setLastSavedContent(editorRef.current.getMarkdown());
-             }
-          }
-      }
-  }, [actionData]);
-
-  useEffect(() => {
-      if (navigation.state !== 'submitting') {
-          setLastSavedContent(initialWorkHistory);
-          setHasChanges(false);
-      }
-  }, [initialWorkHistory, navigation.state]);
-
-  const handleEditorChange = (markdown: string) => {
-      if (markdown !== lastSavedContent) {
-          setHasChanges(true);
-      } else {
-          setHasChanges(false);
-      }
-  };
-
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-      if (editorRef.current) {
-          const markdown = editorRef.current.getMarkdown();
-          const hiddenInput = event.currentTarget.elements.namedItem('workHistoryContent') as HTMLInputElement;
-          if (hiddenInput) {
-              hiddenInput.value = markdown;
-          }
-      }
-  };
 
   const formId = "work-history-form";
 
@@ -113,12 +75,11 @@ export default function EditWorkHistory() {
             </Link>
         }
         mainContent={
-            <Form method="post" id={formId} className="flex flex-col flex-grow" onSubmit={handleFormSubmit}>
+            <Form method="post" id={formId} className="flex flex-col flex-grow">
                 <ClientMarkdownEditor
                     name="workHistoryContent"
                     editorRef={editorRef}
                     markdown={initialWorkHistory}
-                    onChange={handleEditorChange}
                     placeholder="Enter your work history in Markdown format..."
                 />
             </Form>
@@ -133,8 +94,6 @@ export default function EditWorkHistory() {
             <SaveBottomBar
                 formId={formId}
                 isSubmitting={isSubmitting}
-                hasChanges={hasChanges}
-                isClient={true}
                 buttonText="Save Work History"
                 savingText="Saving..."
             />

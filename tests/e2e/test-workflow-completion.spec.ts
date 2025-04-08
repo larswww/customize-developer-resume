@@ -36,10 +36,8 @@ test.describe('Test Parallel Workflow Completion', () => {
     // Click the title to expand the collapsible section
     await sectionTitle.click();
 
-    // Now, locate the container holding the actual step items (rendered when not loading)
-    // This targets the div containing the two columns of steps
-    const stepsContainer = page.locator('div > div > div > div.flex.flex-col.md\\:flex-row.gap-6'); 
-    // Wait for this specific container to be visible, indicating loading is likely complete
+    // Wait for the steps container to appear
+    const stepsContainer = page.locator('.flex.flex-col.md\\:flex-row.gap-6').first();
     await expect(stepsContainer).toBeVisible({ timeout: 10000 });
 
     // Define the expected steps from workflow-test.ts
@@ -51,18 +49,19 @@ test.describe('Test Parallel Workflow Completion', () => {
       'Final Step', // Name from workflow-test.ts
     ];
 
-    // Verify each step is present and marked as complete
+    // Wait for all steps to be visible and check if they are marked as complete
     for (const stepName of expectedSteps) {
-      // Locator strategy: Find the step container based on the visible step name text,
-      // then find the "Complete" badge within that container. Search relative to the stepsContainer.
-      const stepRowLocator = stepsContainer.locator(`div:has-text("${stepName}")`).nth(0); // More specific selector for step item container
+      // Find the step heading
+      const stepHeading = page.getByRole('heading', { name: stepName }).first();
+      await expect(stepHeading).toBeVisible({ timeout: 10000 });
       
-      // Check step name visibility within its specific container
-      await expect(stepRowLocator).toBeVisible();
+      // Find the closest div containing both the heading and the status badge
+      const stepCardSelector = `.flex.items-center.justify-between:has(h3:text("${stepName}"))`;
+      const stepCard = page.locator(stepCardSelector).first();
       
-      // Check for the "Complete" badge/status indicator within that step's container
-      // Adjust the selector for the "Complete" badge based on its actual implementation
-      await expect(stepRowLocator.locator('span:has-text("Complete")')).toBeVisible(); // Assuming 'Complete' is in a span within the located step row
+      // Look for the "Complete" badge within this card
+      const completeText = stepCard.locator('span.bg-green-100:has-text("Complete")').first();
+      await expect(completeText).toBeVisible({ timeout: 20000 });
     }
   });
 });

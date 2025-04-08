@@ -78,7 +78,7 @@ export function ClientMarkdownEditor(
 
   const handleChange = (markdown: string) => {
     const jobDescInput = document.getElementById(
-      "jobDescription"
+      props.name
     ) as HTMLInputElement;
     if (jobDescInput) {
       jobDescInput.value = markdown;

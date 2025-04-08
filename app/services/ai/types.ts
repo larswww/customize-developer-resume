@@ -1,4 +1,3 @@
-import type { MessageParam } from "@anthropic-ai/sdk/resources/messages";
 
 export interface AIResponse {
 	text: string;
