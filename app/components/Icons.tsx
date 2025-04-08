@@ -202,6 +202,20 @@ const RetryBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
+const ExternalLinkBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    stroke="currentColor" 
+    className={`mr-1 ${props.className || ''}`}
+    aria-hidden="true"
+  >
+    <title>External Link</title>
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+  </svg>
+);
+
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
 export const DownloadIcon = withIconSize(DownloadBase);
@@ -214,3 +228,4 @@ export const ChevronUpIcon = withIconSize(ChevronUpBase);
 export const MagicWandIcon = withIconSize(MagicWandBase);
 export const CheckIcon = withIconSize(CheckIconBase);
 export const RetryIcon = withIconSize(RetryBase);
+export const ExternalLinkIcon = withIconSize(ExternalLinkBase);

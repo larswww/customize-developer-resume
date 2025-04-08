@@ -5,7 +5,7 @@ import { Link } from "~/components/ui/Link";
 import { JobControlsHeader } from "../components/JobControlsHeader";
 import dbService from "../services/db/dbService";
 import { workflows, defaultWorkflowId } from "../config/workflows.config";
-import { availableTemplates, defaultTemplateId, type ResumeTemplateConfig } from "../templates";
+import { availableTemplates, defaultTemplateId, type ResumeTemplateConfig } from "../config/templates";
 
 export function meta() {
   return [

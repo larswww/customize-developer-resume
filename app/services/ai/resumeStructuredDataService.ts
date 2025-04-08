@@ -1,8 +1,4 @@
-import type {
-  ResumeCoreData,
-  ResumeTemplateConfig
-} from "../../config/templates.config";
-import { z } from "zod";
+import type { z } from "zod";
 import OpenAI from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
 
@@ -19,11 +15,11 @@ const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
 });
 
-export async function generateStructuredResume(
+export async function generateStructuredResume<T extends z.ZodTypeAny>(
   combinedSourceText: string,
   jobDescription: string, // Keep job description for context
-  outputSchema: ResumeTemplateConfig['outputSchema'] // Accept the single schema
-): Promise<ResumeCoreData> { // Return type is still ResumeCoreData
+  outputSchema: T // Accept the single schema
+): Promise<T> { // Return type is still ResumeCoreData
 
   console.log("Starting single-call structured resume generation...");
 
@@ -75,7 +71,7 @@ Please extract the relevant information and structure it as JSON matching the re
     }
 
     // Return the validated data, ensuring it conforms to ResumeCoreData
-    return validationResult.data as ResumeCoreData;
+    return validationResult.data;
 
   } catch (error) {
     console.error("Error in single-call resume generation:", error);

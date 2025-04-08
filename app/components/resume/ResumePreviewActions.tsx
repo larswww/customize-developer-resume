@@ -1,6 +1,7 @@
 import React from "react";
 import { DownloadIcon, PrintIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
+import text from "~/text";
 
 interface ResumePreviewActionsProps {
   onPrint: () => void;
@@ -19,7 +20,7 @@ export function ResumePreviewActions({ onPrint, onDownloadPdf }: ResumePreviewAc
             className="shadow-sm flex items-center gap-2"
           >
             <PrintIcon />
-            Print
+            {text.resume.printButton}
           </Button>
           <Button
             type="button"
@@ -29,7 +30,7 @@ export function ResumePreviewActions({ onPrint, onDownloadPdf }: ResumePreviewAc
             className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 shadow-sm flex items-center gap-2"
           >
             <DownloadIcon />
-            Download as PDF
+            {text.resume.downloadButton}
           </Button>
         </div>
   );

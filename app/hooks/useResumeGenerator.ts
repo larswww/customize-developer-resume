@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
 import { printResumeElement } from '../utils/print.client';
 import { downloadResumeAsPdf } from '../utils/pdf.client';
-import type { ContactInfo } from '../templates';
-import { globalResumeConstants } from '../templates';
-import type { DefaultResumeData } from '../templates/default';
-import type { SimpleConsultantData } from '../templates/simpleConsultant';
+import type { ContactInfo } from '../config/templates';
+import { globalResumeConstants } from '../config/templates';
+import type { DefaultResumeData } from '../config/templates/default';
+import type { SimpleConsultantData } from '../config/templates/simple';
 import type { WorkflowStep } from '../services/ai/types';
 
 interface UseResumeGeneratorProps {

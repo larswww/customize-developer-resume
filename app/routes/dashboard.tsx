@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Form, redirect, useActionData, useLoaderData } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import dbService, { type Job } from "../services/db/dbService";
-import { DocumentIcon, TrashIcon } from "~/components/Icons";
+import { DocumentIcon, TrashIcon, ExternalLinkIcon } from "~/components/Icons";
 import { Link } from "~/components/ui/Link";
 import { Button } from "~/components/ui/Button";
+import text from "~/text";
 
 export function meta() {
   return [
@@ -24,6 +25,8 @@ export async function action({ request }: ActionFunctionArgs) {
 
   if (action === "create") {
     const title = formData.get("title") as string;
+    const jobDescription = formData.get("jobDescription") as string || "";
+    const link = formData.get("link") as string || "";
     
     if (!title.trim()) {
       return { 
@@ -31,14 +34,15 @@ export async function action({ request }: ActionFunctionArgs) {
         error: "Job title is required" 
       };
     }
-    // Create a new job with default empty job description
+    
+    // Create a new job with the provided fields
     const job = dbService.createJob({
       title,
-      jobDescription: "",
+      jobDescription,
+      link,
     });
 
     return redirect(`/job/${job.id}`);
-
   }
 
   if (action === "delete") {
@@ -69,7 +73,7 @@ export async function action({ request }: ActionFunctionArgs) {
 function CreateJobForm({ onCancel }: { onCancel: () => void }) {
   return (
     <div className="mb-8 p-6 bg-gray-50 border rounded">
-      <h2 className="text-xl font-semibold mb-4">Create New Resume Job</h2>
+      <h2 className="text-xl font-semibold mb-4">{text.dashboard.createJob.ctaButton}</h2>
       <Form method="post">
         <input type="hidden" name="action" value="create" />
         <div className="mb-4">
@@ -85,6 +89,30 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
             required
           />
         </div>
+        <div className="mb-4">
+          <label htmlFor="link" className="block mb-2 font-medium">
+            Job Link (Optional)
+          </label>
+          <input
+            type="url"
+            id="link"
+            name="link"
+            className="w-full px-3 py-2 border rounded"
+            placeholder="https://example.com/job-posting"
+          />
+        </div>
+        <div className="mb-4">
+          <label htmlFor="jobDescription" className="block mb-2 font-medium">
+            Job Description
+          </label>
+          <textarea
+            id="jobDescription"
+            name="jobDescription"
+            rows={5}
+            className="w-full px-3 py-2 border rounded"
+            placeholder="Paste the job description here"
+          />
+        </div>
         <div className="flex gap-2">
           <Button
             type="submit"
@@ -92,7 +120,7 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
             size="md"
             className="bg-green-600 hover:bg-green-700 text-white"
           >
-            Create Job
+            {text.dashboard.createJob.confirmButton}
           </Button>
           <Button
             type="button"
@@ -129,18 +157,20 @@ function JobCard({ job }: { job: Job }) {
             className="bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center"
           >
             <DocumentIcon />
-            Generate Content
+            {text.dashboard.viewJob.resumeButton}
           </Link>
 
-          <Link
-            to={`/job/${job.id}/resume`}
-            variant="primary"
-            size="sm"
-            className="bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 flex items-center"
-          >
-            <DocumentIcon />
-            Create Resume
-          </Link>
+          {job.link && (
+            <a
+              href={job.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-3 py-1 text-sm rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+            >
+              <ExternalLinkIcon />
+              {text.dashboard.viewJob.viewJobButton}
+            </a>
+          )}
           
           <Form method="post">
             <input type="hidden" name="action" value="delete" />
@@ -157,7 +187,7 @@ function JobCard({ job }: { job: Job }) {
               }}
             >
               <TrashIcon />
-              Delete
+              {text.ui.delete}
             </Button>
           </Form>
         </div>

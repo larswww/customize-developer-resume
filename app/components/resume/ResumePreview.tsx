@@ -1,6 +1,6 @@
 import React from "react";
-import type { DefaultResumeData } from "~/templates/default";
-import type { SimpleConsultantData } from "~/templates/simpleConsultant";
+import type { DefaultResumeData } from "~/config/templates/default";
+import type { SimpleConsultantData } from "~/config/templates/simple";
 
 interface ResumePreviewProps {
   displayData: DefaultResumeData | SimpleConsultantData | null;

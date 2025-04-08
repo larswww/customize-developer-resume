@@ -3,7 +3,7 @@ export * from "./sharedTypes";
 
 // Import configurations from individual template files
 import { templateConfig as defaultConfig } from './default';
-import { templateConfig as simpleConsultantConfig } from './simpleConsultant';
+import { templateConfig as simpleConsultantConfig } from './simple';
 
 // Export the configurations individually if needed
 export { defaultConfig, simpleConsultantConfig };

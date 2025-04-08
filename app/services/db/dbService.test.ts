@@ -7,7 +7,7 @@ process.env.NODE_ENV = 'test';
 
 // Import the real DbService and factory function
 import { createDbService, type WorkflowStepStatus } from './dbService';
-import type { DefaultResumeData } from '../../templates/default';
+import type { DefaultResumeData } from '../../config/templates/default';
 
 const TEST_DB_PATH = './db-data/test_resume_app.db';
 
@@ -165,7 +165,7 @@ describe('DbService', () => {
         stepId: 'analyze',
         workflowId: 'default',
         result: 'Analysis complete',
-        status: 'completed' as WorkflowStepStatus
+        status: 'success' as WorkflowStepStatus
       };
 
       const step = dbService.saveWorkflowStep(stepData);
@@ -201,7 +201,7 @@ describe('DbService', () => {
         stepId: 'extract',
         workflowId: 'default',
         result: 'Updated result',
-        status: 'completed' as WorkflowStepStatus
+        status: 'success' as WorkflowStepStatus
       };
       
       const result = dbService.saveWorkflowStep(updatedStep);
@@ -221,7 +221,7 @@ describe('DbService', () => {
         stepId: 'step1',
         workflowId: 'default',
         result: 'Result 1',
-        status: 'completed' as WorkflowStepStatus
+        status: 'success' as WorkflowStepStatus
       };
       
       const step2 = {
@@ -229,7 +229,7 @@ describe('DbService', () => {
         stepId: 'step2',
         workflowId: 'default',
         result: 'Result 2',
-        status: 'completed' as WorkflowStepStatus
+        status: 'success' as WorkflowStepStatus
       };
       
       dbService.saveWorkflowStep(step1);

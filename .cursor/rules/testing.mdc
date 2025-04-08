@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When writing playwright tests, any ui text used as selector should be in [text.ts](mdc:app/text.ts) and the UI should also use that text. 
+
+Do not add timeouts or increase timeout lengths.

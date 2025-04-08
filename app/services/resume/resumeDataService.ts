@@ -1,7 +1,7 @@
 import dbService from "../db/dbService";
 import { generateStructuredResume } from "../ai/resumeStructuredDataService";
-import type { ContactInfo } from "../../templates";
-
+import type { ContactInfo } from "../../config/templates";
+import type { z } from "zod";
 export interface ResumeGenerationResult {
   success: boolean;
   resumeData?: any;
@@ -11,13 +11,13 @@ export interface ResumeGenerationResult {
 /**
  * Generates and saves structured resume data
  */
-export async function generateAndSaveResume(
+export async function generateAndSaveResume<T extends z.ZodTypeAny>(
   jobId: number,
   contactInfo: ContactInfo,
   sourceTexts: Record<string, string>,
   resumeSourceSteps: { id: string; name: string }[],
   jobDescription: string,
-  outputSchema: any
+  outputSchema: T
 ): Promise<ResumeGenerationResult> {
   try {
     // Validate inputs
@@ -56,7 +56,7 @@ export async function generateAndSaveResume(
 
     dbService.saveResume({
       jobId: jobId,
-      structuredData: finalResumeData,
+      structuredData: generatedCoreData,
       resumeText: combinedSourceText
     });
 

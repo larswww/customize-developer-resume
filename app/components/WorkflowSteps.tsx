@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import type { WorkflowStep } from "../services/ai/types";
 import { Collapsible } from "./Collapsible";
+import text from "~/text";
 
 interface WorkflowStepData {
   stepId: string;
@@ -113,7 +114,7 @@ export function WorkflowSteps({
       <span className="font-medium text-gray-800">Generated Content Steps</span>
       {isComplete && (
         <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
-          Complete
+          {text.ui.complete}
         </span>
       )}
     </div>

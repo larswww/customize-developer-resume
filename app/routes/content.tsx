@@ -12,12 +12,13 @@ import { executeWorkflow } from "../services/workflow/workflow-service";
 import dbService from "../services/db/dbService";
 import { LoadingSpinnerIcon, MagicWandIcon, RetryIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
-import { availableTemplates, defaultTemplateId } from "../templates";
+import { availableTemplates, defaultTemplateId } from "../config/templates";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { WorkflowSteps } from "~/components/WorkflowSteps";
 import { Collapsible } from "~/components/Collapsible";
 import type { Route } from "./+types/content";
+import text from "~/text";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
@@ -231,10 +232,10 @@ export default function JobContent({
               <MagicWandIcon size="md" />
             )}
             {isSubmitting
-              ? "Generating..."
+              ? text.ui.generating
               : isWorkflowComplete
-              ? "Regenerate Resume Text"
-              : "Generate Resume Text"}
+              ? text.content.regenerateButton
+              : text.content.generateButton}
           </Button>
         </div>
       </Form>

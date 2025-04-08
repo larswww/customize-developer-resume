@@ -7,7 +7,7 @@ test.describe('Test Parallel Workflow Completion', () => {
     // Ensure the object passed matches the expected structure (using 'title')
     const jobId = await createNewJob({ title: 'Test Job', company: 'Test Co' }); 
     
-    // 2. Navigate to the job content page (using the correct route path from routes.ts)
+    // 2. Navigate to the job page (this should render the content/resume generation UI via Outlet)
     await page.goto(`/job/${jobId}`);
 
     // 3. Select the 'Test Parallel Workflow'
@@ -25,20 +25,21 @@ test.describe('Test Parallel Workflow Completion', () => {
     await page.locator('.mdxeditor').click(); // Focus the editor
     await page.keyboard.type('Simple test job description.');
 
-    // 5. Click Generate button
+    // 5. Click Generate button (Button text is "Generate Resume Text")
     await page.locator('button:has-text("Generate Resume Text")').click();
 
     // 6. Wait for results and verify completion status for all steps
-    // First, wait for the title of the generated content section to appear
-    const sectionTitle = page.getByText("Generated Content Steps").first();
-    await expect(sectionTitle).toBeVisible({ timeout: 60000 }); // Increased timeout
+    // First, wait for the container holding the steps to appear
+    // The heading "Generated Content" seems to be dynamic/unreliable, use a container selector
+    const stepsContainer = page.locator('div').filter({ hasText: 'Generated Content Steps' }).locator('.flex.flex-col.md\\:flex-row.gap-6').first();
+    await expect(stepsContainer).toBeVisible({ timeout: 60000 }); // Increased timeout
 
-    // Click the title to expand the collapsible section
-    await sectionTitle.click();
+    // Click the title to expand the collapsible section if needed (assuming it's collapsible)
+    // This might not be necessary if the container is always visible
+    // await page.getByText("Generated Content Steps").first().click();
 
-    // Wait for the steps container to appear
-    const stepsContainer = page.locator('.flex.flex-col.md\\:flex-row.gap-6').first();
-    await expect(stepsContainer).toBeVisible({ timeout: 10000 });
+    // Wait for the steps container to appear (redundant if already waited)
+    // await expect(stepsContainer).toBeVisible({ timeout: 10000 });
 
     // Define the expected steps from workflow-test.ts
     const expectedSteps = [

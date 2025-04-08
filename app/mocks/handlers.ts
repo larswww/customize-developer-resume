@@ -1,6 +1,5 @@
 import { http, HttpResponse } from "msw";
-
-
+import { JSONSchemaFaker } from "json-schema-faker";
 
 // Update with more generic mock responses for testing app flow
 const workflowResponses = {
@@ -156,6 +155,9 @@ const openAIHandler = http.post(
 			requestBody.response_format?.type === "json_object"
 		) {
 			responseContent = JSON.stringify(mockResumeData);
+		} else if (requestBody.response_format?.type === "json_schema") {
+			const mock = await JSONSchemaFaker.resolve(requestBody.response_format.json_schema.schema)
+			responseContent = JSON.stringify(mock);
 		} else if (requestBody.messages && Array.isArray(requestBody.messages)) {
 			// Get the last user message
 			const userMessage = requestBody.messages.find(m => m.role === 'user')?.content || '';

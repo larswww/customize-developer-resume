@@ -1,3 +1,4 @@
+
 import { type RouteConfig, index, route, layout } from "@react-router/dev/routes";
 
 export default [
@@ -10,7 +11,7 @@ export default [
 
 			]),
 		]),
-		
+
 		route("settings/work-history", "routes/settings.work-history.tsx"),
 	]),
 	route("export-pdf", "routes/export-pdf.tsx"), 

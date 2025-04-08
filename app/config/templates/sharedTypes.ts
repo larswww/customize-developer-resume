@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
-
+import type { DefaultResumeCoreData } from "./default";
+import type { SimpleConsultantCoreData } from "./simple";
 // --- Shared Schemas --- 
 
 export const ContactInfoSchema = z.object({
@@ -56,6 +57,8 @@ export const globalResumeConstants = {
 
 // --- Shared Interface for Template Configuration --- 
 
+export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData;
+
 export interface ResumeTemplateConfig {
   id: string;
   name: string;
@@ -63,6 +66,6 @@ export interface ResumeTemplateConfig {
   component: ComponentType<{ data: any }>; 
   // Default contact info for the template (can use global or specify differently)
   defaultContactInfo: ContactInfo; 
-  outputSchema: z.ZodObject<any>; 
+  outputSchema: z.ZodType<ResumeCoreData>; 
   componentSchema?: z.ZodObject<any>; 
 } 

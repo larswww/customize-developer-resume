@@ -1,5 +1,5 @@
-import React from 'react';
-import type { SimpleConsultantData, Employment } from '../../templates/simpleConsultant';
+import type React from 'react';
+import type { SimpleConsultantData } from '~/config/templates/simple';
 
 // Helper to ensure URL starts with https://
 const ensureHttps = (url: string): string => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ContactInfo } from '../templates';
+import type { ContactInfo } from '../config/templates';
 
 interface ContactInfoFormProps {
   contactInfo: ContactInfo;

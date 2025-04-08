@@ -1,13 +1,19 @@
 import Database from 'better-sqlite3';
-import type { DefaultResumeData } from '../../templates/default';
+import type { DefaultResumeCoreData, DefaultResumeData } from '../../config/templates/default';
 import path from 'node:path';
 import fs from 'node:fs';
 import { z } from 'zod';
 import { defaultWorkflowId } from '../../config/workflows.config';
+import type { SimpleConsultantCoreData } from '~/config/templates/simple';
 
 const DB_PATHS = {
-  TEST: './db-data/test_resume_app.db',
+  TEST: './db-data/test.db',
   PROD: './db-data/resume_app.db',
+}
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.MSW_ENABLED === 'true';
+const DEFAULT_DB_PATH = isTestEnv ? DB_PATHS.TEST : DB_PATHS.PROD;
+if (isTestEnv) {
+  console.log('Using test database');
 }
 
 const TimeStampSchema = z.object({
@@ -24,6 +30,7 @@ const JobInputSchema = z.object({
     }),
   jobDescription: z.string(),
   relevantDescription: z.string().optional(),
+  link: z.string().nullish()
 });
 
 const JobSchema = z.object({
@@ -31,6 +38,7 @@ const JobSchema = z.object({
   title: z.string(),
   jobDescription: z.string(),
   relevantDescription: z.string().optional(),
+  link: z.string().url().nullable().optional(),
 }).merge(TimeStampSchema);
 
 const WorkflowStepStatusSchema = z.enum(['pending', 'success', 'error', 'processing']);
@@ -59,7 +67,8 @@ const ResumeInputSchema = z.object({
   resumeText: z.string().optional(),
   structuredData: z.union([
     z.string(),
-    z.custom<DefaultResumeData>(),
+    z.custom<DefaultResumeCoreData>(),
+    z.custom<SimpleConsultantCoreData>(),
     z.null()
   ]).optional().transform(data => {
     if (typeof data === 'string' || data === null) return data;
@@ -202,8 +211,7 @@ const saveWorkHistoryFn = z.function()
   .args(z.string())
   .returns(z.boolean());
 
-const isTestEnv = process.env.NODE_ENV === 'test';
-const DEFAULT_DB_PATH = isTestEnv ? DB_PATHS.TEST : DB_PATHS.PROD;
+
 
 export class DbService {
   private db: Database.Database;
@@ -234,45 +242,19 @@ export class DbService {
 
   private initializeTables() {
     const initSchema = this.db.transaction(() => {
+      // First create all tables
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS jobs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
           jobDescription TEXT NOT NULL,
           relevantDescription TEXT,
+          link TEXT,
           createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
           updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
       `);
 
-      // Check if workflowId column exists in workflow_steps table
-      const tableInfo = this.db.prepare("PRAGMA table_info(workflow_steps)").all();
-      const hasWorkflowIdColumn = tableInfo.some((column: any) => column.name === 'workflowId');
-      
-      if (!hasWorkflowIdColumn) {
-        console.log("Migrating workflow_steps table to add workflowId column...");
-        
-        // Create a backup of the existing table
-        this.db.exec(`
-          CREATE TABLE IF NOT EXISTS workflow_steps_backup (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            jobId INTEGER NOT NULL,
-            stepId TEXT NOT NULL,
-            result TEXT,
-            status TEXT NOT NULL,
-            createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE CASCADE
-          )
-        `);
-        
-        // Copy data to backup
-        this.db.exec("INSERT INTO workflow_steps_backup SELECT * FROM workflow_steps");
-        
-        // Drop existing table and recreate with new schema
-        this.db.exec("DROP TABLE workflow_steps");
-      }
-      
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS workflow_steps (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -286,21 +268,7 @@ export class DbService {
           FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE CASCADE
         )
       `);
-      
-      // If we did a migration, restore data with default workflowId
-      if (!hasWorkflowIdColumn && this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='workflow_steps_backup'").get()) {
-        console.log("Restoring workflow step data with default workflowId...");
-        this.db.exec(`
-          INSERT INTO workflow_steps (id, jobId, stepId, workflowId, result, status, createdAt, updatedAt)
-          SELECT id, jobId, stepId, '${defaultWorkflowId}', result, status, createdAt, updatedAt 
-          FROM workflow_steps_backup
-        `);
-        
-        // Drop backup table
-        this.db.exec("DROP TABLE workflow_steps_backup");
-        console.log("Migration completed successfully.");
-      }
-      
+
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS resumes (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -322,6 +290,17 @@ export class DbService {
         )
       `);
 
+      // Then handle migrations
+      // Check if link column exists in jobs table
+      const jobsTableInfo = this.db.prepare("PRAGMA table_info(jobs)").all();
+      const hasLinkColumn = jobsTableInfo.some((column: any) => column.name === 'link');
+      
+      if (!hasLinkColumn) {
+        console.log("Adding link column to jobs table...");
+        this.db.exec('ALTER TABLE jobs ADD COLUMN link TEXT DEFAULT NULL');
+      }
+
+      // Create indexes after tables are created
       this.db.exec(`
         CREATE UNIQUE INDEX IF NOT EXISTS idx_workflow_steps_job_step
         ON workflow_steps (jobId, stepId, workflowId)
@@ -351,14 +330,15 @@ export class DbService {
 
   createJob = createJobFn.implement((jobData) => {
     const stmt = this.db.prepare(`
-      INSERT INTO jobs (title, jobDescription, relevantDescription)
-      VALUES (?, ?, ?)
+      INSERT INTO jobs (title, jobDescription, relevantDescription, link)
+      VALUES (?, ?, ?, ?)
     `);
 
     const result = stmt.run(
       jobData.title,
       jobData.jobDescription,
-      jobData.relevantDescription || ''
+      jobData.relevantDescription || '',
+      jobData.link || null
     );
 
     const newJob = this.getJob(result.lastInsertRowid as number);

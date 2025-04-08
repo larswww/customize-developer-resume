@@ -1,13 +1,8 @@
 import { z } from "zod";
 import type { ComponentType } from "react";
-// Import shared types/schemas
-import { ContactInfoSchema, EducationSchema, type ContactInfo, type ResumeTemplateConfig, globalResumeConstants } from "../sharedTypes";
-// Import the specific component for this template
-import { ResumeTemplate } from "~/components/resume/templates/ResumeTemplate"; // Adjust path as needed
+import { ContactInfoSchema, EducationSchema, type ContactInfo, type ResumeTemplateConfig, globalResumeConstants } from "./sharedTypes";
+import { ResumeTemplate } from "~/components/resume/templates/ResumeTemplate";
 
-// --- Template-Specific Schemas --- 
-
-// Schema for Work Experience (specific to this template's structure)
 export const WorkExperienceSchema = z.object({
   title: z.string().describe("The job title."),
   company: z.string().describe("The name of the company."),
@@ -17,7 +12,6 @@ export const WorkExperienceSchema = z.object({
   highlights: z.optional(z.array(z.string())).describe("Optional bullet points highlighting achievements."),
 });
 
-// Schema for Skills (specific to this template's structure)
 export const SkillSchema = z.object({
   category: z.string().describe("The category of the skills (e.g., Frontend, Backend)."),
   items: z.array(z.object({
@@ -26,13 +20,11 @@ export const SkillSchema = z.object({
   })),
 });
 
-// Core data schema for AI generation for this template
 export const DefaultResumeCoreDataSchema = z.object({
   workExperience: z.array(WorkExperienceSchema),
   skills: z.array(SkillSchema),
 });
 
-// Full data schema the component expects
 export const DefaultResumeDataSchema = z.object({
   contactInfo: ContactInfoSchema,
   workExperience: z.array(WorkExperienceSchema),
@@ -45,22 +37,18 @@ export const DefaultResumeDataSchema = z.object({
   })),
 });
 
-// --- Template Configuration --- 
-
-// Optionally use global contact info or define template-specific
 const templateDefaultContactInfo: ContactInfo = globalResumeConstants.contactInfo;
 
 export const templateConfig: ResumeTemplateConfig = {
   id: 'default',
   name: 'Standard Professional',
   description: 'A standard professional resume layout including work experience, education, and a categorized skills section. Suitable for typical job applications.',
-  component: ResumeTemplate as ComponentType<{ data: any }>, // Cast component type
-  defaultContactInfo: templateDefaultContactInfo, // Use chosen default
+  component: ResumeTemplate as ComponentType<{ data: DefaultResumeData }>, 
+  defaultContactInfo: templateDefaultContactInfo, 
   outputSchema: DefaultResumeCoreDataSchema,
-  componentSchema: DefaultResumeDataSchema, // Add the component schema
+  componentSchema: DefaultResumeDataSchema, 
 };
 
-// Export specific types if needed elsewhere, though often not necessary
 export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
 export type Skill = z.infer<typeof SkillSchema>;
 export type DefaultResumeCoreData = z.infer<typeof DefaultResumeCoreDataSchema>;
