@@ -1,4 +1,4 @@
-import { workflows, defaultWorkflowId } from "../../config/workflows";
+import { workflows, defaultWorkflowId } from "../../config/workflows.config";
 import type { WorkflowStep, WorkflowContext } from "../../services/ai/types";
 import { WorkflowEngine, type WorkflowStepUpdate, type DBService } from "./workflow-engine";
 import dbService from "../db/dbService";

@@ -3,7 +3,7 @@ import type { DefaultResumeData } from '../../templates/default';
 import path from 'node:path';
 import fs from 'node:fs';
 import { z } from 'zod';
-import { defaultWorkflowId } from '../../config/workflows';
+import { defaultWorkflowId } from '../../config/workflows.config';
 
 const DB_PATHS = {
   TEST: './db-data/test_resume_app.db',

@@ -1,8 +1,8 @@
 import type { WorkflowStep } from "../services/ai/types";
-import { workflowSteps as defaultWorkflowSteps } from "./workflow-default";
-import { workflowSteps as alternativeWorkflowSteps } from "./workflow-alternative";
-import { workflowSteps as developerWorkflowSteps } from "./workflow-developer";
-import { workflowSteps as testWorkflowSteps } from "./workflow-test";
+import { workflowSteps as defaultWorkflowSteps } from "./workflows/workflow-default";
+import { workflowSteps as alternativeWorkflowSteps } from "./workflows/workflow-alternative";
+import { workflowSteps as developerWorkflowSteps } from "./workflows/workflow-developer";
+import { workflowSteps as testWorkflowSteps } from "./workflows/workflow-test";
 interface WorkflowConfig {
   label: string;
   steps: WorkflowStep[];

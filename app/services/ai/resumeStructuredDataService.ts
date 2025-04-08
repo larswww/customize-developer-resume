@@ -1,7 +1,7 @@
 import type {
   ResumeCoreData,
   ResumeTemplateConfig
-} from "../../config/resumeTemplates.config";
+} from "../../config/templates.config";
 import { z } from "zod";
 import OpenAI from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";

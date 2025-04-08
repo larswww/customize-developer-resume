@@ -13,7 +13,7 @@ import {
   defaultTemplateId,
   type ContactInfo,
 } from "../templates";
-import { workflows, defaultWorkflowId } from "../config/workflows";
+import { workflows, defaultWorkflowId } from "../config/workflows.config";
 import type { WorkflowStep } from "../services/ai/types";
 import { ContactInfoForm } from "~/components/ContactInfoForm";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";

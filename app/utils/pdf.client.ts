@@ -1,5 +1,5 @@
 import { exportHtmlToPdf } from "../services/pdf/clientPdfService";
-import type { ContactInfo } from "../config/resumeTemplates.config";
+import type { ContactInfo } from "../config/templates.config";
 
 interface DownloadPdfOptions {
   elementId: string;

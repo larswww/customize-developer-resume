@@ -1,4 +1,4 @@
-import type { WorkflowStep } from "../services/ai/types";
+import type { WorkflowStep } from "../../services/ai/types";
 
 export const workflowSteps: WorkflowStep[] = [
   {

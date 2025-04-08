@@ -4,7 +4,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import { Link } from "~/components/ui/Link";
 import { JobControlsHeader } from "../components/JobControlsHeader";
 import dbService from "../services/db/dbService";
-import { workflows, defaultWorkflowId } from "../config/workflows";
+import { workflows, defaultWorkflowId } from "../config/workflows.config";
 import { availableTemplates, defaultTemplateId, type ResumeTemplateConfig } from "../templates";
 
 export function meta() {

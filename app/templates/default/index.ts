@@ -3,7 +3,7 @@ import type { ComponentType } from "react";
 // Import shared types/schemas
 import { ContactInfoSchema, EducationSchema, type ContactInfo, type ResumeTemplateConfig, globalResumeConstants } from "../sharedTypes";
 // Import the specific component for this template
-import { ResumeTemplate } from "~/components/ResumeTemplate"; // Adjust path as needed
+import { ResumeTemplate } from "~/components/resume/templates/ResumeTemplate"; // Adjust path as needed
 
 // --- Template-Specific Schemas --- 
 

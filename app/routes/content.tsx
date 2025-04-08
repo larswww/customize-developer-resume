@@ -7,7 +7,7 @@ import {
   Outlet,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { workflows, defaultWorkflowId } from "../config/workflows";
+import { workflows, defaultWorkflowId } from "../config/workflows.config";
 import { executeWorkflow } from "../services/workflow/workflow-service";
 import dbService from "../services/db/dbService";
 import { LoadingSpinnerIcon, MagicWandIcon, RetryIcon } from "~/components/Icons";
