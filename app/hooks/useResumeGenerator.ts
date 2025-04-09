@@ -6,7 +6,6 @@ import type { ContactInfo } from '../config/templates';
 import { globalResumeConstants } from '../config/templates';
 import type { DefaultResumeData } from '../config/templates/default';
 import type { SimpleConsultantData } from '../config/templates/simple';
-import type { WorkflowStep } from '../services/ai/types';
 
 interface UseResumeGeneratorProps {
   jobId: number;

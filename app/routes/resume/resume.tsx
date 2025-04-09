@@ -8,27 +8,27 @@ import {
   useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import dbService from "../services/db/dbService";
-import { type ContactInfo, availableTemplates } from "../config/templates";
-import type { WorkflowStep } from "../services/ai/types";
+import dbService from "../../services/db/dbService";
+import { type ContactInfo, availableTemplates, defaultContactInfo as globalDefaultContactInfo } from "../../config/templates";
+import type { WorkflowStep } from "../../services/ai/types";
 import { ContactInfoForm } from "~/components/ContactInfoForm";
 import { useResumeGenerator } from "~/hooks/useResumeGenerator";
 import { Collapsible } from "~/components/Collapsible";
 import { SourceTextInputs } from "~/components/resume/SourceTextInputs";
-import { ResumeGenerationControls } from "~/components/resume/ResumeGenerationControls";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { Button } from "~/components/ui/Button";
 import text from "~/text";
-import { type RouteOutletContext, type ResumeRouteContext } from "~/routes/resume/types";
-import { JOB_ROUTE_ID } from "./resume/job";
+import type {  ResumeRouteContext } from "~/routes/resume/types";
+import { JOB_ROUTE_ID } from "./job";
 import { 
   extractRouteParams, 
   handleResumeAction,
 } from "~/routes/resume/utils";
-import type { Route } from "./resume/+types/resume";
 
 export async function loader(args: LoaderFunctionArgs) {
+
+  // Extract common parameters
   const {
     jobId,
     selectedWorkflowId,
@@ -54,9 +54,15 @@ export async function loader(args: LoaderFunctionArgs) {
     sourceTexts[step.id] = stepResult?.result || "";
   }
 
-  // Get contact info from DB, use default as fallback
-  const contactInfo = dbService.getContactInfo();
-  console.log("contactInfo", contactInfo);
+  // Get contact info from DB settings first
+  const savedContactInfo = dbService.getContactInfo();
+  
+  // Use saved info, or fallback to the global default
+  const contactInfo = savedContactInfo || globalDefaultContactInfo;
+
+  // If we are loading existing resume data, its contact info takes precedence
+  // (This allows job-specific overrides if needed in the future, though not currently implemented)
+  const finalContactInfo = resumeData?.structuredData?.contactInfo || contactInfo;
 
   return {
     resumeData,
@@ -65,7 +71,7 @@ export async function loader(args: LoaderFunctionArgs) {
       id: s.id,
       name: s.name,
     })),
-    contactInfo,
+    contactInfo: finalContactInfo,
   };
 }
 
@@ -73,37 +79,32 @@ export async function action(args: ActionFunctionArgs) {
   return handleResumeAction(args);
 }
 
-export default function JobResume({loaderData}: Route.ComponentProps) {
-  const navigation = useNavigation();
+export default function JobResume() {
   const {
     resumeData,
     sourceTexts: initialSourceTexts,
     resumeSourceSteps,
-    contactInfo,
-  } = loaderData;
-  const parentContext = useOutletContext<ResumeRouteContext>();
-  const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } = parentContext || {};
+    contactInfo: initialContactInfo,
+  } = useLoaderData<{
+    resumeData: { structuredData?: any } | null;
+    sourceTexts: Record<string, string>;
+    resumeSourceSteps: { id: string; name: string }[];
+    contactInfo: ContactInfo;
+  }>();
 
-  const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID);
+  // Get the parent context
+  const parentContext = useOutletContext<ResumeRouteContext>();
+  const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } = parentContext;
+
+  // Make sure job is available (from parent context or use useRouteLoaderData as fallback)
+  const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID) as any;
   const jobData = job || parentRouteData?.job;
 
-  // Ensure jobData is available before proceeding
-  if (!jobData) {
-    return (
-      <div className="flex justify-center items-center h-64 text-red-500">
-        Error: Job data not available.
-      </div>
-    );
-  }
-  
+  const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
   const isGenerating =
     isSubmitting && navigation.formData?.get("actionType") === "generate";
-  const actionData = useActionData<{
-    success?: boolean;
-    resumeData?: any;
-    error?: string;
-  }>();
+  const actionData = useActionData<typeof handleResumeAction>();
 
   const {
     error,
@@ -124,10 +125,10 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
     resumeData,
     initialSourceTexts,
     resumeSourceSteps,
-    initialContactInfo: contactInfo,
+    initialContactInfo,
   });
 
-  const CurrentTemplateConfig = selectedTemplateId ? availableTemplates[selectedTemplateId] : null;
+  const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
   const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
   useEffect(() => {
@@ -164,11 +165,12 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
             />
           ) : (
             <div className="text-center text-gray-500 py-10 flex items-center justify-center h-[400px] border rounded bg-gray-50">
-              {/* Display simple loading text if no data yet and not submitting */} 
-              {navigation.state !== 'submitting' ? (
-                <p>{text.resume.emptyState}</p> 
+              {(navigation.state === "submitting" ||
+                navigation.state === "loading") &&
+              !actionData?.success ? (
+                <p>Loading or generating data...</p>
               ) : (
-                 <p>Loading or generating data...</p>
+                <p>{text.resume.emptyState}</p>
               )}
             </div>
           )}
@@ -204,7 +206,7 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
             )}
           </div>
           <Collapsible title="Contact Information" defaultOpen={false}>
-            <ContactInfoForm contactInfo={contactInfo} />
+            <ContactInfoForm contactInfo={initialContactInfo} />
           </Collapsible>
 
           <Collapsible title={text.resume.headings.edit} defaultOpen={true}>
@@ -216,6 +218,12 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
           </Collapsible>
         </div>
       </div>
+
+      {navigation.state === "loading" && actionData === undefined && (
+        <div className="my-4 p-4 border rounded bg-blue-50">
+          <p>Loading previous results...</p>
+        </div>
+      )}
     </Form>
   );
 }

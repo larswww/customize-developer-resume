@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { z } from "zod";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
+import type { OnePagerCoreData } from "./onepager";
 // --- Shared Schemas --- 
 
 export const ContactInfoSchema = z.object({
@@ -9,10 +10,11 @@ export const ContactInfoSchema = z.object({
   title: z.string(),
   location: z.string(),
   phone: z.string(),
-  email: z.string().email(),
+  email: z.string(),
   linkedin: z.string(),
   portfolio: z.optional(z.string()),
-});
+  imageUrl: z.optional(z.string()),
+}).partial();
 
 export const EducationSchema = z.object({
   degree: z.string().describe("The name of the degree or qualification."),
@@ -28,15 +30,14 @@ export type Education = z.infer<typeof EducationSchema>;
 
 // --- NEW: Global Resume Constants --- 
 
-const globalContactInfo: ContactInfo = {
-  name: "LARS WÖLDERN",
-  // This title might be overridden by template defaults if desired
-  title: "Product Engineer / Consultant", 
-  location: "Amsterdam & Remote",
-  phone: "+31 6 2526 6752",
-  email: "lars@productworks.nl",
-  linkedin: "linkedin.com/in/larswo",
-  portfolio: "productworks.nl",
+export const defaultContactInfo: ContactInfo = {
+  name: "Your Name",
+  title: "Your Title",
+  location: "Your Location",
+  phone: "",
+  email: "",
+  linkedin: "",
+  portfolio: "",
 };
 
 // Define education data globally
@@ -51,13 +52,16 @@ const globalEducation: Education[] = [
 
 // Export the constants object
 export const globalResumeConstants = {
-  contactInfo: globalContactInfo,
+  contactInfo: defaultContactInfo,
   education: globalEducation,
 };
 
+// --- Default Contact Info (Fallback if DB is empty) ---
+
+
 // --- Shared Interface for Template Configuration --- 
 
-export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData;
+export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData | OnePagerCoreData;
 
 export interface ResumeTemplateConfig {
   id: string;
@@ -65,7 +69,6 @@ export interface ResumeTemplateConfig {
   description: string;
   component: ComponentType<{ data: any }>; 
   // Default contact info for the template (can use global or specify differently)
-  defaultContactInfo: ContactInfo; 
   outputSchema: z.ZodType<ResumeCoreData>; 
   componentSchema?: z.ZodObject<any>; 
 } 

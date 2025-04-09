@@ -4,9 +4,10 @@ export * from "./sharedTypes";
 // Import configurations from individual template files
 import { templateConfig as defaultConfig } from './default';
 import { templateConfig as simpleConsultantConfig } from './simple';
+import { templateConfig as onePagerConfig } from './onepager';
 
 // Export the configurations individually if needed
-export { defaultConfig, simpleConsultantConfig };
+export { defaultConfig, simpleConsultantConfig, onePagerConfig };
 
 // --- Aggregate Available Templates --- 
 
@@ -17,6 +18,7 @@ import type { ResumeTemplateConfig } from './sharedTypes';
 export const availableTemplates: Record<string, ResumeTemplateConfig> = {
   [defaultConfig.id]: defaultConfig,
   [simpleConsultantConfig.id]: simpleConsultantConfig,
+  [onePagerConfig.id]: onePagerConfig,
 };
 
 // Get the ID of the default template

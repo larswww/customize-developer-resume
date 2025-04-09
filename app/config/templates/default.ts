@@ -37,14 +37,11 @@ export const DefaultResumeDataSchema = z.object({
   })),
 });
 
-const templateDefaultContactInfo: ContactInfo = globalResumeConstants.contactInfo;
-
 export const templateConfig: ResumeTemplateConfig = {
   id: 'default',
   name: 'Standard Professional',
   description: 'A standard professional resume layout including work experience, education, and a categorized skills section. Suitable for typical job applications.',
   component: ResumeTemplate as ComponentType<{ data: DefaultResumeData }>, 
-  defaultContactInfo: templateDefaultContactInfo, 
   outputSchema: DefaultResumeCoreDataSchema,
   componentSchema: DefaultResumeDataSchema, 
 };

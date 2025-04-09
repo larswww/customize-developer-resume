@@ -1,5 +1,6 @@
 import React from 'react';
-import type { ContactInfo } from '../config/templates';
+import type { ContactInfo } from '../config/templates/sharedTypes';
+import { defaultContactInfo } from '../config/templates/sharedTypes';
 
 interface ContactInfoFormProps {
   contactInfo: ContactInfo;
@@ -7,14 +8,18 @@ interface ContactInfoFormProps {
 
 export function ContactInfoForm({ contactInfo }: ContactInfoFormProps) {
   // Define the form fields configuration
+  console.log("contactInfo ", contactInfo);
+  const contactValues = contactInfo || defaultContactInfo;
+
   const formFields = [
-    { id: 'name', label: 'Name', type: 'text', value: contactInfo.name },
-    { id: 'title', label: 'Title', type: 'text', value: contactInfo.title },
-    { id: 'location', label: 'Location', type: 'text', value: contactInfo.location },
-    { id: 'phone', label: 'Phone', type: 'tel', value: contactInfo.phone },
-    { id: 'email', label: 'Email', type: 'email', value: contactInfo.email },
-    { id: 'linkedin', label: 'LinkedIn (handle or URL)', type: 'text', value: contactInfo.linkedin },
-    { id: 'portfolio', label: 'Portfolio (URL)', type: 'text', value: contactInfo.portfolio ?? '' },
+    { id: 'name', label: 'Name', type: 'text', value: contactValues.name },
+    { id: 'title', label: 'Title', type: 'text', value: contactValues.title },
+    { id: 'location', label: 'Location', type: 'text', value: contactValues.location },
+    { id: 'phone', label: 'Phone', type: 'tel', value: contactValues.phone },
+    { id: 'email', label: 'Email', type: 'email', value: contactValues.email },
+    { id: 'linkedin', label: 'LinkedIn (handle or URL)', type: 'text', value: contactValues.linkedin },
+    { id: 'portfolio', label: 'Portfolio (URL)', type: 'text', value: contactValues.portfolio ?? '' },
+    { id: 'imageUrl', label: 'Image (URL)', type: 'url', value: contactValues.imageUrl ?? '' },
   ];
 
   return (

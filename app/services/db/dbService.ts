@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import { z } from 'zod';
 import { defaultWorkflowId } from '../../config/workflows';
 import type { SimpleConsultantCoreData } from '~/config/templates/simple';
+import { ContactInfoSchema, type ContactInfo } from '~/config/templates/sharedTypes';
 
 const DB_PATHS = {
   TEST: './db-data/test.db',
@@ -114,6 +115,7 @@ export type ResumeInput = {
 };
 export type Resume = z.infer<typeof ResumeSchema>;
 export type Settings = z.infer<typeof SettingsSchema>;
+export type { ContactInfo };
 
 /**
  * @param operation The database operation to execute
@@ -211,7 +213,13 @@ const saveWorkHistoryFn = z.function()
   .args(z.string())
   .returns(z.boolean());
 
+const getContactInfoFn = z.function()
+  .args()
+  .returns(ContactInfoSchema.nullable());
 
+const saveContactInfoFn = z.function()
+  .args(ContactInfoSchema)
+  .returns(z.boolean());
 
 export class DbService {
   private db: Database.Database;
@@ -363,6 +371,16 @@ export class DbService {
           END;
         `);
       }
+      
+      // Add specific trigger for settings table using 'key'
+      this.db.exec(`
+        CREATE TRIGGER IF NOT EXISTS trigger_settings_updatedAt
+        AFTER UPDATE ON settings
+        FOR EACH ROW
+        BEGIN
+          UPDATE settings SET updatedAt = CURRENT_TIMESTAMP WHERE key = OLD.key;
+        END;
+      `);
     });
 
     try {
@@ -547,6 +565,41 @@ export class DbService {
       return true;
     } catch (error) {
       console.error('[saveWorkHistory] Error during save:', error);
+      return false;
+    }
+  });
+
+  getContactInfo = getContactInfoFn.implement(() => {
+    return withErrorHandling(
+      () => {
+        const row = this.db.prepare("SELECT value FROM settings WHERE key = 'contactInfo'").get();
+        if (!row) return null;
+        // Parse the JSON string back into an object
+        try {
+          return JSON.parse((row as any).value);
+        } catch (parseError) {
+          console.error('[getContactInfo] Error parsing JSON:', parseError, 'Raw value:', (row as any).value);
+          throw new Error('Failed to parse contact info from database'); // Let withErrorHandling catch this
+        }
+      },
+      ContactInfoSchema,
+      'getContactInfo'
+    );
+  });
+
+  saveContactInfo = saveContactInfoFn.implement((contactInfoData) => {
+    try {
+      const stmt = this.db.prepare(`
+        INSERT INTO settings (key, value)
+        VALUES ('contactInfo', ?)
+        ON CONFLICT(key) DO UPDATE SET
+          value = excluded.value,
+          updatedAt = CURRENT_TIMESTAMP
+      `);
+      const result = stmt.run(JSON.stringify(contactInfoData));
+      return result.changes > 0;
+    } catch (error) {
+      console.error('[saveContactInfo] Error during save:', error);
       return false;
     }
   });

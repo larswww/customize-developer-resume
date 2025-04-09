@@ -8,6 +8,7 @@ process.env.NODE_ENV = 'test';
 // Import the real DbService and factory function
 import { createDbService, type WorkflowStepStatus } from './dbService';
 import type { DefaultResumeData } from '../../config/templates/default';
+import type { ContactInfo } from '~/config/templates/sharedTypes'; // Import ContactInfo
 
 const TEST_DB_PATH = './db-data/test_resume_app.db';
 
@@ -424,6 +425,58 @@ describe('DbService', () => {
       
       const retrievedHistory = dbService.getWorkHistory();
       expect(retrievedHistory).toBe(workHistory);
+    });
+  });
+
+  // Contact Info settings tests
+  describe('Contact info settings', () => {
+    it('should save and retrieve contact info', () => {
+      const contactData: ContactInfo = {
+        name: "Test User",
+        title: "Tester",
+        location: "Test City",
+        phone: "111-222-3333",
+        email: "test@example.com",
+        linkedin: "linkedin.com/in/test",
+        portfolio: "test.com",
+        imageUrl: "https://example.com/image.jpg",
+      };
+
+      const saveResult = dbService.saveContactInfo(contactData);
+      expect(saveResult).toBe(true);
+
+      const retrievedInfo = dbService.getContactInfo();
+      expect(retrievedInfo).toEqual(contactData);
+    });
+
+    it('should return null if no contact info is saved', () => {
+      const retrievedInfo = dbService.getContactInfo();
+      expect(retrievedInfo).toBeNull();
+    });
+
+    it('should update existing contact info', () => {
+      const initialData: ContactInfo = {
+        name: "Initial User",
+        title: "Initial Title",
+        location: "Initial City",
+        phone: "111-111-1111",
+        email: "initial@example.com",
+        linkedin: "linkedin.com/in/initial",
+      };
+      dbService.saveContactInfo(initialData);
+
+      const updatedData: ContactInfo = {
+        ...initialData, // Keep some initial data
+        name: "Updated User",
+        title: "Updated Title",
+        imageUrl: "https://example.com/new-image.png",
+      };
+
+      const saveResult = dbService.saveContactInfo(updatedData);
+      expect(saveResult).toBe(true);
+
+      const retrievedInfo = dbService.getContactInfo();
+      expect(retrievedInfo).toEqual(updatedData);
     });
   });
 }); 

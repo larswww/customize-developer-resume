@@ -30,14 +30,11 @@ export const SimpleConsultantDataSchema = z.object({
     education: z.array(EducationSchema), 
 });
 
-const templateDefaultContactInfo: ContactInfo = globalResumeConstants.contactInfo;
-
 export const templateConfig: ResumeTemplateConfig = {
   id: 'simpleConsultant',
   name: 'Simple Consultant',
   description: 'A senior developer resume format. One-paragraph intro summary. Lists employers and client projects underneath each employer. Each project has a list of technologies skills that can be used to highlight key tech relevant to current job. Under each project, there are bullet point descriptions.', 
   component: SimpleTemplate as ComponentType<{ data: any }>, 
-  defaultContactInfo: templateDefaultContactInfo,
   outputSchema: SimpleConsultantCoreDataSchema,
   componentSchema: SimpleConsultantCoreDataSchema.extend({
     education: z.array(EducationSchema),

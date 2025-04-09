@@ -24,13 +24,20 @@ export const test = base.extend<JobFixtures>({
         await page.locator('input[name="link"]').fill(link);
       }
       await page.locator('textarea[name="jobDescription"]').fill(description);
-      await page.getByRole("button", { name: text.dashboard.createJob.confirmButton }).click();
       
-      // Wait for navigation to job page and extract jobId with a longer timeout
-      await page.waitForURL(/\/job\/(\d+)/, { timeout: 60000 });
+      // Click create and explicitly wait for the navigation/load event to the job page
+      await Promise.all([
+        page.waitForURL(/\/job\/(\d+)/, { timeout: 60000 }), // Keep waiting for URL pattern
+        page.waitForLoadState('networkidle'), // Wait for network activity to cease
+        page.getByRole("button", { name: text.dashboard.createJob.confirmButton }).click() // Trigger the action
+      ]);
+
       const url = page.url();
       const match = url.match(/\/job\/(\d+)/);
       const jobId = match?.[1] || "";
+      
+      // Wait for the job page heading to be visible
+      await expect(page.getByRole('heading', { name: new RegExp(title) })).toBeVisible({ timeout: 10000 });
       
       return jobId;
     };

@@ -19,12 +19,13 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "MSW_ENABLED=true PORT=4000 pnpm dev",
-		port: 4000,
+		command: "pnpm dev",
+		port: 5000,
 		reuseExistingServer: !process.env.CI,
 		env: {
 			NODE_ENV: "development",
 			MSW_ENABLED: "true",
+			PORT: "5000",
 		},
 	},
 });
