@@ -3,7 +3,7 @@ import type { DefaultResumeCoreData, DefaultResumeData } from '../../config/temp
 import path from 'node:path';
 import fs from 'node:fs';
 import { z } from 'zod';
-import { defaultWorkflowId } from '../../config/workflows.config';
+import { defaultWorkflowId } from '../../config/workflows';
 import type { SimpleConsultantCoreData } from '~/config/templates/simple';
 
 const DB_PATHS = {
@@ -242,7 +242,6 @@ export class DbService {
 
   private initializeTables() {
     const initSchema = this.db.transaction(() => {
-      // First create all tables
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS jobs (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -255,6 +254,49 @@ export class DbService {
         )
       `);
 
+      // Check if link column exists in jobs table
+      const jobsTableInfo = this.db.prepare("PRAGMA table_info(jobs)").all();
+      const hasLinkColumn = jobsTableInfo.some((column: any) => column.name === 'link');
+      
+      if (!hasLinkColumn) {
+        console.log("Adding link column to jobs table...");
+        this.db.exec('ALTER TABLE jobs ADD COLUMN link TEXT DEFAULT NULL');
+      }
+
+      // Check if workflow_steps table exists before checking columns
+      const tableExists = this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='workflow_steps'").get();
+      let hasWorkflowIdColumn = false;
+      
+      if (tableExists) {
+        // Check if workflowId column exists in workflow_steps table
+        const tableInfo = this.db.prepare("PRAGMA table_info(workflow_steps)").all();
+        hasWorkflowIdColumn = tableInfo.some((column: any) => column.name === 'workflowId');
+        
+        if (!hasWorkflowIdColumn) {
+          console.log("Migrating workflow_steps table to add workflowId column...");
+          
+          // Create a backup of the existing table
+          this.db.exec(`
+            CREATE TABLE IF NOT EXISTS workflow_steps_backup (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              jobId INTEGER NOT NULL,
+              stepId TEXT NOT NULL,
+              result TEXT,
+              status TEXT NOT NULL,
+              createdAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              updatedAt TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE CASCADE
+            )
+          `);
+          
+          // Copy data to backup
+          this.db.exec("INSERT INTO workflow_steps_backup SELECT * FROM workflow_steps");
+          
+          // Drop existing table and recreate with new schema
+          this.db.exec("DROP TABLE workflow_steps");
+        }
+      }
+      
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS workflow_steps (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -268,7 +310,21 @@ export class DbService {
           FOREIGN KEY (jobId) REFERENCES jobs(id) ON DELETE CASCADE
         )
       `);
-
+      
+      // If we did a migration, restore data with default workflowId
+      if (tableExists && !hasWorkflowIdColumn && this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='workflow_steps_backup'").get()) {
+        console.log("Restoring workflow step data with default workflowId...");
+        this.db.exec(`
+          INSERT INTO workflow_steps (id, jobId, stepId, workflowId, result, status, createdAt, updatedAt)
+          SELECT id, jobId, stepId, '${defaultWorkflowId}', result, status, createdAt, updatedAt 
+          FROM workflow_steps_backup
+        `);
+        
+        // Drop backup table
+        this.db.exec("DROP TABLE workflow_steps_backup");
+        console.log("Migration completed successfully.");
+      }
+      
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS resumes (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -290,17 +346,6 @@ export class DbService {
         )
       `);
 
-      // Then handle migrations
-      // Check if link column exists in jobs table
-      const jobsTableInfo = this.db.prepare("PRAGMA table_info(jobs)").all();
-      const hasLinkColumn = jobsTableInfo.some((column: any) => column.name === 'link');
-      
-      if (!hasLinkColumn) {
-        console.log("Adding link column to jobs table...");
-        this.db.exec('ALTER TABLE jobs ADD COLUMN link TEXT DEFAULT NULL');
-      }
-
-      // Create indexes after tables are created
       this.db.exec(`
         CREATE UNIQUE INDEX IF NOT EXISTS idx_workflow_steps_job_step
         ON workflow_steps (jobId, stepId, workflowId)

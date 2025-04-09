@@ -5,70 +5,44 @@ import {
   useLoaderData,
   useNavigation,
   useOutletContext,
+  useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import dbService from "../services/db/dbService";
-import {
-  availableTemplates,
-  defaultTemplateId,
-  type ContactInfo,
-} from "../config/templates";
-import { workflows, defaultWorkflowId } from "../config/workflows.config";
+import { type ContactInfo, availableTemplates } from "../config/templates";
 import type { WorkflowStep } from "../services/ai/types";
 import { ContactInfoForm } from "~/components/ContactInfoForm";
-import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { useResumeGenerator } from "~/hooks/useResumeGenerator";
 import { Collapsible } from "~/components/Collapsible";
-
 import { SourceTextInputs } from "~/components/resume/SourceTextInputs";
 import { ResumeGenerationControls } from "~/components/resume/ResumeGenerationControls";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { Button } from "~/components/ui/Button";
 import text from "~/text";
+import { type RouteOutletContext, type ResumeRouteContext } from "~/routes/resume/types";
+import { JOB_ROUTE_ID } from "./resume/job";
+import { 
+  extractRouteParams, 
+  handleResumeAction,
+} from "~/routes/resume/utils";
 
-interface OutletContextType {
-  selectedWorkflowId: string;
-  selectedTemplateId: string;
-  isWorkflowComplete: boolean;
-}
-
-export async function loader({ params, request }: LoaderFunctionArgs) {
-  const jobId = Number(params.jobId);
-  const url = new URL(request.url);
-  const selectedWorkflowId =
-    url.searchParams.get("workflow") || defaultWorkflowId;
-  const selectedTemplateId =
-    url.searchParams.get("template") || defaultTemplateId;
-
-  if (Number.isNaN(jobId)) {
-    throw new Response("Invalid job ID", { status: 400 });
-  }
-
-  const job = dbService.getJob(jobId);
-  if (!job) {
-    throw new Response("Job not found", { status: 404 });
-  }
+export async function loader(args: LoaderFunctionArgs) {
+  const {
+    jobId,
+    selectedWorkflowId,
+    selectedWorkflow,
+    selectedTemplateConfig,
+  } = await extractRouteParams(args);
 
   const resumeData = dbService.getResume(jobId);
 
-  const selectedWorkflow: { steps: WorkflowStep[] } | undefined =
-    workflows[selectedWorkflowId];
-  if (!selectedWorkflow) {
-    throw new Error(`Workflow '${selectedWorkflowId}' not found.`);
-  }
-
-  const selectedTemplateConfig =
-    availableTemplates[selectedTemplateId] ??
-    availableTemplates[defaultTemplateId];
-  if (!selectedTemplateConfig) {
-    throw new Error("Default template config not found.");
-  }
-
+  // Get resume source steps
   const resumeSourceSteps = selectedWorkflow.steps.filter(
-    (step) => step.useInResume
+    (step: WorkflowStep) => step.useInResume
   );
 
+  // Get source texts
   const sourceTexts: Record<string, string> = {};
   for (const step of resumeSourceSteps) {
     const stepResult = dbService.getWorkflowStep(
@@ -79,15 +53,15 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
     sourceTexts[step.id] = stepResult?.result || "";
   }
 
+  // Get contact info
   const contactInfo =
     resumeData?.structuredData?.contactInfo ||
     selectedTemplateConfig.defaultContactInfo;
 
   return {
-    job,
     resumeData,
     sourceTexts,
-    resumeSourceSteps: resumeSourceSteps.map((s) => ({
+    resumeSourceSteps: resumeSourceSteps.map((s: { id: string; name: string }) => ({
       id: s.id,
       name: s.name,
     })),
@@ -95,85 +69,30 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   };
 }
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const jobId = Number(params.jobId);
-
-  if (Number.isNaN(jobId)) {
-    return { success: false, error: "Invalid job ID" };
-  }
-
-  const job = dbService.getJob(jobId);
-  if (!job) {
-    return { success: false, error: "Job not found" };
-  }
-
-  const url = new URL(request.url);
-  const selectedWorkflowId =
-    url.searchParams.get("workflow") || defaultWorkflowId;
-  const selectedTemplateId =
-    url.searchParams.get("template") || defaultTemplateId;
-
-  const selectedWorkflow =
-    workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
-  if (!selectedWorkflow) {
-    return {
-      success: false,
-      error: `Workflow config not found for ID: ${selectedWorkflowId}`,
-    };
-  }
-
-  const resumeSourceSteps = selectedWorkflow.steps
-    .filter((step) => step.useInResume)
-    .map((s) => ({ id: s.id, name: s.name }));
-
-  const contactInfo: ContactInfo = {
-    name: formData.get("name") as string,
-    title: formData.get("title") as string,
-    location: formData.get("location") as string,
-    phone: formData.get("phone") as string,
-    email: formData.get("email") as string,
-    linkedin: formData.get("linkedin") as string,
-    portfolio: formData.get("portfolio") as string,
-  };
-
-  const sourceTexts: Record<string, string> = {};
-  for (const step of resumeSourceSteps) {
-    sourceTexts[step.id] = (formData.get(step.id) as string) || "";
-  }
-
-  const templateConfig =
-    availableTemplates[selectedTemplateId] ??
-    availableTemplates[defaultTemplateId];
-  const outputSchema = templateConfig.outputSchema;
-
-  return await generateAndSaveResume(
-    jobId,
-    contactInfo,
-    sourceTexts,
-    resumeSourceSteps,
-    job.jobDescription,
-    outputSchema
-  );
+export async function action(args: ActionFunctionArgs) {
+  return handleResumeAction(args);
 }
 
 export default function JobResume() {
   const {
-    job,
     resumeData,
     sourceTexts: initialSourceTexts,
     resumeSourceSteps,
     contactInfo: initialContactInfo,
   } = useLoaderData<{
-    job: { id: number; title: string; jobDescription: string };
     resumeData: { structuredData?: any } | null;
     sourceTexts: Record<string, string>;
     resumeSourceSteps: { id: string; name: string }[];
     contactInfo: ContactInfo;
   }>();
 
-  const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete } =
-    useOutletContext<OutletContextType>();
+  // Get the parent context
+  const parentContext = useOutletContext<ResumeRouteContext>();
+  const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } = parentContext;
+
+  // Make sure job is available (from parent context or use useRouteLoaderData as fallback)
+  const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID) as any;
+  const jobData = job || parentRouteData?.job;
 
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -199,8 +118,8 @@ export default function JobResume() {
     handleFormSubmit,
     displayData,
   } = useResumeGenerator({
-    jobId: job.id,
-    jobTitle: job.title,
+    jobId: jobData.id,
+    jobTitle: jobData.title,
     resumeData,
     initialSourceTexts,
     resumeSourceSteps,
@@ -223,7 +142,7 @@ export default function JobResume() {
   }, [actionData, setFormData, setHasLoadedOrGeneratedData, setError]);
 
   const formId = "resume-form";
-  const formActionUrl = `/job/${job.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
+  const formActionUrl = `/job/${jobData.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
 
   return (
     <Form

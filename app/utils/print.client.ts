@@ -52,20 +52,14 @@ export function printResumeElement(
     const printStyles = `
       @page {
         size: letter portrait;
-        margin: 0;
+        margin: 0.5in; /* Define page margins directly */
       }
       body {
-        margin: 0;
+        margin: 0; /* Body margin is not needed with @page margin */
         padding: 0;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
-      }
-      .print-container {
-        width: 8.5in;
-        height: 11in;
-        overflow: hidden;
-        position: relative;
       }
       /* Make sure colors print */
       .bg-yellow-300 {
@@ -77,6 +71,11 @@ export function printResumeElement(
         background-color: #F9FAFB !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
+      }
+      /* Add rule to prevent specific elements from breaking across pages */
+      /* Target list items, paragraphs, and headings */
+      li, p, h1, h2, h3, h4, h5, h6 {
+        break-inside: avoid !important;
       }
     `;
 
@@ -105,10 +104,8 @@ export function printResumeElement(
               <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
             </head>
             <body>
-              <div class="print-container">
-                ${contentClone.outerHTML}
-              </div>
-              <!-- Removed internal auto-print script -->
+              <!-- Removed .print-container wrapper, rely on @page margin -->
+              ${contentClone.outerHTML}
             </body>
           </html>
         `);

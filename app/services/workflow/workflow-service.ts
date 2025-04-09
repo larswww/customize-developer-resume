@@ -1,4 +1,4 @@
-import { workflows, defaultWorkflowId } from "../../config/workflows.config";
+import { workflows, defaultWorkflowId } from "../../config/workflows";
 import type { WorkflowStep, WorkflowContext } from "../../services/ai/types";
 import { WorkflowEngine, type WorkflowStepUpdate, type DBService } from "./workflow-engine";
 import dbService from "../db/dbService";
@@ -50,7 +50,7 @@ export async function executeWorkflow(
     // Get work history from DB
     const workHistory = dbService.getWorkHistory();
     if (!workHistory) {
-      throw new Error("Work history not found in the database.");
+      throw new Error("Add your Work History before generating a resume.");
     }
 
     // Get the selected workflow steps

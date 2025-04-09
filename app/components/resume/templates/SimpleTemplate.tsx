@@ -93,7 +93,6 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                               <div className="flex items-baseline justify-between flex-wrap mb-1.5">
                                   <h4 className="font-normal text-sm mr-4">
                                       <span className="text-gray-700 font-medium mr-1.5">{project.client}</span> 
-                                      <span className="text-gray-500">({project.title})</span> 
                                   </h4>
 
                                   {project.skillsUsed && project.skillsUsed.length > 0 && (

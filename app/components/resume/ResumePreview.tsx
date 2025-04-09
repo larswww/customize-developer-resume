@@ -18,13 +18,15 @@ export function ResumePreview({
   isGenerating,
 }: ResumePreviewProps) {
   return (
-    <div className="flex justify-start overflow-auto">
-      <div className="bg-white border border-gray-300 rounded-sm shadow-lg overflow-hidden origin-top-left" style={{  
-        height: '297mm',
-        width: '210mm',
-        transform: 'scale(1.0)',
-        transformOrigin: 'top left'
-      }}>
+    <div className="flex justify-start overflow-auto bg-gray-100 p-4">
+      <div 
+        className="bg-white border border-gray-300 rounded-sm shadow-lg origin-top-left"
+        style={{
+          width: '210mm',
+          transform: 'scale(1.0)',
+          transformOrigin: 'top left'
+        }}
+      >
         <div ref={resumeRef} id="printable-resume" className="">
           {TemplateComponent && displayData ? (
             <TemplateComponent 

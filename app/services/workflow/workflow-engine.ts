@@ -230,7 +230,7 @@ export class WorkflowEngine {
 		}
 	}
 	
-	private createAIClient(provider: "openai" | "anthropic" | "gemini" | "local"): AIClient {
+	private createAIClient(provider: AIProvider): AIClient {
 		switch (provider) {
 			case "openai":
 				return new OpenAIClient();

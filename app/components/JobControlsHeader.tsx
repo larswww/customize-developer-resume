@@ -1,5 +1,7 @@
 import React from 'react';
 import { Select, type SelectOption } from '~/components/ui/Select';
+import { defaultTemplateId } from '~/config/templates';
+import { defaultWorkflowId } from '~/config/workflows';
 
 interface WorkflowOption {
     id: string;
@@ -63,7 +65,7 @@ export function JobControlsHeader({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Select
                     id="workflowId"
-                    name="workflowId"
+                    name="workflow"
                     options={workflowOptions}
                     value={currentWorkflowId}
                     onChange={onWorkflowChange}
@@ -71,8 +73,8 @@ export function JobControlsHeader({
                     fullWidth
                 />
                 <Select
-                    id="template-selector"
-                    name="templateId"
+                    id="templateId"
+                    name="template"
                     options={templateOptions}
                     value={currentTemplateId}
                     onChange={onTemplateChange}

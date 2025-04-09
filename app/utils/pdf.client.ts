@@ -1,5 +1,5 @@
 import { exportHtmlToPdf } from "../services/pdf/clientPdfService";
-import type { ContactInfo } from "../config/templates.config";
+import type { ContactInfo } from "../config/templates/sharedTypes";
 
 interface DownloadPdfOptions {
   elementId: string;
@@ -62,7 +62,6 @@ export async function downloadResumeAsPdf({
             <style>
               @page {
                 size: 8.5in 11in;
-                margin: 0mm !important;
                 padding: 0 !important;
               }
               /* Essential resets for puppeteer */
@@ -75,16 +74,12 @@ export async function downloadResumeAsPdf({
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 8.5in !important;
-                height: 11in !important;
-                overflow: hidden !important;
               }
               body {
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 8.5in !important;
-                height: 11in !important;
                 font-family: sans-serif !important;
-                overflow: hidden !important;
                 position: relative !important;
                 display: block !important;
               }
@@ -92,9 +87,7 @@ export async function downloadResumeAsPdf({
               .resume-container {
                 margin: 0 !important;
                 width: 8.5in !important;
-                height: 11in !important;
                 padding: 0.25in !important;
-                overflow: hidden !important;
                 background-color: white !important;
                 inset: 0 !important;
                 position: absolute !important;
@@ -150,6 +143,18 @@ export async function downloadResumeAsPdf({
               }
               .resume-container .space-y-4 > * + * {
                 margin-top: 0.5rem !important;
+              }
+              /* Add rule to prevent specific elements from breaking across pages */
+              /* Target list items, paragraphs, and headings */
+              .resume-container li,
+              .resume-container p,
+              .resume-container h1,
+              .resume-container h2,
+              .resume-container h3,
+              .resume-container h4,
+              .resume-container h5,
+              .resume-container h6 {
+                 break-inside: avoid !important;
               }
             </style>
           </head>

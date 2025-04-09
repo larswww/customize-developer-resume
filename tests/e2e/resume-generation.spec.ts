@@ -95,7 +95,7 @@ test.describe("Resume Generation E2E Flow", () => {
 
     // We should already be on the job page after creating
     // 1. Assert default workflow is selected
-    await expect(page.locator('select[name="workflowId"]')).toHaveValue(
+    await expect(page.locator('select[name="workflow"]')).toHaveValue(
       "default",
       { timeout: 10000 }
     );
@@ -104,7 +104,7 @@ test.describe("Resume Generation E2E Flow", () => {
     ).toBeVisible({ timeout: 10000 });
 
     // 2. Select Alternative Workflow
-    await page.selectOption('select[name="workflowId"]', "alternative");
+    await page.selectOption('select[name="workflow"]', "alternative");
 
     // 3. Assert URL updates
     await expect(page).toHaveURL(/\?workflow=alternative(&template=[^&]+)?$/);
