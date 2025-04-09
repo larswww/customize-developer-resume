@@ -2,7 +2,6 @@ import type { ComponentType } from "react";
 import { z } from "zod";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
-import type { OnePagerCoreData } from "./onepager";
 // --- Shared Schemas --- 
 
 export const ContactInfoSchema = z.object({
@@ -61,7 +60,7 @@ export const globalResumeConstants = {
 
 // --- Shared Interface for Template Configuration --- 
 
-export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData | OnePagerCoreData;
+export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData;
 
 export interface ResumeTemplateConfig {
   id: string;
