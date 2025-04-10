@@ -118,6 +118,7 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
     handleDownloadPdfClick,
     handleFormSubmit,
     displayData,
+    templateConfig,
   } = useResumeGenerator({
     jobId: jobData.id,
     jobTitle: jobData.title,
@@ -125,6 +126,7 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
     initialSourceTexts,
     resumeSourceSteps,
     initialContactInfo: contactInfo,
+    templateId: selectedTemplateId,
   });
 
   const CurrentTemplateConfig = selectedTemplateId ? availableTemplates[selectedTemplateId] : null;
@@ -161,6 +163,7 @@ export default function JobResume({loaderData}: Route.ComponentProps) {
               resumeRef={resumeRef}
               TemplateComponent={CurrentTemplateComponent}
               isGenerating={isGenerating}
+              templateConfig={templateConfig}
             />
           ) : (
             <div className="text-center text-gray-500 py-10 flex items-center justify-center h-[400px] border rounded bg-gray-50">

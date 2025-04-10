@@ -3,9 +3,10 @@ import type { MDXEditorMethods } from '@mdxeditor/editor';
 import { printResumeElement } from '../utils/print.client';
 import { downloadResumeAsPdf } from '../utils/pdf.client';
 import type { ContactInfo } from '../config/templates';
-import { globalResumeConstants } from '../config/templates';
+import { globalResumeConstants, availableTemplates } from '../config/templates';
 import type { DefaultResumeData } from '../config/templates/default';
 import type { SimpleConsultantData } from '../config/templates/simple';
+import type { ConsultantOnePagerData } from '../config/templates/consultantOnePager';
 
 interface UseResumeGeneratorProps {
   jobId: number;
@@ -14,6 +15,7 @@ interface UseResumeGeneratorProps {
   initialSourceTexts: Record<string, string>;
   resumeSourceSteps: { id: string; name: string }[];
   initialContactInfo: ContactInfo;
+  templateId?: string; // Template ID to identify which template is being used
 }
 
 interface UseResumeGeneratorReturn {
@@ -30,7 +32,8 @@ interface UseResumeGeneratorReturn {
   handlePrintClick: () => void;
   handleDownloadPdfClick: () => Promise<void>;
   handleFormSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-  displayData: DefaultResumeData | SimpleConsultantData | null;
+  displayData: DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData | null;
+  templateConfig: typeof availableTemplates[keyof typeof availableTemplates] | null;
 }
 
 export function useResumeGenerator({
@@ -40,6 +43,7 @@ export function useResumeGenerator({
   initialSourceTexts,
   resumeSourceSteps,
   initialContactInfo,
+  templateId,
 }: UseResumeGeneratorProps): UseResumeGeneratorReturn {
   const [error, setError] = useState<string | null>(null);
   const resumeRef = useRef<HTMLDivElement>(null);
@@ -49,7 +53,12 @@ export function useResumeGenerator({
   const [formData, setFormData] = useState<any>({});
   const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] = useState(false);
 
-  // Create refs for the markdown editors
+  // Get the template configuration
+  const templateConfig = templateId ? availableTemplates[templateId] || null : null;
+  
+  // Check if the template uses landscape orientation - no longer needed but kept for backward compatibility
+  const isLandscape = false;
+
   const editorRefsRef = useRef<Record<string, React.RefObject<MDXEditorMethods | null>>>({});
   if (Object.keys(editorRefsRef.current).length !== resumeSourceSteps.length) {
     editorRefsRef.current = resumeSourceSteps.reduce((acc, step) => {
@@ -58,7 +67,6 @@ export function useResumeGenerator({
     }, {} as Record<string, React.RefObject<MDXEditorMethods | null>>);
   }
 
-  // Load initial data from resumeData if available
   useEffect(() => {
     const loadedCoreData = resumeData?.structuredData
       ? (({ contactInfo, education, ...core }) => core)(resumeData.structuredData)
@@ -69,8 +77,7 @@ export function useResumeGenerator({
     setHasLoadedOrGeneratedData(!!resumeData?.structuredData);
   }, [resumeData, initialSourceTexts]);
 
-  // Display data with contactInfo from initialContactInfo
-  const displayData: DefaultResumeData | SimpleConsultantData | null =
+  const displayData: DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData | null =
     formData && Object.keys(formData).length > 0
       ? {
           contactInfo: initialContactInfo,
@@ -78,16 +85,14 @@ export function useResumeGenerator({
           workExperience: formData.workExperience || [],
           skills: formData.skills || [],
           ...formData,
-        } as DefaultResumeData | SimpleConsultantData
+        } as DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData
       : null;
 
-  // Handle printing the resume
   const handlePrintClick = useCallback(() => {
     setError(null);
     printResumeElement("printable-resume", setError);
   }, []);
 
-  // Handle downloading the resume as PDF
   const handleDownloadPdfClick = useCallback(async () => {
     setError(null);
     if (!displayData) {
@@ -102,7 +107,6 @@ export function useResumeGenerator({
     });
   }, [displayData, jobTitle]);
 
-  // Handle form submission to extract editor content
   const handleFormSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
     const form = event.currentTarget;
     for (const step of resumeSourceSteps) {
@@ -136,5 +140,6 @@ export function useResumeGenerator({
     handleDownloadPdfClick,
     handleFormSubmit,
     displayData,
+    templateConfig,
   };
-} 
+}

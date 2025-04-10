@@ -49,11 +49,15 @@ export async function downloadResumeAsPdf({
       clonedElement.outerHTML.length
     );
 
+    // Set dimensions based on template style
+    const pageWidth = '8.5in';
+    const pageHeight = '11in';
+
     // Create a complete HTML document with optimal margins handling
     console.log("Creating HTML document for PDF generation");
     const htmlContent = `
         <!DOCTYPE html>
-        <html style="margin:0; padding:0; width:8.5in; height:11in; overflow:hidden;">
+        <html style="margin:0; padding:0; width:${pageWidth}; height:${pageHeight}; overflow:hidden;">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,8 +65,9 @@ export async function downloadResumeAsPdf({
             <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
             <style>
               @page {
-                size: 8.5in 11in;
+                size: portrait;
                 padding: 0 !important;
+                margin: 0 !important;
               }
               /* Essential resets for puppeteer */
               *, *::before, *::after {
@@ -73,12 +78,12 @@ export async function downloadResumeAsPdf({
                 print-color-adjust: exact !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 8.5in !important;
+                width: ${pageWidth} !important;
               }
               body {
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 8.5in !important;
+                width: ${pageWidth} !important;
                 font-family: sans-serif !important;
                 position: relative !important;
                 display: block !important;
@@ -86,7 +91,7 @@ export async function downloadResumeAsPdf({
               /* Container positioning with inset instead of absolute positioning */
               .resume-container {
                 margin: 0 !important;
-                width: 8.5in !important;
+                width: ${pageWidth} !important;
                 padding: 0.25in !important;
                 background-color: white !important;
                 inset: 0 !important;
@@ -236,4 +241,4 @@ export async function downloadResumeAsPdf({
     onError("Failed to download PDF. Please try again.");
     return false;
   }
-} 
+}

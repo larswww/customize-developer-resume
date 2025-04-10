@@ -2,10 +2,12 @@
  * Handles printing the resume element by cloning it into an iframe.
  * @param elementId The ID of the HTML element to print.
  * @param onError Callback function to handle errors.
+ * @param isPowerPointStyle Whether the resume is in PowerPoint style format (kept for backward compatibility).
  */
 export function printResumeElement(
   elementId: string,
-  onError: (message: string) => void
+  onError: (message: string) => void,
+  isPowerPointStyle = false
 ): void {
   console.log("--- Print button clicked ---");
 
@@ -60,8 +62,36 @@ export function printResumeElement(
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         color-adjust: exact !important;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       }
-      /* Make sure colors print */
+      /* Ensure blue header prints with correct color */
+      .bg-\\[\\#1e3a8a\\] {
+        background-color: #1e3a8a !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* New button styles for consultant template */
+      .bg-\\[\\#25D366\\] {
+        background-color: #25D366 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .bg-\\[\\#333333\\] {
+        background-color: #333333 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .bg-\\[\\#0055AA\\] {
+        background-color: #0055AA !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .bg-\\[\\#24292e\\] {
+        background-color: #24292e !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Make sure other colors print */
       .bg-yellow-300 {
         background-color: #FFEB3B !important;
         -webkit-print-color-adjust: exact !important;
@@ -72,10 +102,91 @@ export function printResumeElement(
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
+      .bg-white {
+        background-color: #FFFFFF !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
       /* Add rule to prevent specific elements from breaking across pages */
-      /* Target list items, paragraphs, and headings */
       li, p, h1, h2, h3, h4, h5, h6 {
         break-inside: avoid !important;
+      }
+      /* Fix for buttons */
+      .bg-green-600 {
+        background-color: #059669 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .bg-blue-600 {
+        background-color: #2563EB !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .bg-gray-800 {
+        background-color: #1F2937 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Fix for shadow and rounded elements */
+      .shadow-lg, .shadow-md, .shadow-sm, .shadow {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .rounded-md, .rounded-lg, .rounded-full {
+        border-radius: 0.375rem !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Fix text colors */
+      .text-blue-800 {
+        color: #1e40af !important;
+      }
+      .text-blue-600 {
+        color: #2563eb !important;
+      }
+      .text-green-800 {
+        color: #065f46 !important;
+      }
+      .text-gray-800 {
+        color: #1f2937 !important;
+      }
+      .text-gray-600 {
+        color: #4b5563 !important;
+      }
+      .text-blue-100 {
+        color: #dbeafe !important;
+      }
+      .text-blue-50 {
+        color: #eff6ff !important;
+      }
+      /* Background for footer */
+      .bg-gray-100 {
+        background-color: #f3f4f6 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Border colors */
+      .border-gray-200 {
+        border-color: #e5e7eb !important;
+      }
+      /* Custom background color for disclaimer underline */
+      .bg-\\[\\#e53e3e\\] {
+        background-color: #e53e3e !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      /* Scale content to fit on page */
+      #printable-resume {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      /* Ensure text is white on colored backgrounds */
+      .text-white {
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
     `;
 
@@ -100,6 +211,7 @@ export function printResumeElement(
             <head>
               <title>Print Resume</title>
               <meta name="color-scheme" content="light">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <style>${printStyles}</style>
               <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
             </head>
@@ -114,7 +226,7 @@ export function printResumeElement(
         console.log("Content written to iframe");
         printingNote.innerHTML = "Opening print dialog...";
 
-        // Trigger the print after a short delay (Reverted to original mechanism)
+        // Trigger the print after a short delay
         setTimeout(() => {
           try {
             if (iframe.contentWindow) {
@@ -176,4 +288,4 @@ export function printResumeElement(
     }
     onError("Failed to set up print view. Try another browser.");
   }
-} 
+}

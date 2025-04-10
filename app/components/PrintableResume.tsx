@@ -6,26 +6,31 @@ interface PrintableResumeProps {
 	jobDescription?: string;
 	htmlContent?: string;
 	onClose: () => void;
+	isPowerPointStyle?: boolean; // New prop to indicate PowerPoint style
 }
 
 // localStorage keys
 const LAST_RESUME_CONTENT_KEY = "lastResumeContent";
 const LAST_HTML_CONTENT_KEY = "lastHtmlContent";
 
-// Add page constraints to ensure single page printing
-const addPageConstraints = (html: string): string => {
-	// Ensure the HTML has the necessary constraints for single-page printing
+// Add page constraints to ensure proper printing
+const addPageConstraints = (html: string, isPowerPointStyle = false): string => {
+	// Ensure the HTML has the necessary constraints for printing
 	const pageConstraints = `
     @page { 
-      size: letter portrait;
+      size: ${isPowerPointStyle ? 'A4 landscape' : 'letter portrait'};
       margin: 0.5cm;
     }
     body { 
       min-height: 0 !important;
-      max-height: 11in !important;
-      width: 8.5in !important;
+      ${isPowerPointStyle 
+        ? `width: 11.7in !important;
+           height: 8.3in !important;` 
+        : `width: 8.5in !important;
+           height: 11in !important;`
+      }
       margin: 0 auto !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
     }
@@ -38,9 +43,35 @@ const addPageConstraints = (html: string): string => {
       border: 1px solid #e2e8f0;
       box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
       background-color: white;
-      width: 8.5in;
-      height: 11in;
-      overflow: hidden;
+      ${isPowerPointStyle 
+        ? `width: 11.7in;
+           height: 8.3in;` 
+        : `width: 8.5in;
+           height: 11in;`
+      }
+      overflow: visible;
+    }
+    /* Ensure blue header color prints correctly */
+    .bg-\\[\\#1e3a8a\\] {
+      background-color: #1e3a8a !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    /* Button colors */
+    .bg-green-600 {
+      background-color: #059669 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .bg-blue-600 {
+      background-color: #2563EB !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    .bg-gray-800 {
+      background-color: #1F2937 !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
   `;
 
@@ -62,10 +93,11 @@ const addPageConstraints = (html: string): string => {
 const generateHtmlContent = async (
 	resumeContent: string,
 	jobDescription?: string,
+	isPowerPointStyle = false,
 ) => {
 	try {
 		const html = await generatePrintableHtml(resumeContent, jobDescription);
-		const processedHtml = addPageConstraints(html);
+		const processedHtml = addPageConstraints(html, isPowerPointStyle);
 		return processedHtml;
 	} catch (error) {
 		console.error("Error generating print view:", error);
@@ -78,6 +110,7 @@ export function PrintableResume({
 	jobDescription,
 	htmlContent,
 	onClose,
+	isPowerPointStyle = false,
 }: PrintableResumeProps) {
 	const [isGenerating, setIsGenerating] = useState(!htmlContent);
 	const [generatedHtml, setGeneratedHtml] = useState<string | null>(
@@ -96,13 +129,13 @@ export function PrintableResume({
 	// Process and set provided HTML when available
 	useEffect(() => {
 		if (htmlContent) {
-			const processedHtml = addPageConstraints(htmlContent);
+			const processedHtml = addPageConstraints(htmlContent, isPowerPointStyle);
 			setGeneratedHtml(processedHtml);
 			// Save to localStorage
 			localStorage.setItem(LAST_HTML_CONTENT_KEY, processedHtml);
 			setIsGenerating(false);
 		}
-	}, [htmlContent]);
+	}, [htmlContent, isPowerPointStyle]);
 
 	// Generate HTML on first render or with new content
 	useEffect(() => {
@@ -112,6 +145,7 @@ export function PrintableResume({
 				const processedHtml = await generateHtmlContent(
 					resumeContent,
 					jobDescription,
+					isPowerPointStyle,
 				);
 				if (processedHtml) {
 					setGeneratedHtml(processedHtml);
@@ -123,7 +157,7 @@ export function PrintableResume({
 
 			generateHtml();
 		}
-	}, [resumeContent, jobDescription, htmlContent]);
+	}, [resumeContent, jobDescription, htmlContent, isPowerPointStyle]);
 
 	// Handle regeneration separately to avoid dependency cycle
 	useEffect(() => {
@@ -132,6 +166,7 @@ export function PrintableResume({
 				const processedHtml = await generateHtmlContent(
 					resumeContent,
 					jobDescription,
+					isPowerPointStyle,
 				);
 				if (processedHtml) {
 					setGeneratedHtml(processedHtml);
@@ -143,7 +178,7 @@ export function PrintableResume({
 
 			regenerate();
 		}
-	}, [isRegenerating, resumeContent, jobDescription]);
+	}, [isRegenerating, resumeContent, jobDescription, isPowerPointStyle]);
 
 	// Regenerate HTML with the same content
 	const handleRegenerate = () => {
@@ -151,78 +186,94 @@ export function PrintableResume({
 	};
 
 	// Helper function to open print window or generate PDF
-	const openPrintWindow = () => {
-		if (!generatedHtml) return;
+	const openPrintWindow = async () => {
+		if (generatedHtml) {
+			try {
+				// Extract just the body content for PDF generation
+				const tempDiv = document.createElement("div");
+				tempDiv.innerHTML = generatedHtml;
+				const documentBody = tempDiv.querySelector("body") || tempDiv;
 
-		// Use our server-side PDF generation
-		if (iframeRef.current?.contentDocument) {
-			const documentBody = iframeRef.current.contentDocument.body;
-			if (documentBody) {
-				try {
-					// Create a complete HTML document with proper styles
-					const _fullHtml = `
+				// Create a complete HTML document for PDF generation
+				const fullHtml = `
             <!DOCTYPE html>
-            <html style="margin:0; padding:0; width:8.5in; height:11in; overflow:hidden;">
+            <html>
               <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Resume PDF</title>
-                <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+                <title>Resume</title>
                 <style>
-                  @page { 
-                    size: 8.5in 11in;
+                  /* Reset */
+                  * {
                     margin: 0;
                     padding: 0;
+                    box-sizing: border-box;
                   }
-                  html {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: 8.5in !important;
-                    height: 11in !important;
-                    overflow: hidden !important;
+                  body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.5;
+                    color: #333;
+                    ${isPowerPointStyle 
+                      ? `width: 11.7in;
+                         height: 8.3in;` 
+                      : `width: 8.5in;
+                         height: 11in;`
+                    }
+                    margin: 0 auto;
+                    padding: 0;
+                    background-color: white;
+                    overflow: hidden;
                   }
-                  body { 
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    width: 8.5in !important;
-                    height: 11in !important;
-                    font-family: system-ui, -apple-system, sans-serif;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                    color-adjust: exact !important;
-                    overflow: hidden !important;
-                    position: absolute !important;
-                    top: 0 !important;
-                    left: 0 !important;
+                  /* Typography */
+                  h1, h2, h3, h4, h5, h6 {
+                    font-weight: bold;
+                    margin-bottom: 0.5rem;
                   }
-                  * { 
-                    box-sizing: border-box !important;
-                  }
-                  /* Main content padding and positioning */
-                  body > * {
-                    padding: 0.25in !important;
-                    position: absolute !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    margin: 0 !important;
-                  }
-                  /* Typography adjustments */
                   h1 {
-                    font-size: 1.7rem !important;
-                    margin-top: 0 !important;
-                    margin-bottom: 0.25rem !important;
+                    font-size: 1.5rem;
                   }
-                  h2, h3 {
-                    font-size: 1.2rem !important;
-                    margin-top: 0.25rem !important;
-                    margin-bottom: 0.25rem !important;
+                  h2 {
+                    font-size: 1.25rem;
                   }
-                  p, li {
-                    font-size: 0.8rem !important;
-                    line-height: 1.2 !important;
-                    margin-bottom: 0.2rem !important;
+                  h3 {
+                    font-size: 1.125rem;
+                  }
+                  p {
+                    margin-bottom: 0.5rem;
+                  }
+                  /* Utilities */
+                  .font-bold {
+                    font-weight: bold !important;
+                  }
+                  .text-sm {
+                    font-size: 0.875rem !important;
+                  }
+                  .text-xs {
+                    font-size: 0.75rem !important;
+                  }
+                  .text-lg {
+                    font-size: 1.125rem !important;
+                  }
+                  .text-xl {
+                    font-size: 1.25rem !important;
+                  }
+                  .text-2xl {
+                    font-size: 1.5rem !important;
+                  }
+                  .text-gray-500 {
+                    color: #6B7280 !important;
+                  }
+                  .text-gray-600 {
+                    color: #4B5563 !important;
+                  }
+                  .text-gray-700 {
+                    color: #374151 !important;
+                  }
+                  .text-gray-800 {
+                    color: #1F2937 !important;
+                  }
+                  .text-gray-900 {
+                    color: #111827 !important;
                   }
                   /* Layout adjustments */
                   .mb-4, .my-4 {
@@ -257,26 +308,37 @@ export function PrintableResume({
             </html>
           `;
 
-					console.log("Sending complete HTML document for PDF generation");
+				console.log("Sending complete HTML document for PDF generation");
 
-					// requestPdfGeneration(fullHtml, {
-					//   filename: 'resume.pdf',
-					//   format: 'Letter'
-					// });
-				} catch (error) {
-					console.error("Error generating PDF:", error);
+				// requestPdfGeneration(fullHtml, {
+				//   filename: 'resume.pdf',
+				//   format: 'Letter'
+				// });
 
-					// Fallback to client-side printing if server-side fails
-					const printWindow = window.open("", "_blank");
-					if (printWindow) {
-						printWindow.document.write(generatedHtml);
-						printWindow.document.close();
-						// Wait for resources to load (like Tailwind CSS)
-						setTimeout(() => {
-							printWindow.focus();
-							printWindow.print();
-						}, 1000);
-					}
+				// Fallback to client-side printing
+				const printWindow = window.open("", "_blank");
+				if (printWindow) {
+					printWindow.document.write(generatedHtml);
+					printWindow.document.close();
+					// Wait for resources to load (like Tailwind CSS)
+					setTimeout(() => {
+						printWindow.focus();
+						printWindow.print();
+					}, 1000);
+				}
+			} catch (error) {
+				console.error("Error generating PDF:", error);
+
+				// Fallback to client-side printing if server-side fails
+				const printWindow = window.open("", "_blank");
+				if (printWindow) {
+					printWindow.document.write(generatedHtml);
+					printWindow.document.close();
+					// Wait for resources to load (like Tailwind CSS)
+					setTimeout(() => {
+						printWindow.focus();
+						printWindow.print();
+					}, 1000);
 				}
 			}
 		}
@@ -337,7 +399,11 @@ export function PrintableResume({
 							<iframe
 								ref={iframeRef}
 								title="Resume Preview"
-								className="w-[8.5in] h-[11in] bg-white shadow-lg transform scale-75 origin-top"
+								className={`bg-white shadow-lg transform scale-75 origin-top ${
+									isPowerPointStyle 
+										? "w-[11.7in] h-[8.3in]" 
+										: "w-[8.5in] h-[11in]"
+								}`}
 								style={{
 									border: "1px solid #e2e8f0",
 									overflow: "hidden",

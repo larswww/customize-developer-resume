@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import { z } from "zod";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
-// --- Shared Schemas --- 
+import type { ConsultantOnePagerCoreData } from "./consultantOnePager";
 
 export const ContactInfoSchema = z.object({
   name: z.string(),
@@ -12,6 +12,7 @@ export const ContactInfoSchema = z.object({
   email: z.string(),
   linkedin: z.string(),
   portfolio: z.optional(z.string()),
+  github: z.optional(z.string()),
   imageUrl: z.optional(z.string()),
 }).partial();
 
@@ -22,12 +23,8 @@ export const EducationSchema = z.object({
   location: z.string().describe("The location of the institution (e.g., City, Country)."),
 });
 
-// --- Shared Types --- 
-
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;
 export type Education = z.infer<typeof EducationSchema>;
-
-// --- NEW: Global Resume Constants --- 
 
 export const defaultContactInfo: ContactInfo = {
   name: "Your Name",
@@ -37,9 +34,9 @@ export const defaultContactInfo: ContactInfo = {
   email: "",
   linkedin: "",
   portfolio: "",
+  github: "",
 };
 
-// Define education data globally
 const globalEducation: Education[] = [
   {
     degree: "BSc Computer Science",
@@ -49,25 +46,19 @@ const globalEducation: Education[] = [
   },
 ];
 
-// Export the constants object
 export const globalResumeConstants = {
   contactInfo: defaultContactInfo,
   education: globalEducation,
 };
 
-// --- Default Contact Info (Fallback if DB is empty) ---
-
-
-// --- Shared Interface for Template Configuration --- 
-
-export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData;
+export type ResumeCoreData = DefaultResumeCoreData | SimpleConsultantCoreData | ConsultantOnePagerCoreData;
 
 export interface ResumeTemplateConfig {
   id: string;
   name: string;
   description: string;
   component: ComponentType<{ data: any }>; 
-  // Default contact info for the template (can use global or specify differently)
   outputSchema: z.ZodType<ResumeCoreData>; 
   componentSchema?: z.ZodObject<any>; 
-} 
+  orientation?: 'portrait' | 'landscape'; 
+}

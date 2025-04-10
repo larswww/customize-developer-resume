@@ -1,14 +1,17 @@
 import React from "react";
 import type { DefaultResumeData } from "~/config/templates/default";
 import type { SimpleConsultantData } from "~/config/templates/simple";
+import type { ConsultantOnePagerData } from "~/config/templates/consultantOnePager";
+import type { ResumeTemplateConfig } from "~/config/templates/sharedTypes";
 
 interface ResumePreviewProps {
-  displayData: DefaultResumeData | SimpleConsultantData | null;
+  displayData: DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData | null;
   resumeRef: React.RefObject<HTMLDivElement | null>;
   TemplateComponent: React.ComponentType<{ 
-    data: DefaultResumeData | SimpleConsultantData;
+    data: DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData;
   }> | null;
   isGenerating: boolean;
+  templateConfig?: ResumeTemplateConfig | null;
 }
 
 export function ResumePreview({ 
@@ -16,22 +19,43 @@ export function ResumePreview({
   resumeRef, 
   TemplateComponent, 
   isGenerating,
+  templateConfig,
 }: ResumePreviewProps) {
+  // Determine if we're using a landscape template
+  const isLandscape = templateConfig?.orientation === 'landscape';
+
   return (
-    <div className="flex justify-start overflow-auto bg-gray-100 p-4">
+    <div className="flex justify-center overflow-auto bg-gray-100 p-4">
       <div 
-        className="bg-white border border-gray-300 rounded-sm shadow-lg origin-top-left"
+        className="bg-white border border-gray-300 rounded-sm shadow-lg origin-top-left relative overflow-hidden"
         style={{
-          width: '210mm',
-          transform: 'scale(1.0)',
-          transformOrigin: 'top left'
+          width: isLandscape ? '210mm' : '148mm', // Scaled down A4 width (70% of actual size)
+          height: isLandscape ? '148mm' : '210mm', // Scaled down A4 height (70% of actual size)
+          padding: 0,
+          margin: 0,
+          aspectRatio: isLandscape ? '1.414' : '0.707', // A4 aspect ratio
         }}
       >
-        <div ref={resumeRef} id="printable-resume" className="">
+        <div 
+          ref={resumeRef} 
+          id="printable-resume" 
+          className="absolute top-0 left-0"
+          style={{
+            transformOrigin: 'top left',
+            transform: 'scale(0.5)', // Scale down to ensure all content is visible
+            height: isLandscape ? '210mm' : '297mm', // Full A4 height 
+            width: isLandscape ? '297mm' : '210mm', // Full A4 width
+          }}
+        >
           {TemplateComponent && displayData ? (
-            <TemplateComponent 
-              data={displayData} 
-            />
+            (() => {
+              console.log('Forcing template render at:', Date.now());
+              // Call the component as a function instead of using JSX
+              return React.createElement(TemplateComponent, {
+                data: displayData,
+                key: Date.now()
+              });
+            })()
           ) : isGenerating ? (
             <p className="p-8 text-center text-gray-500">Generating preview...</p>
           ) : !TemplateComponent ? (
@@ -39,8 +63,6 @@ export function ResumePreview({
           ) : null}
         </div>
       </div>
-      
-     
     </div>
   );
-} 
+}
