@@ -155,7 +155,7 @@ export default function JobResume() {
       className="py-4"
     >
       <div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
-        <div className="col-span-6 ">
+        <div className="col-span-12 md:col-span-6 px-0">
           {hasLoadedOrGeneratedData ? (
             <ResumePreview
               displayData={displayData}

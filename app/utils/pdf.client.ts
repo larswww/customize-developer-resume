@@ -48,119 +48,20 @@ export async function downloadResumeAsPdf({
       "Element cloned successfully, size:",
       clonedElement.outerHTML.length
     );
-
-    // Set dimensions based on template style
-    const pageWidth = '8.5in';
-    const pageHeight = '11in';
-
-    // Create a complete HTML document with optimal margins handling
-    console.log("Creating HTML document for PDF generation");
     const htmlContent = `
         <!DOCTYPE html>
-        <html style="margin:0; padding:0; width:${pageWidth}; height:${pageHeight}; overflow:hidden;">
+        <html>
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Structured Resume</title>
-            <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+            <link href="http://localhost:3000/index.css" rel="stylesheet">
             <style>
-              @page {
-                size: portrait;
-                padding: 0 !important;
-                margin: 0 !important;
-              }
-              /* Essential resets for puppeteer */
-              *, *::before, *::after {
-                box-sizing: border-box !important;
-              }
-              html {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: ${pageWidth} !important;
-              }
-              body {
-                margin: 0 !important;
-                padding: 0 !important;
-                width: ${pageWidth} !important;
-                font-family: sans-serif !important;
-                position: relative !important;
-                display: block !important;
-              }
-              /* Container positioning with inset instead of absolute positioning */
-              .resume-container {
-                margin: 0 !important;
-                width: ${pageWidth} !important;
-                padding: 0.25in !important;
-                background-color: white !important;
-                inset: 0 !important;
-                position: absolute !important;
-              }
-              /* Make sure colors print correctly */
-              .bg-yellow-300 {
-                background-color: #FFEB3B !important;
-              }
-              .bg-gray-50 {
-                background-color: #F9FAFB !important;
-              }
-              /* Adjust font sizes and line heights */
-              .resume-container h1 {
-                font-size: 1.7rem !important;
-                margin-top: 0 !important;
-                margin-bottom: 0.25rem !important;
-              }
-              .resume-container h2 {
-                font-size: 1.3rem !important;
-                margin-top: 0.25rem !important;
-                margin-bottom: 0.25rem !important;
-              }
-              .resume-container h3 {
-                font-size: 1.1rem !important;
-                margin-top: 0.25rem !important;
-                margin-bottom: 0.25rem !important;
-              }
-              .resume-container p, .resume-container li {
-                font-size: 0.82rem !important;
-                line-height: 1.25 !important;
-                margin-bottom: 0.2rem !important;
-              }
-              /* Compact padding and margins */
-              .resume-container .mb-4 {
-                margin-bottom: 0.5rem !important;
-              }
-              .resume-container .mb-6 {
-                margin-bottom: 0.75rem !important;
-              }
-              .resume-container .p-4 {
-                padding: 0.5rem !important;
-              }
-              .resume-container .py-4 {
-                padding-top: 0.5rem !important;
-                padding-bottom: 0.5rem !important;
-              }
-              .resume-container .px-4 {
-                padding-left: 0.5rem !important;
-                padding-right: 0.5rem !important;
-              }
-              .resume-container .space-y-2 > * + * {
-                margin-top: 0.25rem !important;
-              }
-              .resume-container .space-y-4 > * + * {
-                margin-top: 0.5rem !important;
-              }
-              /* Add rule to prevent specific elements from breaking across pages */
-              /* Target list items, paragraphs, and headings */
-              .resume-container li,
-              .resume-container p,
-              .resume-container h1,
-              .resume-container h2,
-              .resume-container h3,
-              .resume-container h4,
-              .resume-container h5,
-              .resume-container h6 {
-                 break-inside: avoid !important;
-              }
+          @page
+{
+  size: A4 portrait;
+  margin: 0;
+}
             </style>
           </head>
           <body>
@@ -169,7 +70,7 @@ export async function downloadResumeAsPdf({
         </html>
       `;
 
-    console.log("HTML content created, size:", htmlContent.length, "bytes");
+    console.log("HTML content created, size:", htmlContent, "bytes");
 
     // Add loading state
     console.log("Creating loading message");

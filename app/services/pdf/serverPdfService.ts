@@ -32,6 +32,7 @@ export async function generatePdfFromHtml(
 				"--no-sandbox",
 				"--disable-setuid-sandbox",
 				"--font-render-hinting=none",
+				"--disable-web-security",
 			],
 			executablePath:
 				"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
@@ -41,13 +42,16 @@ export async function generatePdfFromHtml(
 		const page = await browser.newPage();
 		console.log("New page created");
 
-		// Set the viewport to match the paper size exactly (8.5x11 inches at 96 DPI)
-		await page.setViewport({
-			width: 816, // 8.5 inches × 96 DPI
-			height: 1056, // 11 inches × 96 DPI
-			deviceScaleFactor: 1,
-		});
-		console.log("Viewport set to Letter size (8.5x11 inches)");
+		// Set exact viewport size for Letter paper
+		// await page.setViewport({
+		// 	width: 816, // 8.5 inches × 96 DPI
+		// 	height: 1056, // 11 inches × 96 DPI
+		// 	deviceScaleFactor: 1,
+		// 	hasTouch: false,
+		// 	isLandscape: false,
+		// 	isMobile: false,
+		// });
+		console.log("Viewport set to exact Letter size");
 
 		// Set longer timeouts for content loading
 		await page.setDefaultNavigationTimeout(60000);
@@ -55,59 +59,113 @@ export async function generatePdfFromHtml(
 
 		// Load the HTML content
 		console.log(`Loading HTML content (${htmlContent.length} bytes)...`);
+		
+		// Ensure Tailwind styles are properly loaded by adding custom loadEvent
 		await page.setContent(htmlContent, {
-			waitUntil: "networkidle0",
+			waitUntil: ["load", "networkidle0"],
 			timeout: 30000,
 		});
+		
+		// Wait for Tailwind to fully process styles
+		await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
+		
 		console.log("HTML content loaded");
 
-		// Run script to ensure all margins and padding are properly set to zero
-		console.log("Running script to reset margins and padding...");
-		await page.evaluate(() => {
-			// Add critical print styles to override browser defaults
-			const style = document.createElement("style");
-			style.textContent = `
-        @page {
-          size: 8.5in 11in;
-          margin: 0mm !important;
-        }
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          overflow: hidden !important;
-          width: 8.5in !important;
-          height: 11in !important;
-        }
-      `;
-			document.head.appendChild(style);
+		// // Inject CSS to eliminate ALL margins and hide ALL scrollbars
+		// console.log("Applying zero-margin and no-scrollbar styles...");
+		// await page.addStyleTag({
+		// 	content: `
+		// 		@page {
+		// 			size: 8.5in 11in;
+		// 			margin: 0 !important;
+		// 			padding: 0 !important;
+		// 		}
+				
+		// 		html, body {
+		// 			margin: 0 !important;
+		// 			padding: 0 !important;
+		// 			width: 8.5in !important;
+		// 			height: 11in !important;
+		// 			overflow: hidden !important; /* Hide scrollbars */
+		// 		}
+				
+		// 		/* Hide scrollbars across all browsers */
+		// 		html::-webkit-scrollbar, body::-webkit-scrollbar {
+		// 			display: none !important;
+		// 			width: 0 !important;
+		// 			height: 0 !important;
+		// 		}
+				
+		// 		/* Firefox */
+		// 		html, body {
+		// 			scrollbar-width: none !important;
+		// 			-ms-overflow-style: none !important;
+		// 		}
+				
+		// 		/* Ensure all elements use border-box */
+		// 		* {
+		// 			box-sizing: border-box !important;
+		// 		}
+				
+		// 		/* Prevent scrollbars on all elements */
+		// 		*::-webkit-scrollbar {
+		// 			display: none !important;
+		// 			width: 0 !important;
+		// 			height: 0 !important;
+		// 		}
+				
+		// 		/* Prevent margin creep everywhere */
+		// 		* {
+		// 			margin: 0 !important;
+		// 			margin-left: 0 !important;
+		// 			margin-right: 0 !important;
+		// 			margin-top: 0 !important;
+		// 			margin-bottom: 0 !important;
+		// 		}
+		// 	`
+		// });
 
-			// Force reset any margins that might be causing issues
-			document.documentElement.style.margin = "0";
-			document.documentElement.style.padding = "0";
-			document.body.style.margin = "0";
-			document.body.style.padding = "0";
+		// // Run script to ensure all scrollbars are disabled
+		// console.log("Running script to disable scrollbars and reset margins...");
+		// await page.evaluate(() => {
+		// 	// Force reset margins and disable scrollbars
+		// 	document.documentElement.style.margin = "0";
+		// 	document.documentElement.style.padding = "0";
+		// 	document.documentElement.style.overflow = "hidden";
+		// 	document.documentElement.style.width = "8.5in";
+		// 	document.documentElement.style.height = "11in";
+			
+		// 	// Apply to body as well
+		// 	document.body.style.margin = "0";
+		// 	document.body.style.padding = "0";
+		// 	document.body.style.overflow = "hidden";
+		// 	document.body.style.width = "8.5in";
+		// 	document.body.style.height = "11in";
+			
+		// 	// Disable all scrollbars in the document
+		// 	const allElements = document.querySelectorAll('*');
+		// 	for (const el of allElements) {
+		// 		// Cast to HTMLElement to access style
+		// 		const htmlEl = el as HTMLElement;
+		// 		if (htmlEl && htmlEl.style) {
+		// 			htmlEl.style.overflow = "visible"; // Prevent internal scrollbars
+		// 		}
+		// 	}
+			
+		// 	// Log elements with margins for debugging
+		// 	const elementsWithMargins = document.querySelectorAll(
+		// 		'[style*="margin"]:not(html):not(body)',
+		// 	);
+		// 	console.log(
+		// 		`Found ${elementsWithMargins.length} elements with explicit margins`,
+		// 	);
+		// });
+		// console.log("Scrollbar removal and margin reset completed");
 
-			// Log any elements with margins/padding that might cause issues
-			const elementsWithMargins = document.querySelectorAll(
-				'[style*="margin"]:not(html):not(body)',
-			);
-			console.log(
-				`Found ${elementsWithMargins.length} elements with explicit margins`,
-			);
-
-			const elementsWithPadding = document.querySelectorAll(
-				'[style*="padding"]:not(html):not(body)',
-			);
-			console.log(
-				`Found ${elementsWithPadding.length} elements with explicit padding`,
-			);
-		});
-		console.log("Margin reset script executed");
-
-		// Generate PDF with specific settings to prevent margin issues
-		console.log("Generating PDF...");
+		// // Generate PDF with zero margins
+		// console.log("Generating PDF...");
 		const pdfBuffer = await page.pdf({
-			format: options.format || "Letter",
+			format: options.format || "a4",
 			landscape: options.landscape || false,
 			printBackground: options.printBackground !== false,
 			margin: {
@@ -115,9 +173,11 @@ export async function generatePdfFromHtml(
 				right: "0",
 				bottom: "0",
 				left: "0",
-				...(options.margin || {}),
 			},
+			scale: 1, // Exact 1:1 scale
 			preferCSSPageSize: true,
+			// Disable headers and footers
+			displayHeaderFooter: false,
 		});
 		console.log(`PDF generated successfully: ${pdfBuffer.length} bytes`);
 

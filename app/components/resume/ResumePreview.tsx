@@ -25,15 +25,16 @@ export function ResumePreview({
   const isLandscape = templateConfig?.orientation === 'landscape';
 
   return (
-    <div className="flex justify-center overflow-auto bg-gray-100 p-4">
+    <div className="flex bg-gray-100 overflow-auto">
       <div 
-        className="bg-white border border-gray-300 rounded-sm shadow-lg origin-top-left relative overflow-hidden"
+        className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg origin-top-left relative"
         style={{
           width: isLandscape ? '210mm' : '148mm', // Scaled down A4 width (70% of actual size)
           height: isLandscape ? '148mm' : '210mm', // Scaled down A4 height (70% of actual size)
+          // scale: 0.6,
           padding: 0,
           margin: 0,
-          aspectRatio: isLandscape ? '1.414' : '0.707', // A4 aspect ratio
+          // aspectRatio: isLandscape ? '1.414' : '0.707', // A4 aspect ratio
         }}
       >
         <div 
@@ -42,7 +43,6 @@ export function ResumePreview({
           className="absolute top-0 left-0"
           style={{
             transformOrigin: 'top left',
-            transform: 'scale(0.5)', // Scale down to ensure all content is visible
             height: isLandscape ? '210mm' : '297mm', // Full A4 height 
             width: isLandscape ? '297mm' : '210mm', // Full A4 width
           }}
