@@ -1,6 +1,15 @@
 # AI Resume Generator
+*Customize your main resume to a particular role automatically.*
 
-A React application that generates targeted resumes using AI services. The application leverages React Router and Tailwind CSS for a smooth user experience.
+It's difficult to minimize your entire work history onto just one page. Doing it over and over again for each role is time consuming. This app helps you write a main resume. You then provide a job description and it will run an AI workflow to produce a customization - whilst staying true to your original content.
+
+#### Why
+In April 2025 I started looking for a new freelance assignment. Sending applications is not fun. Building apps is. So I will keep using this and building with it until I have my next gig. 
+
+## How To Use
+- You can select multiple workflows or templates, tailored for different purposes, such as  personal letters, technical resumes, or traditional ones.
+- It is trivial to add a new AI workflow or template. 
+- I would really appreciate a PR with a better workflow or new template!
 
 ## Features
 
@@ -16,65 +25,34 @@ A React application that generates targeted resumes using AI services. The appli
 - Node.js (v16+)
 - pnpm (v7+)
 
-### Installation
+### Getting Started
+- You will need node 20.17.0 and pnpm 10.6.3. 
+- Rename .env.example to .env and add your provider api keys
 
 ```bash
-# Install dependencies
 pnpm install
-```
-
-### Development
-
-```bash
-# Start the development server
 pnpm dev
 ```
 
-The application will be available at http://localhost:3000.
-
-## API Configuration
-
-By default, the application uses Mock Service Worker (MSW) in development mode to intercept API calls and return mock responses. This means you can develop and test without real API keys.
-
-If you want to use the real AI providers, you need to set the following environment variables:
-
-```
-ANTHROPIC_API_KEY=your_anthropic_api_key
-OPENAI_API_KEY=your_openai_api_key
-GEMINI_API_KEY=your_gemini_api_key
-```
-
-You can use a `.env` file in the project root to set these variables.
-
 ## Testing
 
-### Unit Tests
-
-The project includes unit tests using Vitest. These tests focus on testing individual components and services in isolation.
-
+### Vitest unit tests
+[vitest](https://vitest.dev/guide/)
 ```bash
 # Run unit tests
 pnpm test
-
-# Run unit tests in watch mode (for development)
 pnpm test:watch
-
-# Run unit tests with UI
+# vitest ui mode
 pnpm test:ui
-
-# Run unit tests with coverage report
 pnpm test:coverage
 ```
 
-### End-to-End Tests
-
-The project includes end-to-end tests using Playwright. These tests use MSW to mock API responses, so you don't need real API keys to run them.
+### Playwright End-to-End Tests
+These tests use [MSW](https://mswjs.io/docs/getting-started) to mock API responses to avoid real provider api costs/latency.
 
 ```bash
 # Run end-to-end tests
 pnpm test:e2e
-
-# Run end-to-end tests with UI
 pnpm test:e2e:ui
 ```
 
