@@ -141,9 +141,9 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
             {/* Expertise tags */}
             {expertise && expertise.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
-                {expertise.map((skill, index) => (
+                {expertise.map((skill) => (
                   <span
-                    key={`expertise-${skill}-${index}`}
+                    key={`expertise-${skill}`}
                     className="px-3 py-1 bg-blue-50 text-blue-700 rounded text-sm"
                   >
                     {skill}

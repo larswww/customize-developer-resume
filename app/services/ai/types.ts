@@ -78,7 +78,6 @@ export type WorkflowStep = Omit<BaseWorkflowStep, never> & // Keep all base fiel
 	(
 		| {
 				provider: "anthropic";
-				// Use the specific part of AIRequestOptions union for Anthropic
 				options?: Extract<AIRequestOptions, { provider: "anthropic" }>;
 				systemPrompt?: string | AnthropicSystemParam[];
 			}

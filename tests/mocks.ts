@@ -1,5 +1,5 @@
 import dbService from "../app/services/db/dbService.server"; // Adjust path if needed
-import type { Job } from "../app/db/schema"; // Adjust path if needed
+import type { Job } from "~/services/db/dbService.server"; // Adjust path if needed
 
 // Export handlers from the app for use in tests
 export { handlers } from "../app/mocks/handlers";

@@ -27,23 +27,16 @@ import {
 } from "~/routes/resume/utils";
 
 export async function loader(args: LoaderFunctionArgs) {
-
-  // Extract common parameters
   const {
     jobId,
     selectedWorkflowId,
     selectedWorkflow,
-    selectedTemplateConfig,
   } = await extractRouteParams(args);
 
   const resumeData = dbService.getResume(jobId);
-
-  // Get resume source steps
   const resumeSourceSteps = selectedWorkflow.steps.filter(
     (step: WorkflowStep) => step.useInResume
   );
-
-  // Get source texts
   const sourceTexts: Record<string, string> = {};
   for (const step of resumeSourceSteps) {
     const stepResult = dbService.getWorkflowStep(
@@ -54,14 +47,8 @@ export async function loader(args: LoaderFunctionArgs) {
     sourceTexts[step.id] = stepResult?.result || "";
   }
 
-  // Get contact info from DB settings first
   const savedContactInfo = dbService.getContactInfo();
-  
-  // Use saved info, or fallback to the global default
   const contactInfo = savedContactInfo || globalDefaultContactInfo;
-
-  // If we are loading existing resume data, its contact info takes precedence
-  // (This allows job-specific overrides if needed in the future, though not currently implemented)
   const finalContactInfo = resumeData?.structuredData?.contactInfo || contactInfo;
 
   return {
@@ -92,11 +79,10 @@ export default function JobResume() {
     contactInfo: ContactInfo;
   }>();
 
-  // Get the parent context
   const parentContext = useOutletContext<ResumeRouteContext>();
   const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } = parentContext;
 
-  // Make sure job is available (from parent context or use useRouteLoaderData as fallback)
+
   const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID) as any;
   const jobData = job || parentRouteData?.job;
 

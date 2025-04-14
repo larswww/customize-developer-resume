@@ -11,7 +11,6 @@ test.describe("Dashboard Functionality", () => {
     const jobDescription = "This is a test job description.";
     const jobLink = "https://example.com/job-posting";
 
-    // Create a job using the fixture
     const jobId = await createJob(jobTitle, jobDescription, jobLink);
 
     await test.step("Verify job creation and fields display correctly", async () => {
