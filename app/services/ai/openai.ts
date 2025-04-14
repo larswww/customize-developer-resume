@@ -1,12 +1,19 @@
-import type { AIClient, AIRequestOptions, AIResponse, AnthropicSystemParam } from "./types";
 import { serverLogger } from "~/utils/logger.server";
+import type {
+	AIClient,
+	AIRequestOptions,
+	AIResponse,
+	AnthropicSystemParam,
+} from "./types";
 export class OpenAIClient implements AIClient {
 	private apiKey: string;
 
 	constructor(apiKey?: string) {
-		this.apiKey = apiKey || process.env.OPENAI_API_KEY || '';
+		this.apiKey = apiKey || process.env.OPENAI_API_KEY || "";
 		if (!this.apiKey) {
-			throw new Error("OpenAI API key not configured. Set OPENAI_API_KEY environment variable.");
+			throw new Error(
+				"OpenAI API key not configured. Set OPENAI_API_KEY environment variable.",
+			);
 		}
 	}
 
@@ -33,7 +40,8 @@ export class OpenAIClient implements AIClient {
 		const modelType = getModelType(model);
 
 		// Prepare messages based on model type
-		let messages: { role: string; content: string | AnthropicSystemParam[] }[] = [];
+		let messages: { role: string; content: string | AnthropicSystemParam[] }[] =
+			[];
 
 		switch (modelType) {
 			case "o1":

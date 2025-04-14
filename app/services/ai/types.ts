@@ -9,7 +9,14 @@ export interface AIClient {
 
 export type AIProvider = "anthropic" | "openai" | "gemini";
 
-export type AnthropicModels = "claude-3-7-sonnet-latest" | "claude-3-opus-latest" | "claude-3-5-haiku-latest" | "claude-3-5-sonnet-latest" | "claude-3-opus-latest" | "claude-3-sonnet-20240229" | "claude-3-haiku-20240307";
+export type AnthropicModels =
+	| "claude-3-7-sonnet-latest"
+	| "claude-3-opus-latest"
+	| "claude-3-5-haiku-latest"
+	| "claude-3-5-sonnet-latest"
+	| "claude-3-opus-latest"
+	| "claude-3-sonnet-20240229"
+	| "claude-3-haiku-20240307";
 
 export type GeminiModels =
 	| "gemini-2.5-pro-preview-03-25"
@@ -27,7 +34,9 @@ export type OpenAIModels = string;
 type ProviderSpecificOptions<P extends AIProvider, M> = {
 	provider: P;
 	model?: M;
-	systemPrompt?: P extends "anthropic" ? string | AnthropicSystemParam[] : string;
+	systemPrompt?: P extends "anthropic"
+		? string | AnthropicSystemParam[]
+		: string;
 };
 
 export type AIRequestOptions = Omit<
@@ -80,17 +89,17 @@ export type WorkflowStep = Omit<BaseWorkflowStep, never> & // Keep all base fiel
 				provider: "anthropic";
 				options?: Extract<AIRequestOptions, { provider: "anthropic" }>;
 				systemPrompt?: string | AnthropicSystemParam[];
-			}
+		  }
 		| {
 				provider: "openai";
 				options?: Extract<AIRequestOptions, { provider: "openai" }>;
 				systemPrompt?: string;
-			}
+		  }
 		| {
 				provider: "gemini";
 				options?: Extract<AIRequestOptions, { provider: "gemini" }>;
 				systemPrompt?: string;
-			}
+		  }
 	);
 
 export type AnthropicSystemParam = {

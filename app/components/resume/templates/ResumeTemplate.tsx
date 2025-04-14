@@ -1,6 +1,5 @@
 import type { DefaultResumeData } from "../templates/default";
 
-
 interface ResumeTemplateProps {
 	data: DefaultResumeData;
 	onDataChange: (path: (string | number)[], value: string) => void;
@@ -35,10 +34,12 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					>
 						<div className="mb-3">
 							<h1 className="text-3xl font-bold uppercase leading-tight">
-								{contactInfo.name.split(' ')[0]} {/* Simple split for first name */}
+								{contactInfo.name.split(" ")[0]}{" "}
+								{/* Simple split for first name */}
 							</h1>
 							<h1 className="text-3xl font-bold uppercase mb-0 leading-tight">
-								{contactInfo.name.split(' ').slice(1).join(' ')} {/* Rest of name */} 
+								{contactInfo.name.split(" ").slice(1).join(" ")}{" "}
+								{/* Rest of name */}
 							</h1>
 							<p className="text-lg italic">{contactInfo.title}</p>
 						</div>
@@ -51,31 +52,45 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								<span className="mr-2">📞</span> {contactInfo.phone}
 							</p>
 							<p className="flex items-center text-sm">
-								<span className="mr-2">✉️</span> 
-								<a href={`mailto:${contactInfo.email}`} className="hover:underline">{contactInfo.email}</a>
+								<span className="mr-2">✉️</span>
+								<a
+									href={`mailto:${contactInfo.email}`}
+									className="hover:underline"
+								>
+									{contactInfo.email}
+								</a>
 							</p>
 							{contactInfo.portfolio && (
 								<p className="flex items-center text-sm">
-									<span className="mr-2">💼</span> 
-									<a 
-										href={contactInfo.portfolio.startsWith('http') ? contactInfo.portfolio : `https://${contactInfo.portfolio}`}
-										target="_blank" 
+									<span className="mr-2">💼</span>
+									<a
+										href={
+											contactInfo.portfolio.startsWith("http")
+												? contactInfo.portfolio
+												: `https://${contactInfo.portfolio}`
+										}
+										target="_blank"
 										rel="noopener noreferrer"
 										className="hover:underline"
 									>
-										{contactInfo.portfolio.replace(/^https?:\/\//, '')}
+										{contactInfo.portfolio.replace(/^https?:\/\//, "")}
 									</a>
 								</p>
 							)}
 							<p className="flex items-center text-sm">
-								<span className="mr-2">🔗</span> 
-								<a 
-									href={contactInfo.linkedin.startsWith('http') ? contactInfo.linkedin : `https://${contactInfo.linkedin}`}
-									target="_blank" 
+								<span className="mr-2">🔗</span>
+								<a
+									href={
+										contactInfo.linkedin.startsWith("http")
+											? contactInfo.linkedin
+											: `https://${contactInfo.linkedin}`
+									}
+									target="_blank"
 									rel="noopener noreferrer"
 									className="hover:underline"
 								>
-									{contactInfo.linkedin.replace(/^https?:\/\//, '')} {/* Display without protocol */}
+									{contactInfo.linkedin.replace(/^https?:\/\//, "")}{" "}
+									{/* Display without protocol */}
 								</a>
 							</p>
 						</div>
@@ -98,13 +113,17 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 						{/* --- Dynamic Skills Section --- */}
 						{skills.map((skillCategory) => (
 							<div key={skillCategory.category} className="mb-3">
-								<p className="font-bold text-gray-700 text-sm uppercase">{skillCategory.category}</p>
+								<p className="font-bold text-gray-700 text-sm uppercase">
+									{skillCategory.category}
+								</p>
 								<div className="space-y-0">
 									{skillCategory.items.map((item) => (
 										<p key={item.name} className="text-sm">
 											{item.name}
 											{item.context && (
-												<span className="text-xs text-gray-500 ml-1">({item.context})</span>
+												<span className="text-xs text-gray-500 ml-1">
+													({item.context})
+												</span>
 											)}
 										</p>
 									))}
@@ -117,10 +136,12 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 						{otherInfo?.items?.length ? (
 							<>
 								<h2 className="text-xl font-bold uppercase mt-5 mb-2">
-									{otherInfo.title || 'OTHER'} 
+									{otherInfo.title || "OTHER"}
 								</h2>
 								{otherInfo.items.map((item) => (
-									<p key={item} className="text-sm">{item}</p>
+									<p key={item} className="text-sm">
+										{item}
+									</p>
 								))}
 							</>
 						) : null}
@@ -130,7 +151,9 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 						{languages && languages.length > 0 && (
 							<div className="mt-3 flex items-center space-x-1">
 								{languages.map((lang) => (
-									<span key={lang} className="w-5 h-5">{lang}</span>
+									<span key={lang} className="w-5 h-5">
+										{lang}
+									</span>
 								))}
 							</div>
 						)}
@@ -140,14 +163,20 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 
 				{/* Right content area - Work Experience */}
 				<div className="w-[70%] p-8 overflow-y-auto flex-grow">
-					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">WORK EXPERIENCE</h2>
+					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">
+						WORK EXPERIENCE
+					</h2>
 
 					{data.workExperience.map((job) => (
 						<div key={`job-${job.company}-${job.title}`} className="mb-6">
 							<div className="mb-1">
 								<div className="flex justify-between items-baseline mb-0.5">
-									<span className="font-bold text-lg text-gray-900">{job.title}</span>
-									<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">{job.dates}</span>
+									<span className="font-bold text-lg text-gray-900">
+										{job.title}
+									</span>
+									<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">
+										{job.dates}
+									</span>
 								</div>
 								<p className="text-sm text-gray-600">
 									{job.company}, {job.location}
@@ -155,7 +184,10 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 							</div>
 
 							{job.description.map((desc, idx) => (
-								<p key={`desc-${job.company}-${idx}`} className="mb-2 text-gray-800">
+								<p
+									key={`desc-${job.company}-${idx}`}
+									className="mb-2 text-gray-800"
+								>
 									{desc}
 								</p>
 							))}

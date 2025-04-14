@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
-import { handlers } from "./handlers";
 import { serverLogger } from "../utils/logger.server";
+import { handlers } from "./handlers";
 
 export const server = setupServer(...handlers);
 
@@ -34,13 +34,13 @@ export function startServer() {
 	});
 
 	server.events.on("request:unhandled", ({ request }) => {
-		serverLogger.log(`[MSW] Request unhandled: ${request.method} ${request.url}`);
+		serverLogger.log(
+			`[MSW] Request unhandled: ${request.method} ${request.url}`,
+		);
 	});
 
 	server.events.on("request:end", ({ request, requestId }) => {
-		serverLogger.log(
-			`[MSW] Request ended: ${request.method} ${request.url}`,
-		);
+		serverLogger.log(`[MSW] Request ended: ${request.method} ${request.url}`);
 	});
 
 	process.on("SIGINT", () => {

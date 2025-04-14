@@ -72,19 +72,10 @@
 		"pnpm": "10.6.3"
 	},
 	"msw": {
-		"workerDirectory": [
-			"public"
-		]
+		"workerDirectory": ["public"]
 	},
 	"pnpm": {
-		"onlyBuiltDependencies": [
-			"better-sqlite3"
-		],
-		"ignoredBuiltDependencies": [
-			"@biomejs/biome",
-			"core-js",
-			"esbuild",
-			"msw"
-		]
+		"onlyBuiltDependencies": ["better-sqlite3"],
+		"ignoredBuiltDependencies": ["@biomejs/biome", "core-js", "esbuild", "msw"]
 	}
 }

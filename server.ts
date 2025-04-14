@@ -11,7 +11,7 @@ import morgan from "morgan";
 import { serverLogger } from "./app/utils/logger.server";
 
 dotenv.config();
-	
+
 const isMswEnabled = process.env.MSW_ENABLED === "true";
 
 if (process.env.NODE_ENV === "development") {

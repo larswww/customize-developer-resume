@@ -8,7 +8,6 @@ import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
 import { serverLogger } from "./utils/logger.server";
 
-
 export const streamTimeout = 240_000;
 
 export default function handleRequest(

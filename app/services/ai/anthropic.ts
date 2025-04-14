@@ -1,22 +1,24 @@
 import Anthropic from "@anthropic-ai/sdk";
 import type {
-	TextBlockParam,
 	MessageParam,
+	TextBlockParam,
 } from "@anthropic-ai/sdk/resources/messages";
+import { serverLogger } from "~/utils/logger.server";
 import type {
 	AIClient,
 	AIRequestOptions,
 	AIResponse,
 	AnthropicSystemParam,
 } from "./types";
-import { serverLogger } from "~/utils/logger.server";
 export class AnthropicClient implements AIClient {
 	private client: Anthropic;
 
 	constructor(apiKey?: string) {
-		const key = apiKey || process.env.ANTHROPIC_API_KEY || '';
+		const key = apiKey || process.env.ANTHROPIC_API_KEY || "";
 		if (!key) {
-			throw new Error("Anthropic API key not configured. Set ANTHROPIC_API_KEY environment variable.");
+			throw new Error(
+				"Anthropic API key not configured. Set ANTHROPIC_API_KEY environment variable.",
+			);
 		}
 		this.client = new Anthropic({ apiKey: key });
 	}
@@ -25,7 +27,9 @@ export class AnthropicClient implements AIClient {
 		prompt: string,
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
-		serverLogger.log("[Anthropic Client] Making request to Anthropic API via SDK");
+		serverLogger.log(
+			"[Anthropic Client] Making request to Anthropic API via SDK",
+		);
 
 		const messages: MessageParam[] = [
 			{
@@ -53,7 +57,9 @@ export class AnthropicClient implements AIClient {
 				system: systemForSdk,
 			});
 
-			serverLogger.log("[Anthropic Client] Received response from Anthropic API via SDK");
+			serverLogger.log(
+				"[Anthropic Client] Received response from Anthropic API via SDK",
+			);
 
 			const textContent =
 				response.content.find((block) => block.type === "text")?.text || "";

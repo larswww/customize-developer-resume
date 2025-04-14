@@ -1,12 +1,14 @@
-import type { AIClient, AIRequestOptions, AIResponse } from "./types";
 import { serverLogger } from "~/utils/logger.server";
+import type { AIClient, AIRequestOptions, AIResponse } from "./types";
 export class GeminiClient implements AIClient {
 	private apiKey: string;
 
 	constructor(apiKey?: string) {
-		this.apiKey = apiKey || process.env.GEMINI_API_KEY || '';
+		this.apiKey = apiKey || process.env.GEMINI_API_KEY || "";
 		if (!this.apiKey) {
-			throw new Error("Gemini API key not configured. Set GEMINI_API_KEY environment variable.");
+			throw new Error(
+				"Gemini API key not configured. Set GEMINI_API_KEY environment variable.",
+			);
 		}
 	}
 

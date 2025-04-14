@@ -60,16 +60,18 @@ export async function generatePdfFromHtml(
 
 		// Load the HTML content
 		serverLogger.log(`Loading HTML content (${htmlContent.length} bytes)...`);
-		
+
 		// Ensure Tailwind styles are properly loaded by adding custom loadEvent
 		await page.setContent(htmlContent, {
 			waitUntil: ["load", "networkidle0"],
 			timeout: 30000,
 		});
-		
+
 		// Wait for Tailwind to fully process styles
-		await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
-		
+		await page.evaluate(
+			() => new Promise((resolve) => setTimeout(resolve, 500)),
+		);
+
 		serverLogger.log("HTML content loaded");
 
 		// // Inject CSS to eliminate ALL margins and hide ALL scrollbars
@@ -81,7 +83,7 @@ export async function generatePdfFromHtml(
 		// 			margin: 0 !important;
 		// 			padding: 0 !important;
 		// 		}
-				
+
 		// 		html, body {
 		// 			margin: 0 !important;
 		// 			padding: 0 !important;
@@ -89,32 +91,32 @@ export async function generatePdfFromHtml(
 		// 			height: 11in !important;
 		// 			overflow: hidden !important; /* Hide scrollbars */
 		// 		}
-				
+
 		// 		/* Hide scrollbars across all browsers */
 		// 		html::-webkit-scrollbar, body::-webkit-scrollbar {
 		// 			display: none !important;
 		// 			width: 0 !important;
 		// 			height: 0 !important;
 		// 		}
-				
+
 		// 		/* Firefox */
 		// 		html, body {
 		// 			scrollbar-width: none !important;
 		// 			-ms-overflow-style: none !important;
 		// 		}
-				
+
 		// 		/* Ensure all elements use border-box */
 		// 		* {
 		// 			box-sizing: border-box !important;
 		// 		}
-				
+
 		// 		/* Prevent scrollbars on all elements */
 		// 		*::-webkit-scrollbar {
 		// 			display: none !important;
 		// 			width: 0 !important;
 		// 			height: 0 !important;
 		// 		}
-				
+
 		// 		/* Prevent margin creep everywhere */
 		// 		* {
 		// 			margin: 0 !important;
@@ -135,14 +137,14 @@ export async function generatePdfFromHtml(
 		// 	document.documentElement.style.overflow = "hidden";
 		// 	document.documentElement.style.width = "8.5in";
 		// 	document.documentElement.style.height = "11in";
-			
+
 		// 	// Apply to body as well
 		// 	document.body.style.margin = "0";
 		// 	document.body.style.padding = "0";
 		// 	document.body.style.overflow = "hidden";
 		// 	document.body.style.width = "8.5in";
 		// 	document.body.style.height = "11in";
-			
+
 		// 	// Disable all scrollbars in the document
 		// 	const allElements = document.querySelectorAll('*');
 		// 	for (const el of allElements) {
@@ -152,7 +154,7 @@ export async function generatePdfFromHtml(
 		// 			htmlEl.style.overflow = "visible"; // Prevent internal scrollbars
 		// 		}
 		// 	}
-			
+
 		// 	// Log elements with margins for debugging
 		// 	const elementsWithMargins = document.querySelectorAll(
 		// 		'[style*="margin"]:not(html):not(body)',

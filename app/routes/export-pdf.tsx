@@ -70,7 +70,10 @@ export async function action({ request }: ActionFunctionArgs) {
 				});
 			}
 
-			serverLogger.log("Sending PDF response to client with filename:", filename);
+			serverLogger.log(
+				"Sending PDF response to client with filename:",
+				filename,
+			);
 			return new Response(pdfBuffer, {
 				status: 200,
 				headers: {
