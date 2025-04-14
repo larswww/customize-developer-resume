@@ -38,7 +38,7 @@ export async function loader(args: LoaderFunctionArgs) {
     selectedTemplateConfig
   } = await extractRouteParams(args);
 
-  const { selectedWorkflow, isWorkflowComplete, workflowStepsData } = await getWorkflow(job.id, selectedWorkflowId);
+  const { selectedWorkflow, isWorkflowComplete, workflowStepsData } = getWorkflow(job.id, selectedWorkflowId);
 
   const url = new URL(args.request.url);
   const isOnResume = url.pathname.includes("/resume");
@@ -102,7 +102,6 @@ export default function JobLayout({ loaderData }: Route.ComponentProps) {
     });
   };
 
-  // Enhanced context with more shared data
   const outletContext: RouteOutletContext = {
     selectedWorkflowId,
     selectedTemplateId,

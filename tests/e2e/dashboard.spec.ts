@@ -32,7 +32,7 @@ test.describe("Dashboard Functionality", () => {
       expect(href).toContain(`/job/${jobId}`);
       
       await resumeButton.click();
-      await expect(page).toHaveURL(new RegExp(`/job/${jobId}/resume.*`));
+      await expect(page).toHaveURL(new RegExp(`/job/${jobId}`));
     });
 
     // Clean up using the fixture

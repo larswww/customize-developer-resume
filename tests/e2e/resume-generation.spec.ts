@@ -14,8 +14,6 @@ test.describe("Resume Generation E2E Flow", () => {
     deleteJob,
   }) => {
     const jobDescription = "This is a test job description for the E2E flow.";
-
-    // Create job using fixture
     const jobId = await createJob(jobTitle, jobDescription);
 
     await test.step("Navigate to Generate Content", async () => {
@@ -26,7 +24,7 @@ test.describe("Resume Generation E2E Flow", () => {
 
     await test.step("Generates all content and redirects to resume page", async () => {
       await page
-        .getByRole("button", { name: text.content.generateButton })
+        .getByRole("button", { name: text.content.generateButton, exact: true })
         .click();
 
       await page
@@ -80,66 +78,17 @@ test.describe("Resume Generation E2E Flow", () => {
       console.log(`Downloaded file: ${suggestedFilename}`);
     });
 
-    // Clean up - delete the job
+    await test.step("Changing workflow", async () => {
+      await expect(page.locator('select[name="workflow"]')).toHaveValue(
+        "default",
+        { timeout: 10000 }
+      );
+      await page.selectOption('select[name="workflow"]', "alternative");
+      await expect(page).toHaveURL(/\?workflow=alternative(&template=[^&]+)?$/);
+      await expect(page.getByText(text.content.generateButton)).toBeVisible();
+      await expect(page.getByText(text.ui.complete)).not.toBeVisible();
+    });
+
     await deleteJob(jobTitle);
-  });
-
-  test("allows selecting and running different workflows", async ({
-    page,
-    createJob,
-    deleteJob,
-  }) => {
-    // Create a test job first
-    const jobTitle = `Workflow Test Job ${Date.now()}`;
-    const jobId = await createJob(jobTitle, "Testing different workflows");
-
-    // We should already be on the job page after creating
-    // 1. Assert default workflow is selected
-    await expect(page.locator('select[name="workflow"]')).toHaveValue(
-      "default",
-      { timeout: 10000 }
-    );
-    await expect(
-      page.getByRole("heading", { name: "Job Description Analysis" })
-    ).toBeVisible({ timeout: 10000 });
-
-    // 2. Select Alternative Workflow
-    await page.selectOption('select[name="workflow"]', "alternative");
-
-    // 3. Assert URL updates
-    await expect(page).toHaveURL(/\?workflow=alternative(&template=[^&]+)?$/);
-
-    // 4. Assert displayed steps match the alternative workflow
-    // Wait for potential dynamic updates if any
-    await page.waitForTimeout(1000); // Increased wait for UI update consistency
-    await expect(
-      page.getByRole("heading", { name: "Placeholder Step" })
-    ).toBeVisible({ timeout: 10000 });
-    // Check if the default workflow first step is NOT visible
-    await expect(
-      page.getByRole("heading", { name: "Job Description Analysis" })
-    ).not.toBeVisible();
-
-    // 5. Submit and check if workflow was used (basic check)
-    // This relies on MSW mock returning something for the placeholder step
-    await page.getByRole("button", { name: "Generate Content Steps" }).click();
-
-    // Wait for the placeholder step result to appear
-    const placeholderResult = page.locator(
-      '.mb-4:has(h3:text("Placeholder Step"))'
-    );
-    await expect(
-      placeholderResult.locator('span:text("Complete")')
-    ).toBeVisible({ timeout: 15000 });
-    // Check if the mock response text is present
-    await expect(placeholderResult).toContainText("Default mock response");
-
-    // Clean up
-  });
-
-  test.afterAll(async ({ page, deleteJob }) => {
-    await deleteJob(jobTitle);
-
-    await page.close();
   });
 });

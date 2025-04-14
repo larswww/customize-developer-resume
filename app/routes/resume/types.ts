@@ -1,7 +1,7 @@
 export interface RouteOutletContext {
   selectedWorkflowId: string;
   selectedTemplateId: string;
-  isWorkflowComplete?: boolean;
+  isWorkflowComplete: boolean;
   currentWorkflowSteps?: any[];
   templateDescription?: string;
   workflowStepsData?: any[];

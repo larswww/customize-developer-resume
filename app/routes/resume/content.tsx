@@ -5,7 +5,7 @@ import {
   useOutletContext,
   Outlet,
 } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { LoadingSpinnerIcon, MagicWandIcon, RetryIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
@@ -26,7 +26,6 @@ export async function action(args: ActionFunctionArgs) {
 export default function JobContent({
   actionData,
 }: Route.ComponentProps) {
-  // Get the shared context from the parent route
   const parentContext = useOutletContext<RouteOutletContext>();
   const { 
     selectedWorkflowId, 
@@ -44,10 +43,9 @@ export default function JobContent({
 
   const hasWorkflowSteps = workflowStepsData && workflowStepsData.length > 0;
 
-  // Pass on the full parent context plus any additional content route context
   const nestedOutletContext = {
     ...parentContext,
-    isWorkflowComplete: isWorkflowComplete || false,
+    isWorkflowComplete,
   };
 
   return (
@@ -57,7 +55,7 @@ export default function JobContent({
         <Collapsible
           title="Job Description"
           className="mb-6"
-          defaultOpen={true}
+          defaultOpen={false}
         >
           <div className="min-h-[250px]">
             <ClientMarkdownEditor
@@ -107,7 +105,7 @@ export default function JobContent({
             stepsToRender={currentWorkflowSteps || []}
             workflowStepsData={workflowStepsData || []}
             height={contentHeight}
-            isComplete={isWorkflowComplete || false}
+            isComplete={isWorkflowComplete}
           />
         )}
       </div>

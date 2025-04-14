@@ -54,12 +54,10 @@ export async function extractRouteParams({ params, request }: LoaderFunctionArgs
   };
 }
 
-export async function getWorkflow(jobId: number, selectedWorkflowId: string) {
+export function getWorkflow(jobId: number, selectedWorkflowId: string) {
   const selectedWorkflow = workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
    const workflowStepsData = dbService.getWorkflowSteps(jobId, selectedWorkflowId);
-   const isWorkflowComplete =
-     selectedWorkflow.steps.length > 0 &&
-     workflowStepsData.every((step) => step.status === "success");
+   const isWorkflowComplete = workflowStepsData && workflowStepsData.length === selectedWorkflow.steps.length && workflowStepsData.every((step) => step.status === "success");
 
   return {
     selectedWorkflow,
