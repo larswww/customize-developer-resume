@@ -1,16 +1,11 @@
-import React from 'react';
 import type { ContactInfo } from '../config/templates/sharedTypes';
 import { defaultContactInfo } from '../config/templates/sharedTypes';
-
 interface ContactInfoFormProps {
   contactInfo: ContactInfo;
 }
 
 export function ContactInfoForm({ contactInfo }: ContactInfoFormProps) {
-  // Define the form fields configuration
-  console.log("contactInfo ", contactInfo);
   const contactValues = contactInfo || defaultContactInfo;
-
   const formFields = [
     { id: 'name', label: 'Name', type: 'text', value: contactValues.name },
     { id: 'title', label: 'Title', type: 'text', value: contactValues.title },

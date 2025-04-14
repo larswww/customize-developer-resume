@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer-core";
 import type { PaperFormat } from "puppeteer-core";
+import { serverLogger } from "~/utils/logger.server";
 
 /**
  * Server-side service for generating PDFs from HTML
@@ -19,13 +20,13 @@ export async function generatePdfFromHtml(
 		scale?: number;
 	} = {},
 ): Promise<Uint8Array> {
-	console.log("Starting PDF generation with puppeteer");
-	console.log("Options:", JSON.stringify(options, null, 2));
+	serverLogger.log("Starting PDF generation with puppeteer");
+	serverLogger.log("Options:", JSON.stringify(options, null, 2));
 
 	let browser = null;
 
 	try {
-		console.log("Launching browser...");
+		serverLogger.log("Launching browser...");
 		browser = await puppeteer.launch({
 			headless: true,
 			args: [
@@ -37,10 +38,10 @@ export async function generatePdfFromHtml(
 			executablePath:
 				"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
 		});
-		console.log("Browser launched successfully");
+		serverLogger.log("Browser launched successfully");
 
 		const page = await browser.newPage();
-		console.log("New page created");
+		serverLogger.log("New page created");
 
 		// Set exact viewport size for Letter paper
 		// await page.setViewport({
@@ -51,14 +52,14 @@ export async function generatePdfFromHtml(
 		// 	isLandscape: false,
 		// 	isMobile: false,
 		// });
-		console.log("Viewport set to exact Letter size");
+		serverLogger.log("Viewport set to exact Letter size");
 
 		// Set longer timeouts for content loading
 		await page.setDefaultNavigationTimeout(60000);
 		await page.setDefaultTimeout(60000);
 
 		// Load the HTML content
-		console.log(`Loading HTML content (${htmlContent.length} bytes)...`);
+		serverLogger.log(`Loading HTML content (${htmlContent.length} bytes)...`);
 		
 		// Ensure Tailwind styles are properly loaded by adding custom loadEvent
 		await page.setContent(htmlContent, {
@@ -69,10 +70,10 @@ export async function generatePdfFromHtml(
 		// Wait for Tailwind to fully process styles
 		await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
 		
-		console.log("HTML content loaded");
+		serverLogger.log("HTML content loaded");
 
 		// // Inject CSS to eliminate ALL margins and hide ALL scrollbars
-		// console.log("Applying zero-margin and no-scrollbar styles...");
+		// serverLogger.log("Applying zero-margin and no-scrollbar styles...");
 		// await page.addStyleTag({
 		// 	content: `
 		// 		@page {
@@ -126,7 +127,7 @@ export async function generatePdfFromHtml(
 		// });
 
 		// // Run script to ensure all scrollbars are disabled
-		// console.log("Running script to disable scrollbars and reset margins...");
+		// serverLogger.log("Running script to disable scrollbars and reset margins...");
 		// await page.evaluate(() => {
 		// 	// Force reset margins and disable scrollbars
 		// 	document.documentElement.style.margin = "0";
@@ -156,14 +157,14 @@ export async function generatePdfFromHtml(
 		// 	const elementsWithMargins = document.querySelectorAll(
 		// 		'[style*="margin"]:not(html):not(body)',
 		// 	);
-		// 	console.log(
+		// 	serverLogger.log(
 		// 		`Found ${elementsWithMargins.length} elements with explicit margins`,
 		// 	);
 		// });
-		// console.log("Scrollbar removal and margin reset completed");
+		// serverLogger.log("Scrollbar removal and margin reset completed");
 
 		// // Generate PDF with zero margins
-		// console.log("Generating PDF...");
+		// serverLogger.log("Generating PDF...");
 		const pdfBuffer = await page.pdf({
 			format: options.format || "a4",
 			landscape: options.landscape || false,
@@ -179,22 +180,22 @@ export async function generatePdfFromHtml(
 			// Disable headers and footers
 			displayHeaderFooter: false,
 		});
-		console.log(`PDF generated successfully: ${pdfBuffer.length} bytes`);
+		serverLogger.log(`PDF generated successfully: ${pdfBuffer.length} bytes`);
 
 		return pdfBuffer;
 	} catch (error) {
-		console.error("ERROR in PDF generation:", error);
+		serverLogger.error("ERROR in PDF generation:", error);
 		throw new Error(
 			`PDF generation failed: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	} finally {
 		if (browser) {
 			try {
-				console.log("Closing browser...");
+				serverLogger.log("Closing browser...");
 				await browser.close();
-				console.log("Browser closed");
+				serverLogger.log("Browser closed");
 			} catch (closeError) {
-				console.error("Error closing browser:", closeError);
+				serverLogger.error("Error closing browser:", closeError);
 			}
 		}
 	}

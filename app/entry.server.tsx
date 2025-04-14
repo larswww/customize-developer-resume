@@ -6,10 +6,8 @@ import type { RenderToPipeableStreamOptions } from "react-dom/server";
 import { renderToPipeableStream } from "react-dom/server";
 import type { AppLoadContext, EntryContext } from "react-router";
 import { ServerRouter } from "react-router";
+import { serverLogger } from "./utils/logger.server";
 
-// --- MSW Setup ---
-// Removed the MSW setup block from here as it's handled in server.ts
-// --- End MSW Setup ---
 
 export const streamTimeout = 240_000;
 
@@ -59,18 +57,14 @@ export default function handleRequest(
 				},
 				onError(error: unknown) {
 					localResponseStatusCode = 500;
-					// Log streaming rendering errors from inside the shell.  Don't log
-					// errors encountered during initial shell rendering since they'll
-					// reject and get logged in handleDocumentRequest.
+
 					if (shellRendered) {
-						console.error(error);
+						serverLogger.error(error);
 					}
 				},
 			},
 		);
 
-		// Abort the rendering stream after the `streamTimeout` so it has time to
-		// flush down the rejected boundaries
 		setTimeout(abort, streamTimeout + 1000);
 	});
 }

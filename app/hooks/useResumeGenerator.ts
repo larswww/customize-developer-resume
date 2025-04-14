@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
+
+import { clientLogger } from '../utils/logger.client';
 import { printResumeElement } from '../utils/print.client';
 import { downloadResumeAsPdf } from '../utils/pdf.client';
 import type { ContactInfo } from '../config/templates';
@@ -117,10 +119,10 @@ export function useResumeGenerator({
         if (hiddenInput) {
           hiddenInput.value = markdown;
         } else {
-          console.warn(`Could not find hidden input for step: ${step.id}`);
+          clientLogger.warn(`Could not find hidden input for step: ${step.id}`);
         }
       } else {
-         console.warn(`Could not find editor ref for step: ${step.id}`);
+         clientLogger.warn(`Could not find editor ref for step: ${step.id}`);
       }
     }
   }, [resumeSourceSteps]);

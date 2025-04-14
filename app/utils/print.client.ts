@@ -1,3 +1,5 @@
+import { clientLogger } from "../utils/logger.client";
+
 /**
  * Handles printing the resume element by cloning it into an iframe.
  * @param elementId The ID of the HTML element to print.
@@ -12,7 +14,7 @@ export function printResumeElement(
   try {
     const resumeElement = document.getElementById(elementId);
     if (!resumeElement) {
-      console.error(
+      clientLogger.error(
         `Could not find element with ID '${elementId}' for printing`
       );
       onError(`Could not find element with ID '${elementId}' for printing`);
@@ -23,14 +25,14 @@ export function printResumeElement(
     document.body.appendChild(iframe);
 
     const contentClone = resumeElement.cloneNode(true) as HTMLElement;
-    console.log("Content cloned successfully");
+    clientLogger.log("Content cloned successfully");
 
     iframe.onload = () => {
       try {
         const iframeDoc =
           iframe.contentDocument || iframe.contentWindow?.document;
         if (!iframeDoc) {
-          console.error("Could not access iframe document");
+          clientLogger.error("Could not access iframe document");
           // Clean up before erroring
           if (iframe.parentNode === document.body)
             document.body.removeChild(iframe);
@@ -63,7 +65,7 @@ export function printResumeElement(
         `);
         iframeDoc.close();
 
-        console.log("Content written to iframe");
+        clientLogger.log("Content written to iframe");
         setTimeout(() => {
           try {
             if (iframe.contentWindow) {
@@ -78,7 +80,7 @@ export function printResumeElement(
               throw new Error("Could not access iframe content window");
             }
           } catch (printError) {
-            console.error("Error triggering print:", printError);
+            clientLogger.error("Error triggering print:", printError);
             setTimeout(() => {
               if (iframe.parentNode === document.body)
                 document.body.removeChild(iframe);
@@ -89,7 +91,7 @@ export function printResumeElement(
           }
         }, 1000);
       } catch (iframeError) {
-        console.error("Error setting up iframe:", iframeError);
+        clientLogger.error("Error setting up iframe:", iframeError);
         if (iframe.parentNode === document.body)
           document.body.removeChild(iframe);
         onError("Failed to set up print view. Try another browser.");
@@ -97,7 +99,7 @@ export function printResumeElement(
     };
 
     iframe.onerror = () => {
-      console.error("Error loading iframe");
+      clientLogger.error("Error loading iframe");
       if (iframe.parentNode === document.body)
         document.body.removeChild(iframe);
       onError("Failed to load print preview. Try another browser.");
@@ -105,7 +107,7 @@ export function printResumeElement(
 
     iframe.src = "about:blank";
   } catch (error) {
-    console.error("Error setting up print:", error);
+    clientLogger.error("Error setting up print:", error);
     const potentiallyAddedIframe = document.querySelector(
       "iframe[style*='position: fixed']"
     );

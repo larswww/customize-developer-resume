@@ -1,8 +1,8 @@
 import { workflows, defaultWorkflowId } from "../../config/workflows";
 import type { WorkflowStep, WorkflowContext } from "../../services/ai/types";
 import { WorkflowEngine, type WorkflowStepUpdate, type DBService } from "./workflow-engine";
-import dbService from "../db/dbService";
-
+import dbService from "../db/dbService.server";
+import { serverLogger } from "~/utils/logger.server";
 // DB adapter that implements the WorkflowDBService interface
 class DBAdapter implements DBService {
   private jobId: number;
@@ -22,9 +22,9 @@ class DBAdapter implements DBService {
         status: update.status,
         result: update.result || ''
       });
-      console.log(`Updated step ${update.id} in DB with status ${update.status}`);
+      serverLogger.log(`Updated step ${update.id} in DB with status ${update.status}`);
     } catch (error) {
-      console.error(`Failed to update step ${update.id} in database:`, error);
+      serverLogger.error(`Failed to update step ${update.id} in database:`, error);
     }
   }
 }
@@ -58,7 +58,7 @@ export async function executeWorkflow(
     if (!selectedWorkflow) {
       throw new Error(`Workflow with ID '${workflowId}' not found.`);
     }
-    console.time(`Workflow ${workflowId} completed in`);
+    serverLogger.time(`Workflow ${workflowId} completed in`);
     
     const currentWorkflowSteps = selectedWorkflow.steps;
     
@@ -92,15 +92,15 @@ export async function executeWorkflow(
       return acc;
     }, {} as Record<string, string>);
 
-    console.log(`Workflow execution completed for job ${jobId}`);
-    console.timeEnd(`Workflow ${workflowId} completed in`);
+    serverLogger.log(`Workflow execution completed for job ${jobId}`);
+    serverLogger.timeEnd(`Workflow ${workflowId} completed in`);
     return {
       workflowResults,
       workflowSteps: currentWorkflowSteps,
       success: true,
     };
   } catch (error) {
-    console.error(`Workflow execution failed for job ${jobId}:`, error);
+    serverLogger.error(`Workflow execution failed for job ${jobId}:`, error);
     throw error;
   }
 }

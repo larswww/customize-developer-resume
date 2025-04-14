@@ -10,8 +10,8 @@ import type {
 	AIRequestOptions,
 	AIResponse,
 } from "../../services/ai/types";
-import type { WorkflowStepStatus } from "../db/dbService";
-
+import type { WorkflowStepStatus } from "../db/dbService.server";
+import { serverLogger } from "~/utils/logger.server";
 export interface WorkflowStepUpdate {
 	id: string;
 	status: WorkflowStepStatus;
@@ -52,7 +52,7 @@ export class WorkflowEngine {
 						const readySteps = this.findReadySteps(completedSteps);
 						this.checkForCircularDependencies(readySteps, completedSteps);
 						
-						console.log(`Executing ${readySteps.length} steps in parallel: ${readySteps.map(s => s.id).join(", ")}`);
+						serverLogger.log(`Executing ${readySteps.length} steps in parallel: ${readySteps.map(s => s.id).join(", ")}`);
 						
 						// Update status to processing for ready steps
 						await Promise.all(readySteps.map(step => this.updateStepStatus({
@@ -145,9 +145,9 @@ export class WorkflowEngine {
 	
 	private handleStepExecutionError(error: unknown, step: WorkflowStep): void {
 		if (error instanceof Error && error.message.startsWith('Missing required context variable')) {
-			console.error(`Workflow halted at step ${step.id}: ${error.message}`);
+			serverLogger.error(`Workflow halted at step ${step.id}: ${error.message}`);
 		} else {
-			console.error(`Error executing step ${step.id}:`, error);
+			serverLogger.error(`Error executing step ${step.id}:`, error);
 		}
 	}
 	
@@ -179,9 +179,9 @@ export class WorkflowEngine {
 		if (this.dbService) {
 			try {
 				await this.dbService.updateStepStatus(update);
-				console.log(`Updated step ${update.id} status to ${update.status}`);
+				serverLogger.log(`Updated step ${update.id} status to ${update.status}`);
 			} catch (error) {
-				console.error(`Failed to update step ${update.id} status:`, error);
+				serverLogger.error(`Failed to update step ${update.id} status:`, error);
 			}
 		}
 	}
@@ -200,7 +200,7 @@ export class WorkflowEngine {
 			if (value !== undefined) {
 				prompt = prompt.replace(placeholder, String(value));
 			} else {
-				console.warn(`Placeholder '{${key}}' not found in context for step.`);
+				serverLogger.warn(`Placeholder '{${key}}' not found in context for step.`);
 				prompt = prompt.replace(placeholder, '');
 			}
 		}
@@ -211,7 +211,7 @@ export class WorkflowEngine {
 	 * Executes a single workflow step using the configured AI provider.
 	 */
 	private async executeStep(step: WorkflowStep, context: WorkflowContext): Promise<string> {
-		console.log(`Executing step: ${step.id} using provider: ${step.provider}`);
+		serverLogger.log(`Executing step: ${step.id} using provider: ${step.provider}`);
 		
 		const client = this.createAIClient(step.provider);
 		const finalPrompt = this.interpolatePrompt(step.prompt, context);
@@ -219,9 +219,9 @@ export class WorkflowEngine {
 		const options = this.prepareClientOptions(step.options, interpolatedSystemPrompt);
 
 		try {
-			console.log(`Sending prompt to ${step.provider} for step ${step.id}`);
+			serverLogger.log(`Sending prompt to ${step.provider} for step ${step.id}`);
 			const response = await client.generate(finalPrompt, options);
-			console.log(`Received response from ${step.provider} for step ${step.id}`);
+			serverLogger.log(`Received response from ${step.provider} for step ${step.id}`);
 			
 			return this.processStepResponse(response, step, context);
 		} catch (error) {
@@ -285,7 +285,7 @@ export class WorkflowEngine {
 	}
 	
 	private handleAIGenerationError(error: unknown, step: WorkflowStep): void {
-		console.error(`Error during AI generation for step ${step.id} with provider ${step.provider}:`, error);
+		serverLogger.error(`Error during AI generation for step ${step.id} with provider ${step.provider}:`, error);
 		throw new Error(`AI generation failed for step ${step.id}: ${error instanceof Error ? error.message : String(error)}`);
 	}
 }

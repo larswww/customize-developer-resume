@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { defaultWorkflowId } from '../../config/workflows';
 import type { SimpleConsultantCoreData } from '~/config/templates/simple';
 import { ContactInfoSchema, type ContactInfo } from '~/config/templates/sharedTypes';
+import serverLogger from '~/utils/logger.server';
 
 const DB_PATHS = {
   TEST: './db-data/test.db',
@@ -14,7 +15,7 @@ const DB_PATHS = {
 const isTestEnv = process.env.NODE_ENV === 'test' || process.env.MSW_ENABLED === 'true';
 const DEFAULT_DB_PATH = isTestEnv ? DB_PATHS.TEST : DB_PATHS.PROD;
 if (isTestEnv) {
-  console.log('Using test database');
+  serverLogger.log('Using test database');
 }
 
 const TimeStampSchema = z.object({
@@ -87,7 +88,7 @@ const ResumeSchema = z.object({
         try {
           return JSON.parse(val);
         } catch (e) {
-          console.error('Error parsing structuredData JSON:', e);
+          serverLogger.error('Error parsing structuredData JSON:', e);
           return undefined;
         }
       }
@@ -136,7 +137,7 @@ function withErrorHandling<T, R>(
     }
     return schema.parse(result);
   } catch (error) {
-    console.error(`Error in ${errorContext}:`, error);
+    serverLogger.error(`Error in ${errorContext}:`, error);
     return defaultValue ?? null;
   }
 }
@@ -153,7 +154,7 @@ function withArrayErrorHandling<T, R>(
     }
     return schema.parse(result);
   } catch (error) {
-    console.error(`Error in ${errorContext}:`, error);
+    serverLogger.error(`Error in ${errorContext}:`, error);
     return [];
   }
 }
@@ -231,15 +232,15 @@ export class DbService {
         fs.mkdirSync(dbDir, { recursive: true });
       }
       
-      this.db = new Database(dbPath, { verbose: verbose ? console.log : undefined });
+      this.db = new Database(dbPath, { verbose: verbose ? serverLogger.log : undefined });
       
       this.db.pragma('journal_mode = WAL');
       
-      console.log(`SQLite database connected at ${dbPath}`);
+      serverLogger.log(`SQLite database connected at ${dbPath}`);
       
       this.initializeTables();
     } catch (error) {
-      console.error('Error connecting to SQLite database:', error);
+      serverLogger.error('Error connecting to SQLite database:', error);
       if (!isTestEnv) {
         process.exit(1);
       } else {
@@ -267,7 +268,7 @@ export class DbService {
       const hasLinkColumn = jobsTableInfo.some((column: any) => column.name === 'link');
       
       if (!hasLinkColumn) {
-        console.log("Adding link column to jobs table...");
+        serverLogger.log("Adding link column to jobs table...");
         this.db.exec('ALTER TABLE jobs ADD COLUMN link TEXT DEFAULT NULL');
       }
 
@@ -281,7 +282,7 @@ export class DbService {
         hasWorkflowIdColumn = tableInfo.some((column: any) => column.name === 'workflowId');
         
         if (!hasWorkflowIdColumn) {
-          console.log("Migrating workflow_steps table to add workflowId column...");
+          serverLogger.log("Migrating workflow_steps table to add workflowId column...");
           
           // Create a backup of the existing table
           this.db.exec(`
@@ -321,7 +322,7 @@ export class DbService {
       
       // If we did a migration, restore data with default workflowId
       if (tableExists && !hasWorkflowIdColumn && this.db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='workflow_steps_backup'").get()) {
-        console.log("Restoring workflow step data with default workflowId...");
+        serverLogger.log("Restoring workflow step data with default workflowId...");
         this.db.exec(`
           INSERT INTO workflow_steps (id, jobId, stepId, workflowId, result, status, createdAt, updatedAt)
           SELECT id, jobId, stepId, '${defaultWorkflowId}', result, status, createdAt, updatedAt 
@@ -330,7 +331,7 @@ export class DbService {
         
         // Drop backup table
         this.db.exec("DROP TABLE workflow_steps_backup");
-        console.log("Migration completed successfully.");
+        serverLogger.log("Migration completed successfully.");
       }
       
       this.db.exec(`
@@ -385,9 +386,9 @@ export class DbService {
 
     try {
       initSchema();
-      console.log('Database schema initialized successfully.');
+      serverLogger.log('Database schema initialized successfully.');
     } catch (error) {
-      console.error('Error initializing database schema:', error);
+      serverLogger.error('Error initializing database schema:', error);
     }
   }
 
@@ -550,7 +551,7 @@ export class DbService {
   });
 
   saveWorkHistory = saveWorkHistoryFn.implement((content) => {
-    console.log("[saveWorkHistory] Attempting to save...");
+    serverLogger.log("[saveWorkHistory] Attempting to save...");
     try {
       const stmt = this.db.prepare(`
         INSERT INTO settings (key, value) 
@@ -559,12 +560,12 @@ export class DbService {
           value = excluded.value, 
           updatedAt = CURRENT_TIMESTAMP
       `);
-      console.log("[saveWorkHistory] Statement prepared.");
+      serverLogger.log("[saveWorkHistory] Statement prepared.");
       const result = stmt.run(content);
-      console.log("[saveWorkHistory] Statement executed. Result:", result);
+      serverLogger.log("[saveWorkHistory] Statement executed. Result:", result);
       return true;
     } catch (error) {
-      console.error('[saveWorkHistory] Error during save:', error);
+      serverLogger.error('[saveWorkHistory] Error during save:', error);
       return false;
     }
   });
@@ -578,7 +579,7 @@ export class DbService {
         try {
           return JSON.parse((row as any).value);
         } catch (parseError) {
-          console.error('[getContactInfo] Error parsing JSON:', parseError, 'Raw value:', (row as any).value);
+          serverLogger.error('[getContactInfo] Error parsing JSON:', parseError, 'Raw value:', (row as any).value);
           throw new Error('Failed to parse contact info from database'); // Let withErrorHandling catch this
         }
       },
@@ -599,7 +600,7 @@ export class DbService {
       const result = stmt.run(JSON.stringify(contactInfoData));
       return result.changes > 0;
     } catch (error) {
-      console.error('[saveContactInfo] Error during save:', error);
+      serverLogger.error('[saveContactInfo] Error during save:', error);
       return false;
     }
   });
@@ -607,9 +608,9 @@ export class DbService {
   close() {
     if (this.db?.open) {
       this.db?.close();
-      console.log('SQLite database connection closed.');
+      serverLogger.log('SQLite database connection closed.');
     } else {
-      console.log('SQLite database connection was already closed.');
+      serverLogger.log('SQLite database connection was already closed.');
     }
   }
 }

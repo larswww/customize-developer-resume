@@ -1,5 +1,5 @@
 import type { AIClient, AIRequestOptions, AIResponse, AnthropicSystemParam } from "./types";
-
+import { serverLogger } from "~/utils/logger.server";
 export class OpenAIClient implements AIClient {
 	private apiKey: string;
 
@@ -14,7 +14,7 @@ export class OpenAIClient implements AIClient {
 		prompt: string,
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
-		console.log("[OpenAI Client] Making request to OpenAI API");
+		serverLogger.log("[OpenAI Client] Making request to OpenAI API");
 
 		const model = options.model || "o1";
 		const systemPrompt = options.systemPrompt || "You are a helpful assistant.";
@@ -105,14 +105,14 @@ export class OpenAIClient implements AIClient {
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error("[OpenAI Client] Error response:", errorText);
+			serverLogger.error("[OpenAI Client] Error response:", errorText);
 			throw new Error(
 				`OpenAI API error: ${response.statusText} - ${errorText}`,
 			);
 		}
 
 		const data = await response.json();
-		console.log("[OpenAI Client] Received response from OpenAI API");
+		serverLogger.log("[OpenAI Client] Received response from OpenAI API");
 
 		return {
 			text: data.choices[0].message.content,

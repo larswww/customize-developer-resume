@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { ComponentType } from "react";
-import { ContactInfoSchema, type ContactInfo, type ResumeTemplateConfig, globalResumeConstants } from "./sharedTypes";
+
+import { ContactInfoSchema, type ResumeTemplateConfig } from "./sharedTypes";
 import ConsultantOnePagerTemplate from "../../components/resume/templates/ConsultantOnePagerTemplate";
 
 export const ConsultantOnePagerCoreDataSchema = z.object({
@@ -28,10 +29,7 @@ export const templateConfig: ResumeTemplateConfig = {
   id: 'consultantOnePager',
   name: 'Consultant One-Pager',
   description: 'A one-page template designed specifically for introducing consultants, featuring a profile image, title, subtitle, expertise areas, and key highlights.',
-  // Use a wrapped version of the component to force fresh renders
   component: function WrappedTemplate(props: { data: ConsultantOnePagerData }) {
-    console.log('Dynamically rendering ConsultantOnePagerTemplate at:', Date.now());
-    // Return the component with the same props
     return ConsultantOnePagerTemplate(props);
   } as ComponentType<{ data: ConsultantOnePagerData }>,
   outputSchema: ConsultantOnePagerCoreDataSchema,

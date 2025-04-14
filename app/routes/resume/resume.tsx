@@ -8,7 +8,7 @@ import {
   useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import dbService from "../../services/db/dbService";
+import dbService from "../../services/db/dbService.server";
 import { type ContactInfo, availableTemplates, defaultContactInfo as globalDefaultContactInfo } from "../../config/templates";
 import type { WorkflowStep } from "../../services/ai/types";
 import { ContactInfoForm } from "~/components/ContactInfoForm";

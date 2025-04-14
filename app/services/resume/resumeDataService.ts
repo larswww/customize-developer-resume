@@ -1,7 +1,8 @@
-import dbService from "../db/dbService";
+import dbService from "../db/dbService.server";
 import { generateStructuredResume } from "../ai/resumeStructuredDataService";
 import type { ContactInfo } from "../../config/templates";
 import type { z } from "zod";
+import { serverLogger } from "~/utils/logger.server";
 export interface ResumeGenerationResult {
   success: boolean;
   resumeData?: any;
@@ -65,7 +66,7 @@ export async function generateAndSaveResume<T extends z.ZodTypeAny>(
       resumeData: finalResumeData,
     };
   } catch (error) {
-    console.error('Error in resume generation:', error);
+    serverLogger.error('Error in resume generation:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "An unknown error occurred during resume processing",

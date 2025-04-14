@@ -9,7 +9,7 @@ import type {
 	AIResponse,
 	AnthropicSystemParam,
 } from "./types";
-
+import { serverLogger } from "~/utils/logger.server";
 export class AnthropicClient implements AIClient {
 	private client: Anthropic;
 
@@ -25,7 +25,7 @@ export class AnthropicClient implements AIClient {
 		prompt: string,
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
-		console.log("[Anthropic Client] Making request to Anthropic API via SDK");
+		serverLogger.log("[Anthropic Client] Making request to Anthropic API via SDK");
 
 		const messages: MessageParam[] = [
 			{
@@ -53,7 +53,7 @@ export class AnthropicClient implements AIClient {
 				system: systemForSdk,
 			});
 
-			console.log("[Anthropic Client] Received response from Anthropic API via SDK");
+			serverLogger.log("[Anthropic Client] Received response from Anthropic API via SDK");
 
 			const textContent =
 				response.content.find((block) => block.type === "text")?.text || "";
@@ -66,7 +66,7 @@ export class AnthropicClient implements AIClient {
 				},
 			};
 		} catch (error: any) {
-			console.error(
+			serverLogger.error(
 				"[Anthropic Client] Error calling Anthropic API:",
 				error.message,
 			);

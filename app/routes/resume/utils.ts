@@ -1,11 +1,11 @@
-import { type LoaderFunctionArgs, type ActionFunctionArgs, redirect } from "react-router";
-import dbService from "~/services/db/dbService";
+import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import dbService from "~/services/db/dbService.server";
 import { workflows, defaultWorkflowId } from "~/config/workflows";
 import { availableTemplates, defaultTemplateId } from "~/config/templates";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
-import { type ContactInfo, ContactInfoSchema } from "~/config/templates/sharedTypes";
+import {  ContactInfoSchema } from "~/config/templates/sharedTypes";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
-
+import { serverLogger } from "~/utils/logger.server";
 export interface RouteParams {
   jobId: number;
   selectedWorkflowId: string;
@@ -17,9 +17,7 @@ export interface RouteParams {
   workflowStepsData: any[];
 }
 
-/**
- * Extracts and validates common parameters from route requests
- */
+
 export async function extractRouteParams({ params, request }: LoaderFunctionArgs) {
   const jobId = Number(params.jobId);
   const url = new URL(request.url);
@@ -71,9 +69,6 @@ export async function getWorkflow(jobId: number, selectedWorkflowId: string) {
 }
 
 
-/**
- * Handle content generation action
- */
 export async function handleContentAction(args: ActionFunctionArgs) {
   const { request, params } = args;
   const formData = await request.formData();
@@ -82,7 +77,6 @@ export async function handleContentAction(args: ActionFunctionArgs) {
   const workflowId = formData.get("workflowId") as string || defaultWorkflowId;
   const jobId = Number(params.jobId);
 
-  // Extract common parameters
   const { job, selectedTemplateConfig } = await extractRouteParams(args);
   const templateDescription = selectedTemplateConfig.description;
 
@@ -93,7 +87,6 @@ export async function handleContentAction(args: ActionFunctionArgs) {
     };
   }
 
-  // Update job with the job description
   dbService.updateJob({
     ...job,
     jobDescription,
@@ -101,7 +94,7 @@ export async function handleContentAction(args: ActionFunctionArgs) {
   });
 
   try {
-    console.log(`Starting workflow execution (${workflowId})...`);
+    serverLogger.log(`Starting workflow execution (${workflowId})...`);
 
     const { success } = await executeWorkflow(
       jobDescription,
@@ -116,7 +109,7 @@ export async function handleContentAction(args: ActionFunctionArgs) {
       error: success ? undefined : "Workflow execution failed.",
     };
   } catch (error) {
-    console.error(`Error in workflow action handler (${workflowId}):`, error);
+    serverLogger.error(`Error in workflow action handler (${workflowId}):`, error);
     return {
       success: false,
       error: error instanceof Error
@@ -127,23 +120,17 @@ export async function handleContentAction(args: ActionFunctionArgs) {
   }
 }
 
-/**
- * Handle resume generation action
- */
 export async function handleResumeAction(args: ActionFunctionArgs) {
   const { request, params } = args;
   const formData = await request.formData();
   const jobId = Number(params.jobId);
 
-  // Extract common parameters
   const { job, selectedWorkflow, selectedTemplateConfig, selectedWorkflowId } = await extractRouteParams(args);
 
-  // Get resume source steps
   const resumeSourceSteps = selectedWorkflow.steps
     .filter((step: any) => step.useInResume)
     .map((s: any) => ({ id: s.id, name: s.name }));
 
-  // Extract contact info from form
   const contactInfoData = {
     name: formData.get("name") as string,
     title: formData.get("title") as string,
@@ -155,13 +142,12 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
     imageUrl: formData.get("imageUrl") as string,
   };
 
-  // Validate and save contact info
   const parsedContactInfo = ContactInfoSchema.safeParse(contactInfoData);
   if (parsedContactInfo.success) {
     dbService.saveContactInfo(parsedContactInfo.data);
-    console.log("Saved contact info");
+    serverLogger.log("   info");
   } else {
-    console.error("Failed to parse contact info:", parsedContactInfo.error);
+    serverLogger.error("Failed to parse contact info:", parsedContactInfo.error);
     return { success: false, error: "Invalid contact information provided." };
   }
 
@@ -178,7 +164,7 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
     }));
   }
   await Promise.all(saveStepsPromises);
-  console.log("Saved updated steps");
+  serverLogger.log("Saved updated steps");
 
   const outputSchema = selectedTemplateConfig.outputSchema;
 

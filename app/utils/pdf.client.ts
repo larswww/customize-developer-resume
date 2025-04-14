@@ -1,6 +1,6 @@
 import { exportHtmlToPdf } from "../services/pdf/clientPdfService";
 import type { ContactInfo } from "../config/templates/sharedTypes";
-
+import { clientLogger } from "../utils/logger.client";
 interface DownloadPdfOptions {
   elementId: string;
   contactInfo: ContactInfo | null | undefined;
@@ -19,23 +19,23 @@ export async function downloadResumeAsPdf({
   jobTitle,
   onError,
 }: DownloadPdfOptions): Promise<boolean> {
-  console.log("--- Download PDF process started ---");
+  clientLogger.log("--- Download PDF process started ---");
 
   try {
     // Get a reference to the resume div
     const resumeElement = document.getElementById(elementId);
-    console.log(`Looking for element with ID "${elementId}"`);
+    clientLogger.log(`Looking for element with ID "${elementId}"`);
 
     if (!resumeElement) {
-      console.error(`Could not find resume element with ID: ${elementId}`);
-      console.log(
+      clientLogger.error(`Could not find resume element with ID: ${elementId}`);
+      clientLogger.log(
         "Available IDs:",
         Array.from(document.querySelectorAll("[id]")).map((el) => el.id)
       );
       onError("Could not find resume element to export");
       return false;
     }
-    console.log(
+    clientLogger.log(
       "Resume element found:",
       !!resumeElement,
       "Type:",
@@ -44,7 +44,7 @@ export async function downloadResumeAsPdf({
 
     // Clone the element to avoid modifying the displayed resume
     const clonedElement = resumeElement.cloneNode(true) as HTMLElement;
-    console.log(
+    clientLogger.log(
       "Element cloned successfully, size:",
       clonedElement.outerHTML.length
     );
@@ -70,10 +70,10 @@ export async function downloadResumeAsPdf({
         </html>
       `;
 
-    console.log("HTML content created, size:", htmlContent, "bytes");
+    clientLogger.log("HTML content created, size:", htmlContent, "bytes");
 
     // Add loading state
-    console.log("Creating loading message");
+    clientLogger.log("Creating loading message");
     const loadingMsg = document.createElement("div");
     loadingMsg.style.position = "fixed";
     loadingMsg.style.top = "15px";
@@ -87,16 +87,16 @@ export async function downloadResumeAsPdf({
     loadingMsg.style.zIndex = "9999";
     loadingMsg.innerHTML = "Preparing resume PDF...";
     document.body.appendChild(loadingMsg);
-    console.log("Loading message added to DOM");
+    clientLogger.log("Loading message added to DOM");
 
     // Generate and download the PDF
-    console.log("Calling exportHtmlToPdf service function");
+    clientLogger.log("Calling exportHtmlToPdf service function");
     try {
       // Use displayData (passed as contactInfo/jobTitle) for filename generation
       const filename = `${
         contactInfo?.name || jobTitle || "resume"
       }.pdf`;
-      console.log("PDF options:", {
+      clientLogger.log("PDF options:", {
         filename: filename,
         format: "Letter",
         landscape: false,
@@ -111,7 +111,7 @@ export async function downloadResumeAsPdf({
       // Remove loading message
       document.body.removeChild(loadingMsg);
 
-      console.log("exportHtmlToPdf result:", success);
+      clientLogger.log("exportHtmlToPdf result:", success);
       return success; // Return the result from exportHtmlToPdf
     } catch (pdfError) {
       // Remove loading message even if error occurs
@@ -119,8 +119,8 @@ export async function downloadResumeAsPdf({
         document.body.removeChild(loadingMsg);
       }
 
-      console.error("Error in exportHtmlToPdf:", pdfError);
-      console.error(
+      clientLogger.error("Error in exportHtmlToPdf:", pdfError);
+      clientLogger.error(
         "Error type:",
         typeof pdfError,
         "Is Error instance:",
@@ -134,8 +134,8 @@ export async function downloadResumeAsPdf({
       return false;
     }
   } catch (error) {
-    console.error("Error downloading PDF:", error);
-    console.error(
+    clientLogger.error("Error downloading PDF:", error);
+    clientLogger.error(
       "Error stack:",
       error instanceof Error ? error.stack : "No stack trace available"
     );

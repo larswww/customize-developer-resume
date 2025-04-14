@@ -1,15 +1,13 @@
 import type { z } from "zod";
 import OpenAI from 'openai';
 import { zodResponseFormat } from "openai/helpers/zod";
+import { serverLogger } from "~/utils/logger.server";
 
-/**
- * Service for generating structured resume data using AI
- */
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 if (!OPENAI_API_KEY) {
-	console.warn("OpenAI API key is missing. Structured resume generation will fail.");
+	serverLogger.warn("OpenAI API key is missing. Structured resume generation will fail.");
 }
 const openai = new OpenAI({
   apiKey: OPENAI_API_KEY,
@@ -21,7 +19,7 @@ export async function generateStructuredResume<T extends z.ZodTypeAny>(
   outputSchema: T // Accept the single schema
 ): Promise<T> { // Return type is still ResumeCoreData
 
-  console.log("Starting single-call structured resume generation...");
+  serverLogger.log("Starting single-call structured resume generation...");
 
   if (!openai.apiKey) throw new Error("OpenAI API key missing.");
 
@@ -44,7 +42,7 @@ Please extract the relevant information and structure it as JSON matching the re
 
   try {
     // Make a single call to the AI
-    console.log("Calling OpenAI API...");
+    serverLogger.log("Calling OpenAI API...");
     const completion = await openai.beta.chat.completions.parse({
       model: "gpt-4o", // Or another suitable model
       messages: [
@@ -61,11 +59,11 @@ Please extract the relevant information and structure it as JSON matching the re
       throw new Error("AI did not return parsed resume data.");
     }
 
-    console.log("Successfully generated structured resume data in a single call.");
+    serverLogger.log("Successfully generated structured resume data in a single call.");
     // Validate the output against the schema (optional but recommended)
     const validationResult = outputSchema.safeParse(parsedData);
     if (!validationResult.success) {
-        console.error("AI output failed schema validation:", validationResult.error);
+        serverLogger.error("AI output failed schema validation:", validationResult.error);
         // Decide how to handle validation errors - throw, return partial, etc.
         throw new Error(`AI output failed validation: ${validationResult.error.message}`);
     }
@@ -74,7 +72,7 @@ Please extract the relevant information and structure it as JSON matching the re
     return validationResult.data;
 
   } catch (error) {
-    console.error("Error in single-call resume generation:", error);
+    serverLogger.error("Error in single-call resume generation:", error);
     throw new Error(`Failed to generate structured resume: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

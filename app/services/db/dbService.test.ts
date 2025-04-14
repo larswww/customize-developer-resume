@@ -6,7 +6,7 @@ import path from 'node:path';
 process.env.NODE_ENV = 'test';
 
 // Import the real DbService and factory function
-import { createDbService, type WorkflowStepStatus } from './dbService';
+import { createDbService, type WorkflowStepStatus } from './dbService.server';
 import type { DefaultResumeData } from '../../config/templates/default';
 import type { ContactInfo } from '~/config/templates/sharedTypes'; // Import ContactInfo
 

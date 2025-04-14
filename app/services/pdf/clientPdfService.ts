@@ -1,7 +1,4 @@
-/**
- * Client-side service to request PDF generation from the server
- * Uses a combination of fetch and form submission approaches for reliable PDF downloads
- */
+import { clientLogger } from "~/utils/logger.client";
 export async function exportHtmlToPdf(
 	htmlContent: string,
 	options: {
@@ -22,7 +19,7 @@ export async function exportHtmlToPdf(
 	let notification: HTMLElement | null = null;
 
 	try {
-		console.log("Starting PDF export, HTML size:", htmlSize, "KB");
+		clientLogger.log("Starting PDF export, HTML size:", htmlSize, "KB");
 
 		// Create and show notification
 		notification = document.createElement("div");
@@ -46,11 +43,11 @@ export async function exportHtmlToPdf(
     `;
 
 		document.body.appendChild(notification);
-		console.log("Added notification to document body");
+		clientLogger.log("Added notification to document body");
 
 		// Direct fetch approach first - this is better for handling large content
 		try {
-			console.log("Trying fetch approach first...");
+			clientLogger.log("Trying fetch approach first...");
 
 			// Create FormData
 			const formData = new FormData();
@@ -67,13 +64,13 @@ export async function exportHtmlToPdf(
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				console.error("Server error response:", errorText);
+				clientLogger.error("Server error response:", errorText);
 				throw new Error(`Server error: ${response.status} - ${errorText}`);
 			}
 
 			// Get the PDF blob
 			const pdfBlob = await response.blob();
-			console.log(
+			clientLogger.log(
 				"Received PDF blob, size:",
 				Math.round(pdfBlob.size / 1024),
 				"KB",
@@ -88,7 +85,7 @@ export async function exportHtmlToPdf(
 			document.body.appendChild(downloadLink);
 
 			// Trigger download
-			console.log("Triggering download...");
+			clientLogger.log("Triggering download...");
 			downloadLink.click();
 
 			// Clean up
@@ -98,12 +95,12 @@ export async function exportHtmlToPdf(
 				if (notification) {
 					document.body.removeChild(notification);
 				}
-				console.log("Download link cleanup complete");
+				clientLogger.log("Download link cleanup complete");
 			}, 1000);
 
 			return true;
 		} catch (fetchError) {
-			console.warn(
+			clientLogger.warn(
 				"Fetch approach failed, falling back to form submission...",
 				fetchError,
 			);
@@ -177,7 +174,7 @@ export async function exportHtmlToPdf(
 
 			// Append form to document and submit
 			document.body.appendChild(form);
-			console.log("Submitting form to server...");
+			clientLogger.log("Submitting form to server...");
 			form.submit();
 
 			// Remove notification after a delay
@@ -186,13 +183,13 @@ export async function exportHtmlToPdf(
 					document.body.removeChild(notification);
 				}
 				document.body.removeChild(form);
-				console.log("Notification and form removed");
+				clientLogger.log("Notification and form removed");
 			}, 3000);
 
 			return true;
 		}
 	} catch (error) {
-		console.error("PDF export failed:", error);
+		clientLogger.error("PDF export failed:", error);
 
 		// Clean up notification if it exists
 		if (notification?.parentNode) {

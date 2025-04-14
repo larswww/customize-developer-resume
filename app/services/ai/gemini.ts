@@ -1,5 +1,5 @@
 import type { AIClient, AIRequestOptions, AIResponse } from "./types";
-
+import { serverLogger } from "~/utils/logger.server";
 export class GeminiClient implements AIClient {
 	private apiKey: string;
 
@@ -14,14 +14,14 @@ export class GeminiClient implements AIClient {
 		prompt: string,
 		options: AIRequestOptions = {},
 	): Promise<AIResponse> {
-		console.log("[GeminiClient] Generating content with Gemini API");
+		serverLogger.log("[GeminiClient] Generating content with Gemini API");
 		const model = options.model || "gemini-1.5-flash";
 		const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${this.apiKey}`;
 
 		// Gemini doesn't support system role, so we need to prepend it to the user message
 		let fullPrompt = prompt;
 		if (options.systemPrompt) {
-			console.log("[GeminiClient] Adding system prompt to user message");
+			serverLogger.log("[GeminiClient] Adding system prompt to user message");
 			fullPrompt = `${options.systemPrompt}\n\n${prompt}`;
 		}
 
@@ -34,7 +34,7 @@ export class GeminiClient implements AIClient {
 		];
 
 		try {
-			console.log("[GeminiClient] Sending request to Gemini API");
+			serverLogger.log("[GeminiClient] Sending request to Gemini API");
 			const response = await fetch(url, {
 				method: "POST",
 				headers: {
@@ -63,14 +63,14 @@ export class GeminiClient implements AIClient {
 				} catch {
 					errorData = { rawError: errorText };
 				}
-				console.error("[GeminiClient] Error response:", errorData);
+				serverLogger.error("[GeminiClient] Error response:", errorData);
 				throw new Error(
 					`Gemini API error: ${response.statusText} - ${JSON.stringify(errorData)}`,
 				);
 			}
 
 			const data = await response.json();
-			console.log(
+			serverLogger.log(
 				"[GeminiClient] Successfully received response from Gemini API",
 			);
 
@@ -86,7 +86,7 @@ export class GeminiClient implements AIClient {
 				},
 			};
 		} catch (error) {
-			console.error("[GeminiClient] Error:", error);
+			serverLogger.error("[GeminiClient] Error:", error);
 			throw error;
 		}
 	}

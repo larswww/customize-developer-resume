@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Form, redirect, useActionData, useLoaderData } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import dbService, { type Job } from "../services/db/dbService";
+import dbService, { type Job } from "../services/db/dbService.server";
 import { DocumentIcon, TrashIcon, ExternalLinkIcon } from "~/components/Icons";
 import { Link } from "~/components/ui/Link";
 import { Button } from "~/components/ui/Button";

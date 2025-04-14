@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Form, useLoaderData, useActionData, useNavigation, Link } from 'react-router';
 import type { ActionFunctionArgs } from 'react-router';
 import type { MDXEditorMethods } from '@mdxeditor/editor';
-import dbService from '~/services/db/dbService';
 
+import dbService from '~/services/db/dbService.server';
+import { serverLogger } from '~/utils/logger.server';
 import { PageLayout } from '~/components/PageLayout';
 import { ClientMarkdownEditor } from '~/components/MarkdownEditor';
 import { SaveBottomBar } from '~/components/SaveBottomBar';
@@ -44,7 +45,7 @@ export async function action({ request }: ActionFunctionArgs) {
     }
     return { success: false, error: 'Failed to save work history.' };
   } catch (error) {
-    console.error('Error saving work history:', error);
+    serverLogger.error('Error saving work history:', error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return { success: false, error: `Failed to save work history: ${errorMessage}` };
   }
