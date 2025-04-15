@@ -83,6 +83,7 @@ const WorkflowStepSchema = z
 const ResumeInputSchema = z.object({
 	jobId: z.number(),
 	resumeText: z.string().optional(),
+	templateId: z.string().default('default'),
 	structuredData: z
 		.union([
 			z.string(),
@@ -101,6 +102,7 @@ const ResumeSchema = z
 	.object({
 		id: z.number().optional(),
 		jobId: z.number(),
+		templateId: z.string().default('default'),
 		resumeText: z.string().optional(),
 		structuredData: z.preprocess((val) => {
 			if (typeof val === "string") {
@@ -132,6 +134,7 @@ export type WorkflowStep = z.infer<typeof WorkflowStepSchema>;
 export type ResumeInput = {
 	jobId: number;
 	resumeText?: string;
+	templateId?: string;
 	structuredData?: DefaultResumeData | string | null;
 };
 export type Resume = z.infer<typeof ResumeSchema>;
@@ -217,7 +220,7 @@ const saveResumeFn = z.function().args(ResumeInputSchema).returns(ResumeSchema);
 
 const getResumeFn = z
 	.function()
-	.args(z.number())
+	.args(z.number(), z.string().optional())
 	.returns(ResumeSchema.nullable());
 
 // Settings Functions
@@ -571,30 +574,33 @@ export class DbService {
 
 	saveResume = saveResumeFn.implement((resume) => {
 		const { jobId, resumeText, structuredData } = resume;
+		
+		// Default to 'default' templateId if not provided
+		const templateId = resume.templateId || 'default';
 
 		const stmt = this.db.prepare(`
-      INSERT INTO resumes (jobId, resumeText, structuredData)
-      VALUES (?, ?, ?)
-      ON CONFLICT(jobId) DO UPDATE SET
+      INSERT INTO resumes (jobId, templateId, resumeText, structuredData)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(jobId, templateId) DO UPDATE SET
         resumeText = excluded.resumeText,
         structuredData = excluded.structuredData,
         updatedAt = CURRENT_TIMESTAMP
     `);
 
-		stmt.run(jobId, resumeText, structuredData);
+		stmt.run(jobId, templateId, resumeText, structuredData);
 
-		const savedResume = this.getResume(jobId);
+		const savedResume = this.getResume(jobId, templateId);
 		if (!savedResume) {
 			throw new Error("Failed to retrieve saved resume");
 		}
 		return savedResume;
 	});
 
-	getResume = getResumeFn.implement((jobId) => {
+	getResume = getResumeFn.implement((jobId, templateId = 'default') => {
 		return withErrorHandling(
-			() => this.db.prepare("SELECT * FROM resumes WHERE jobId = ?").get(jobId),
+			() => this.db.prepare("SELECT * FROM resumes WHERE jobId = ? AND templateId = ?").get(jobId, templateId),
 			ResumeSchema,
-			`getResume(${jobId})`,
+			`getResume(${jobId}, ${templateId})`,
 		);
 	});
 

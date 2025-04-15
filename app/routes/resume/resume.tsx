@@ -28,10 +28,10 @@ import dbService from "../../services/db/dbService.server";
 import { JOB_ROUTE_ID } from "./job";
 
 export async function loader(args: LoaderFunctionArgs) {
-	const { jobId, selectedWorkflowId, selectedWorkflow } =
+	const { jobId, selectedWorkflowId, selectedWorkflow, selectedTemplateId } =
 		await extractRouteParams(args);
 
-	const resumeData = dbService.getResume(jobId);
+	const resumeData = dbService.getResume(jobId, selectedTemplateId);
 	const resumeSourceSteps = selectedWorkflow.steps.filter(
 		(step: WorkflowStep) => step.useInResume,
 	);

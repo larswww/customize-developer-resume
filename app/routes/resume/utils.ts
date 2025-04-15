@@ -140,7 +140,7 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
 	const formData = await request.formData();
 	const jobId = Number(params.jobId);
 
-	const { job, selectedWorkflow, selectedTemplateConfig, selectedWorkflowId } =
+	const { job, selectedWorkflow, selectedTemplateConfig, selectedWorkflowId, selectedTemplateId } =
 		await extractRouteParams(args);
 
 	const resumeSourceSteps = selectedWorkflow.steps
@@ -196,5 +196,6 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
 		resumeSourceSteps,
 		job.jobDescription,
 		outputSchema,
+		selectedTemplateId,
 	);
 }

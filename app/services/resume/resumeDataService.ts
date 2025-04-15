@@ -19,6 +19,7 @@ export async function generateAndSaveResume<T extends z.ZodTypeAny>(
 	resumeSourceSteps: { id: string; name: string }[],
 	jobDescription: string,
 	outputSchema: T,
+	templateId: string,
 ): Promise<ResumeGenerationResult> {
 	try {
 		// Validate inputs
@@ -56,7 +57,8 @@ export async function generateAndSaveResume<T extends z.ZodTypeAny>(
 		};
 
 		dbService.saveResume({
-			jobId: jobId,
+			jobId,
+			templateId,
 			structuredData: generatedCoreData,
 			resumeText: combinedSourceText,
 		});
