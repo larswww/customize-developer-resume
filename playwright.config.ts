@@ -11,6 +11,9 @@ export default defineConfig({
 		baseURL: "http://localhost:4000",
 		trace: "on-first-retry",
 		screenshot: "only-on-failure",
+		launchOptions: {
+			devtools: true,
+		  },
 	},
 	projects: [
 		{
@@ -19,13 +22,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "pnpm dev",
-		port: 5000,
-		reuseExistingServer: !process.env.CI,
-		env: {
-			NODE_ENV: "development",
-			MSW_ENABLED: "true",
-			PORT: "5000",
-		},
+		command: "pnpm dev:msw",
+		url: "http://localhost:4000",
 	},
 });
