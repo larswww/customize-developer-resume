@@ -13,10 +13,11 @@ import type {
 	DefaultResumeData,
 } from "../../config/templates/default";
 import { defaultWorkflowId } from "../../config/workflows";
+import { DB_DIR, DB_NAMES } from "~/config/constants";
 
-const DB_PATHS = {
-	TEST: "./db-data/test.db",
-	PROD: "./db-data/resume_app.db",
+export const DB_PATHS = {
+	TEST: path.join(DB_DIR, DB_NAMES.TEST),
+	PROD: path.join(DB_DIR, DB_NAMES.PROD),
 };
 const isTestEnv =
 	process.env.NODE_ENV === "test" || process.env.MSW_ENABLED === "true";

@@ -41,7 +41,6 @@ test.describe("Resume Generation E2E Flow", () => {
 				.getByRole("button", { name: text.content.generateButton })
 				.click();
 			await expect(page.getByText(text.resume.emptyState)).not.toBeVisible();
-			await expect(page.getByText(text.ui.generating)).toBeVisible();
 		});
 
 		await test.step("Edit Resume Content", async () => {

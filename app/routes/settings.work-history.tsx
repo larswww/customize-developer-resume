@@ -14,6 +14,7 @@ import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { PageLayout } from "~/components/PageLayout";
 import { SaveBottomBar } from "~/components/SaveBottomBar";
 import dbService from "~/services/db/dbService.server";
+import text from "~/text";
 import { serverLogger } from "~/utils/logger.server";
 
 export function meta() {
@@ -109,7 +110,7 @@ export default function EditWorkHistory() {
 				<SaveBottomBar
 					formId={formId}
 					isSubmitting={isSubmitting}
-					buttonText="Save Work History"
+					buttonText={text.settings.workHistory.buttonText}
 					savingText="Saving..."
 				/>
 			}

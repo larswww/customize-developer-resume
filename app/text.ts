@@ -1,8 +1,17 @@
 export default {
+	nav: {
+		dashboard: "Dashboard",
+		settings: "Work History",
+	},
 	ui: {
 		delete: "Delete",
 		generating: "Generating...",
 		complete: "Complete",
+	},
+	settings: {
+		workHistory: {
+			buttonText: "Save Work History",
+		},
 	},
 	dashboard: {
 		createJob: {

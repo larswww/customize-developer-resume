@@ -1,9 +1,11 @@
 import { Outlet } from "react-router";
 import { NavLink } from "~/components/ui/NavLink";
 
+import text from "~/text";
+
 const navLinks = [
-	{ to: "/dashboard", label: "Resume Generator" },
-	{ to: "/settings/work-history", label: "Work History" },
+	{ to: "/dashboard", label: text.nav.dashboard },
+	{ to: "/settings/work-history", label: text.nav.settings },
 ];
 
 export default function AppLayout() {
