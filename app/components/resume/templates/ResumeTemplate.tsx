@@ -1,4 +1,6 @@
-import type { DefaultResumeData } from "../templates/default";
+import type { DefaultResumeData } from "~/config/templates/default";
+import { ArrayRenderer } from "~/components/ArrayRenderer";
+import { TextWrap } from "~/components/TextWrap";
 
 interface ResumeTemplateProps {
 	data: DefaultResumeData;
@@ -34,22 +36,20 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					>
 						<div className="mb-3">
 							<h1 className="text-3xl font-bold uppercase leading-tight">
-								{contactInfo.name.split(" ")[0]}{" "}
-								{/* Simple split for first name */}
+								<TextWrap text={contactInfo.name?.split(" ")[0] ?? ""} name="contactInfo.firstName" />
 							</h1>
 							<h1 className="text-3xl font-bold uppercase mb-0 leading-tight">
-								{contactInfo.name.split(" ").slice(1).join(" ")}{" "}
-								{/* Rest of name */}
+								<TextWrap text={contactInfo.name?.split(" ").slice(1).join(" ") ?? ""} name="contactInfo.lastName" />
 							</h1>
-							<p className="text-lg italic">{contactInfo.title}</p>
+							<p className="text-lg italic"><TextWrap text={contactInfo.title} name="contactInfo.title" /></p>
 						</div>
 
 						<div className="space-y-0.5">
 							<p className="flex items-center text-sm">
-								<span className="mr-2">📍</span> {contactInfo.location}
+								<span className="mr-2">📍</span> <TextWrap text={contactInfo.location} name="contactInfo.location" />
 							</p>
 							<p className="flex items-center text-sm">
-								<span className="mr-2">📞</span> {contactInfo.phone}
+								<span className="mr-2">📞</span> <TextWrap text={contactInfo.phone} name="contactInfo.phone" />
 							</p>
 							<p className="flex items-center text-sm">
 								<span className="mr-2">✉️</span>
@@ -57,7 +57,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 									href={`mailto:${contactInfo.email}`}
 									className="hover:underline"
 								>
-									{contactInfo.email}
+									<TextWrap text={contactInfo.email} name="contactInfo.email" />
 								</a>
 							</p>
 							{contactInfo.portfolio && (
@@ -73,7 +73,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 										rel="noopener noreferrer"
 										className="hover:underline"
 									>
-										{contactInfo.portfolio.replace(/^https?:\/\//, "")}
+										<TextWrap text={contactInfo.portfolio.replace(/^https?:\/\//, "")} name="contactInfo.portfolio" />
 									</a>
 								</p>
 							)}
@@ -81,7 +81,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								<span className="mr-2">🔗</span>
 								<a
 									href={
-										contactInfo.linkedin.startsWith("http")
+										contactInfo.linkedin?.startsWith("http")
 											? contactInfo.linkedin
 											: `https://${contactInfo.linkedin}`
 									}
@@ -89,8 +89,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 									rel="noopener noreferrer"
 									className="hover:underline"
 								>
-									{contactInfo.linkedin.replace(/^https?:\/\//, "")}{" "}
-									{/* Display without protocol */}
+									<TextWrap text={contactInfo.linkedin?.replace(/^https?:\/\//, "") ?? ""} name="contactInfo.linkedin" />
 								</a>
 							</p>
 						</div>
@@ -100,49 +99,61 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					<div className="p-5 pt-4">
 						{education && (
 							<>
-								<h2 className="text-xl font-bold uppercase mb-2">EDUCATION</h2>
-								<p className="font-bold text-sm">{education.degree}</p>
-								<p className="text-sm">{education.institution}</p>
-								<p className="text-sm">{education.dates}</p>
-								<p className="text-sm">{education.location}</p>
+								<h2 className="text-xl font-bold uppercase mb-2"><TextWrap text="EDUCATION" name="education.title" /></h2>
+								<p className="font-bold text-sm"><TextWrap text={education.degree} name="education[0].degree" /></p>
+								<p className="text-sm"><TextWrap text={education.institution} name="education[0].institution" /></p>
+								<p className="text-sm"><TextWrap text={education.dates} name="education[0].dates" /></p>
+								<p className="text-sm"><TextWrap text={education.location} name="education[0].location" /></p>
 							</>
 						)}
 
-						<h2 className="text-xl font-bold uppercase mt-5 mb-2">SKILLS</h2>
+						<h2 className="text-xl font-bold uppercase mt-5 mb-2"><TextWrap text="SKILLS" name="skills.title" /></h2>
 
 						{/* --- Dynamic Skills Section --- */}
-						{skills.map((skillCategory) => (
-							<div key={skillCategory.category} className="mb-3">
-								<p className="font-bold text-gray-700 text-sm uppercase">
-									{skillCategory.category}
-								</p>
-								<div className="space-y-0">
-									{skillCategory.items.map((item) => (
-										<p key={item.name} className="text-sm">
-											{item.name}
-											{item.context && (
-												<span className="text-xs text-gray-500 ml-1">
-													({item.context})
-												</span>
+						<ArrayRenderer
+							items={skills}
+							getKey={(skillCategory) => skillCategory.category}
+							renderItem={(skillCategory, categoryIndex) => (
+								<div className="mb-3">
+									<p className="font-bold text-gray-700 text-sm uppercase">
+										<TextWrap text={skillCategory.category} name={`skills[${categoryIndex}].category`} />
+									</p>
+									<div className="space-y-0">
+										<ArrayRenderer
+											items={skillCategory.items}
+											getKey={(item) => item.name}
+											renderItem={(item, itemIndex) => (
+												<p className="text-sm">
+													<TextWrap text={item.name} name={`skills[${categoryIndex}].items[${itemIndex}].name`} />
+													{item.context && (
+														<span className="text-xs text-gray-500 ml-1">
+															(<TextWrap text={item.context} name={`skills[${categoryIndex}].items[${itemIndex}].context`} />)
+														</span>
+													)}
+												</p>
 											)}
-										</p>
-									))}
+										/>
+									</div>
 								</div>
-							</div>
-						))}
+							)}
+						/>
 						{/* --- End Dynamic Skills Section --- */}
 
 						{/* --- Dynamic Other Info Section (Optional) --- */}
 						{otherInfo?.items?.length ? (
 							<>
 								<h2 className="text-xl font-bold uppercase mt-5 mb-2">
-									{otherInfo.title || "OTHER"}
+									<TextWrap text={otherInfo.title || "OTHER"} name="otherInfo.title" />
 								</h2>
-								{otherInfo.items.map((item) => (
-									<p key={item} className="text-sm">
-										{item}
-									</p>
-								))}
+								<ArrayRenderer
+									items={otherInfo.items}
+									getKey={(item, index) => `${item}-${index}`}
+									renderItem={(item, index) => (
+										<p className="text-sm">
+											<TextWrap text={item} name={`otherInfo.items[${index}]`} />
+										</p>
+									)}
+								/>
 							</>
 						) : null}
 						{/* --- End Dynamic Other Info Section --- */}
@@ -150,11 +161,15 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 						{/* --- Dynamic Languages Section (Optional) --- */}
 						{languages && languages.length > 0 && (
 							<div className="mt-3 flex items-center space-x-1">
-								{languages.map((lang) => (
-									<span key={lang} className="w-5 h-5">
-										{lang}
-									</span>
-								))}
+								<ArrayRenderer
+									items={languages}
+									getKey={(lang, index) => `${lang}-${index}`}
+									renderItem={(lang, index) => (
+										<span className="w-5 h-5">
+											<TextWrap text={lang} name={`languages[${index}]`} />
+										</span>
+									)}
+								/>
 							</div>
 						)}
 						{/* --- End Dynamic Languages Section --- */}
@@ -164,48 +179,54 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 				{/* Right content area - Work Experience */}
 				<div className="w-[70%] p-8 overflow-y-auto flex-grow">
 					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">
-						WORK EXPERIENCE
+						<TextWrap text="WORK EXPERIENCE" name="workExperience.title" />
 					</h2>
 
-					{data.workExperience.map((job) => (
-						<div key={`job-${job.company}-${job.title}`} className="mb-6">
-							<div className="mb-1">
-								<div className="flex justify-between items-baseline mb-0.5">
-									<span className="font-bold text-lg text-gray-900">
-										{job.title}
-									</span>
-									<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">
-										{job.dates}
-									</span>
+					<ArrayRenderer
+						items={data.workExperience}
+						getKey={(job, index) => `job-${job.company}-${job.title}-${index}`}
+						renderItem={(job, jobIndex) => (
+							<div className="mb-6">
+								<div className="mb-1">
+									<div className="flex justify-between items-baseline mb-0.5">
+										<span className="font-bold text-lg text-gray-900">
+											<TextWrap text={job.title} name={`workExperience[${jobIndex}].title`} />
+										</span>
+										<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">
+											<TextWrap text={job.dates} name={`workExperience[${jobIndex}].dates`} />
+										</span>
+									</div>
+									<p className="text-sm text-gray-600">
+										<TextWrap text={job.company} name={`workExperience[${jobIndex}].company`} />, <TextWrap text={job.location} name={`workExperience[${jobIndex}].location`} />
+									</p>
 								</div>
-								<p className="text-sm text-gray-600">
-									{job.company}, {job.location}
-								</p>
+
+								<ArrayRenderer
+									items={job.description}
+									getKey={(desc, index) => `desc-${index}`}
+									renderItem={(desc, descIndex) => (
+										<p className="mb-2 text-gray-800">
+											<TextWrap text={desc} name={`workExperience[${jobIndex}].description[${descIndex}]`} />
+										</p>
+									)}
+								/>
+
+								{job.highlights && (
+									<ul className="list-disc pl-5 mt-2 text-gray-700">
+										<ArrayRenderer
+											items={job.highlights}
+											getKey={(highlight, index) => `highlight-${index}`}
+											renderItem={(highlight, highlightIndex) => (
+												<li className="mb-1">
+													<TextWrap text={highlight} name={`workExperience[${jobIndex}].highlights[${highlightIndex}]`} />
+												</li>
+											)}
+										/>
+									</ul>
+								)}
 							</div>
-
-							{job.description.map((desc, idx) => (
-								<p
-									key={`desc-${job.company}-${idx}`}
-									className="mb-2 text-gray-800"
-								>
-									{desc}
-								</p>
-							))}
-
-							{job.highlights && (
-								<ul className="list-disc pl-5 mt-2 text-gray-700">
-									{job.highlights.map((highlight, idx) => (
-										<li
-											key={`highlight-${job.company}-${idx}`}
-											className="mb-1"
-										>
-											{highlight}
-										</li>
-									))}
-								</ul>
-							)}
-						</div>
-					))}
+						)}
+					/>
 				</div>
 			</div>
 		</div>

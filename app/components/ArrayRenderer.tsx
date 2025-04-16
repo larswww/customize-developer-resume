@@ -23,7 +23,6 @@ function ArrayRendererBase<T>({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [buttonHover, setButtonHover] = useState(false);
   
-  // Update internal items when props change
   useEffect(() => {
     setItems(initialItems);
   }, [initialItems]);
