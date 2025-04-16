@@ -1,8 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { availableTemplates, defaultTemplateId } from "~/config/templates";
-import { ContactInfoSchema } from "~/config/templates/sharedTypes";
-import { defaultWorkflowId, workflows } from "~/config/workflows";
-import dbService from "~/services/db/dbService.server";
+import { ContactInfoSchema, type ResumeTemplateConfig } from "~/config/templates/sharedTypes";
+import { defaultWorkflowId, workflows, type WorkflowConfig } from "~/config/workflows";
+import dbService, { type Job, type WorkflowStep } from "~/services/db/dbService.server";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
 import { serverLogger } from "~/utils/logger.server";
@@ -10,17 +10,16 @@ export interface RouteParams {
 	jobId: number;
 	selectedWorkflowId: string;
 	selectedTemplateId: string;
-	job: any;
-	selectedWorkflow: any;
-	selectedTemplateConfig: any;
-	isWorkflowComplete: boolean;
-	workflowStepsData: any[];
+	job: Job;
+	selectedWorkflow: WorkflowConfig;
+	selectedTemplateConfig: ResumeTemplateConfig;
+
 }
 
 export function extractRouteParams({
 	params,
 	request,
-}: LoaderFunctionArgs) {
+}: LoaderFunctionArgs): RouteParams {
 	const jobId = Number(params.jobId);
 	const url = new URL(request.url);
 	const selectedWorkflowId =

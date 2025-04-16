@@ -62,13 +62,10 @@ export function useResumeGenerator({
 	const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] =
 		useState(false);
 
-	// Get the template configuration
 	const templateConfig = templateId
 		? availableTemplates[templateId] || null
 		: null;
 
-	// Check if the template uses landscape orientation - no longer needed but kept for backward compatibility
-	const isLandscape = false;
 
 	const editorRefsRef = useRef<
 		Record<string, React.RefObject<MDXEditorMethods | null>>
@@ -129,30 +126,7 @@ export function useResumeGenerator({
 		});
 	}, [displayData, jobTitle]);
 
-	const handleFormSubmit = useCallback(
-		(event: React.FormEvent<HTMLFormElement>) => {
-			const form = event.currentTarget;
-			for (const step of resumeSourceSteps) {
-				const editorRef = editorRefsRef.current[step.id]?.current;
-				if (editorRef) {
-					const markdown = editorRef.getMarkdown();
-					const hiddenInput = form.elements.namedItem(
-						step.id,
-					) as HTMLInputElement | null;
-					if (hiddenInput) {
-						hiddenInput.value = markdown;
-					} else {
-						clientLogger.warn(
-							`Could not find hidden input for step: ${step.id}`,
-						);
-					}
-				} else {
-					clientLogger.warn(`Could not find editor ref for step: ${step.id}`);
-				}
-			}
-		},
-		[resumeSourceSteps],
-	);
+
 
 	return {
 		error,
@@ -167,7 +141,6 @@ export function useResumeGenerator({
 		editorRefs: editorRefsRef.current,
 		handlePrintClick,
 		handleDownloadPdfClick,
-		handleFormSubmit,
 		displayData,
 		templateConfig,
 	};

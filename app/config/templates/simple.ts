@@ -55,7 +55,15 @@ const OtherTemplateSections = z.object({
 })
 
 export const SimpleConsultantDataSchema = z.object({
-	contactInfo: ContactInfoSchema,
+	contactInfo: ContactInfoSchema.pick({
+		name: true,
+		title: true,
+		location: true,
+		phone: true,
+		email: true,
+		portfolio: true,
+		linkedin: true,
+	}),
 	summary: z.string(),
 	employmentHistory: z.array(EmploymentSchema),
 	education: z.array(EducationSchema),

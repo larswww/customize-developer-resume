@@ -36,7 +36,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					>
 						<div className="mb-3">
 							<h1 className="text-3xl font-bold uppercase leading-tight">
-								<TextWrap text={contactInfo.name?.split(" ")[0] ?? ""} name="contactInfo.firstName" label="First Name" />
+								<TextWrap text={contactInfo.name?.split(" ")[0] ?? ""} name="contactInfo.firstName" />
 							</h1>
 							<h1 className="text-3xl font-bold uppercase mb-0 leading-tight">
 								<TextWrap text={contactInfo.name?.split(" ").slice(1).join(" ") ?? ""} name="contactInfo.lastName" label="Last Name" />

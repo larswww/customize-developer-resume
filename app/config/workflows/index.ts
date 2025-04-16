@@ -4,7 +4,7 @@ import { workflowSteps as defaultWorkflowSteps } from "./default";
 import { workflowSteps as developerWorkflowSteps } from "./developer";
 import { workflowSteps as instructionsWorkflowSteps } from "./instructions";
 import { workflowSteps as testWorkflowSteps } from "./test";
-interface WorkflowConfig {
+export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];
 }
