@@ -30,25 +30,25 @@ interface SimpleTemplateProps {
 }
 
 const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
-  const { contactInfo, summary, employmentHistory, education } = data;
+  const { contactInfo, summary, employmentHistory, education, templateSections } = data;
 
   return (
     <div className="p-8 font-sans text-sm bg-white">
       <header className="mb-6 text-center pb-2">
         <h1 className="text-3xl font-bold text-gray-800">
-          <TextWrap text={contactInfo.name} name="contactInfo.name" />
+          <TextWrap text={contactInfo.name} name="contactInfo.name" label="Name" />
         </h1>
-        <p className="text-lg text-gray-600 mt-1"><TextWrap text={contactInfo.title} name="contactInfo.title" /></p>
+        <p className="text-lg text-gray-600 mt-1"><TextWrap text={contactInfo.title} name="contactInfo.title" label="Title" /></p>
         <div className="text-xs text-gray-500 mt-2 space-x-2 flex flex-wrap justify-center items-center gap-x-3 gap-y-1">
-          <span><TextWrap text={contactInfo.location} name="contactInfo.location" /></span>
+          <span><TextWrap text={contactInfo.location} name="contactInfo.location" label="Location" /></span>
           <span className="text-gray-300">&bull;</span>
-          <span><TextWrap text={contactInfo.phone} name="contactInfo.phone" /></span>
+          <span><TextWrap text={contactInfo.phone} name="contactInfo.phone" label="Phone" /></span>
           <span className="text-gray-300">&bull;</span>
           <a
             href={`mailto:${contactInfo.email}`}
             className="text-blue-600 hover:underline"
           >
-            <TextWrap text={contactInfo.email} name="contactInfo.email" />
+            <TextWrap text={contactInfo.email} name="contactInfo.email" label="Email" />
           </a>
           {contactInfo.linkedin && (
             <>
@@ -59,7 +59,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                <TextWrap text="LinkedIn" name="contactInfo.linkedinLabel" />
+                <TextWrap text="LinkedIn" name="contactInfo.linkedinLabel" label="LinkedIn Label" />
               </a>
             </>
           )}
@@ -72,7 +72,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
               >
-                <TextWrap text="Portfolio" name="contactInfo.portfolioLabel" />
+                <TextWrap text="Portfolio" name="contactInfo.portfolioLabel" label="Portfolio Label" />
               </a>
             </>
           )}
@@ -81,7 +81,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 
       {summary && (
         <section className="mb-6 text-base text-gray-700 pb-2 text-center italic">
-          <p><TextWrap text={summary} name="summary" /></p>
+          <p><TextWrap text={summary} name="summary" label="Summary" /></p>
         </section>
       )}
 
@@ -89,7 +89,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 		
         <section className="mb-4">
           <h2 className="text-xl font-semibold border-b pb-1 mb-4 text-gray-800">
-            <TextWrap text="Experience" name="employmentHistory.title" />
+            <TextWrap text="Relevant Experience" name="templateSections.experienceTitle" label="Experience Section Title" />
           </h2>
 
 		  <ArrayRenderer
@@ -102,15 +102,15 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 				>
 				  <h3 className="text-lg">
 					<span className="font-normal text-gray-600">
-					  <TextWrap text={employment.title} name={`employment[${empIndex}].title`} />
+					  <TextWrap text={employment.title} name={`employmentHistory[${empIndex}].title`} label="Job Title" />
 					</span>
+					at 
 					<span className="text-gray-800 font-semibold">
-					  {" "}
-					  at <TextWrap text={employment.employer} name={`employment[${empIndex}].employer`} />
+					  <TextWrap text={employment.employer} name={`employmentHistory[${empIndex}].employer`} label="Employer" />
 					</span>
 				  </h3>
 				  <p className="text-xs text-gray-500 mb-3">
-					<TextWrap text={employment.dates} name={`employment[${empIndex}].dates`} /> | <TextWrap text={employment.location} name={`employment[${empIndex}].location`} />
+					<TextWrap text={employment.dates} name={`employmentHistory[${empIndex}].dates`} label="Employment Dates" /> | <TextWrap text={employment.location} name={`employmentHistory[${empIndex}].location`} label="Location" />
 				  </p>
 	
 				  {employment.projects && employment.projects.length > 0 && (
@@ -126,7 +126,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                             <div className="flex items-baseline justify-between flex-wrap mb-1.5">
                               <h4 className="font-normal text-sm mr-4">
                                 <span className="text-gray-700 font-medium mr-1.5">
-                                  <TextWrap text={project.client} name={`employment[${empIndex}].projects[${projectIndex}].client`} />
+                                  <TextWrap text={project.client} name={`employment[${empIndex}].projects[${projectIndex}].client`} label="Client" />
                                 </span>
                               </h4>
       
@@ -141,7 +141,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                                           key={`p${empIndex}-${projectIndex}-s${skillIndex}-${skill}`}
                                           className="bg-gray-100 text-gray-600 px-1.5 py-0 rounded-sm border border-gray-200 text-xs"
                                         >
-                                          <TextWrap text={skill} name={`employment[${empIndex}].projects[${projectIndex}].skillsUsed[${skillIndex}]`} />
+                                          <TextWrap text={skill} name={`employment[${empIndex}].projects[${projectIndex}].skillsUsed[${skillIndex}]`} label="Skill" />
                                         </li>
                                       )}
                                     />
@@ -165,6 +165,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                                         <TextWrap 
                                           text={desc} 
                                           name={`employment[${empIndex}].projects[${projectIndex}].description[${descIndex}]`} 
+                                          label="Project Description"
                                         />
                                       </li>
                                     )}
@@ -185,7 +186,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
       {education && education.length > 0 && (
         <section className="mb-4">
           <h2 className="text-xl font-semibold border-b pb-1 mb-3 text-gray-800">
-            <TextWrap text="Education" name="education.title" />
+            <TextWrap text="Education" name="templateSections.educationTitle" label="Education Section Title" />
           </h2>
           <ArrayRenderer
             items={education}
@@ -199,19 +200,22 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
                   <TextWrap 
                     text={edu.degree} 
                     name={`education[${eduIndex}].degree`} 
+					label="Degree"
                   />
                 </h3>
                 <p className="text-xs text-gray-500">
-                  {" "}
                   <TextWrap 
                     text={edu.institution} 
                     name={`education[${eduIndex}].institution`} 
+					label="Institution"
                   /> | <TextWrap 
                     text={edu.dates} 
                     name={`education[${eduIndex}].dates`} 
+					label="Dates"
                   /> | <TextWrap 
                     text={edu.location} 
-                    name={`education[${eduIndex}].location`} 
+                    name={`education[${eduIndex}].location`}
+					label="Location" 
                   />
                 </p>
               </div>

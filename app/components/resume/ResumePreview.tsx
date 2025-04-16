@@ -54,8 +54,6 @@ export function ResumePreview({
 				>
 					{TemplateComponent && displayData ? (
 						(() => {
-							clientLogger.log("Forcing template render at:", Date.now());
-							// Call the component as a function instead of using JSX
 							return React.createElement(TemplateComponent, {
 								data: displayData,
 								key: Date.now(),

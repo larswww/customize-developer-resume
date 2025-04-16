@@ -49,11 +49,17 @@ export const SimpleConsultantCoreDataSchema = z.object({
 		),
 });
 
+const OtherTemplateSections = z.object({
+	experienceTitle: z.string().default("Experience").describe("The title of the experience section."),
+	educationTitle: z.string().default("Education").describe("The title of the education section."),
+})
+
 export const SimpleConsultantDataSchema = z.object({
 	contactInfo: ContactInfoSchema,
 	summary: z.string(),
 	employmentHistory: z.array(EmploymentSchema),
 	education: z.array(EducationSchema),
+	templateSections: OtherTemplateSections,
 });
 
 export const templateConfig: ResumeTemplateConfig = {

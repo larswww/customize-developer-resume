@@ -17,7 +17,7 @@ export interface RouteParams {
 	workflowStepsData: any[];
 }
 
-export async function extractRouteParams({
+export function extractRouteParams({
 	params,
 	request,
 }: LoaderFunctionArgs) {
