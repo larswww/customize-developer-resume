@@ -1,4 +1,6 @@
 import { useState, useEffect, memo, useCallback } from "react";
+import { Button } from "./ui/Button";
+import { TrashIcon, PlusIcon } from "./Icons";
 
 interface ArrayRendererProps<T> {
   items: T[];
@@ -88,22 +90,26 @@ function ArrayRendererBase<T>({
               onMouseEnter={handleButtonMouseEnter}
               onMouseLeave={handleButtonMouseLeave}
             >
-              <button
+              <Button
                 type="button"
                 onClick={() => handleAdd(index)}
-                className="bg-green-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-green-600 focus:outline-none"
+                size="sm"
+                variant="primary"
+                className="rounded-full !p-1"
                 aria-label="Add item"
               >
-                +
-              </button>
-              <button
+                <PlusIcon size="xs" />
+              </Button>
+              <Button
                 type="button"
                 onClick={() => handleRemove(index)}
-                className="bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 focus:outline-none"
+                size="sm"
+                variant="destructive"
+                className="rounded-full !p-1"
                 aria-label="Remove item"
               >
-                ×
-              </button>
+                <TrashIcon size="xs" className="!mr-0" />
+              </Button>
             </div>
           )}
         </div>

@@ -346,6 +346,25 @@ const GitHubBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 	</svg>
 );
 
+const PlusBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<title>Add</title>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+			d="M12 4v16m8-8H4"
+		/>
+	</svg>
+);
+
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
 export const DownloadIcon = withIconSize(DownloadBase);
@@ -363,3 +382,4 @@ export const WhatsAppIcon = withIconSize(WhatsAppBase);
 export const CalendarIcon = withIconSize(CalendarBase);
 export const EmailIcon = withIconSize(EmailBase);
 export const GitHubIcon = withIconSize(GitHubBase);
+export const PlusIcon = withIconSize(PlusBase);
