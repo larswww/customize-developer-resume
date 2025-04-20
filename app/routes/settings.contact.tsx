@@ -1,5 +1,5 @@
-import { useForm, getFormProps } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
+import { useForm, getFormProps, getInputProps } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
   Form,
   useActionData,
@@ -13,14 +13,18 @@ import {
 } from "~/config/templates/sharedTypes";
 import type { action as settingsAction } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
-// Define the context type manually based on the loader's return shape
+import text from "~/text";
+import { FormField } from "~/components/ui/FormField";
+import { Button } from "~/components/ui/Button";
+import { FieldsetSection } from "~/components/ui/FieldsetSection";
+import { FormGrid } from "~/components/ui/FormGrid";
+
 interface SettingsOutletContext {
   contactInfo: ContactInfo;
   education: Education;
 }
 
 export default function SettingsContact() {
-  // Use the manually defined type
   const context = useOutletContext<SettingsOutletContext>();
   const lastResult = useActionData<typeof settingsAction>();
   const navigation = useNavigation();
@@ -32,101 +36,109 @@ export default function SettingsContact() {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: ContactInfoSchema });
     },
+    constraint: getZodConstraint(ContactInfoSchema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
   });
 
   return (
-    <Form method="post"  action="/settings" {...getFormProps(form)}>
-      <fieldset className="space-y-4">
-        <legend className="text-lg font-semibold mb-2">
-          Contact Information
-        </legend>
-        <div>
-          <label
-            htmlFor={fields.name.id}
-            className="block text-sm font-medium text-gray-700"
+    <div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">{text.settings.contactInfo.legend}</h1>
+      
+      <Form method="post" action="/settings" {...getFormProps(form)}>
+        <div className="space-y-8">
+          <FieldsetSection 
+            title="Personal Information" 
+            description="Your basic information that will appear at the top of your resume"
           >
-            Name
-          </label>
-          <input
-            id={fields.name.id}
-            name={fields.name.name}
-            defaultValue={fields.name.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div id={fields.name.errorId} className="text-sm text-red-600 mt-1">
-            {fields.name.errors}
+            <FormGrid columns={2}>
+              <FormField
+                {...getInputProps(fields.name, { type: "text" })}
+                label="Name"
+                error={fields.name.errors}
+                errorId={fields.name.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.title, { type: "text" })}
+                label="Title"
+                error={fields.title.errors}
+                errorId={fields.title.errorId}
+              />
+            </FormGrid>
+          </FieldsetSection>
+          
+          <FieldsetSection 
+            title="Contact Information" 
+            description="How potential employers can reach you"
+          >
+            <FormGrid columns={2}>
+              <FormField
+                {...getInputProps(fields.email, { type: "email" })}
+                label="Email"
+                error={fields.email.errors}
+                errorId={fields.email.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.phone, { type: "tel" })}
+                label="Phone"
+                error={fields.phone.errors}
+                errorId={fields.phone.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.location, { type: "text" })}
+                label="Location"
+                error={fields.location.errors}
+                errorId={fields.location.errorId}
+                className="sm:col-span-2"
+              />
+            </FormGrid>
+          </FieldsetSection>
+          
+          <FieldsetSection 
+            title="Professional Profiles" 
+            description="Links to your online presence and work"
+          >
+            <FormGrid columns={1}>
+              <FormField
+                {...getInputProps(fields.linkedin, { type: "url" })}
+                label="LinkedIn URL"
+                error={fields.linkedin.errors}
+                errorId={fields.linkedin.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.portfolio, { type: "url" })}
+                label="Portfolio URL"
+                error={fields.portfolio.errors}
+                errorId={fields.portfolio.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.github, { type: "url" })}
+                label="GitHub URL"
+                error={fields.github.errors}
+                errorId={fields.github.errorId}
+              />
+            </FormGrid>
+          </FieldsetSection>
+
+          <div className="pt-4 pb-6 flex justify-end">
+            <Button
+              name="intent"
+              value={SETTINGS_KEYS.CONTACT_INFO}
+              type="submit"
+              variant="primary"
+              disabled={navigation.state !== "idle"}
+              className="w-full sm:w-auto"
+            >
+              {navigation.state !== "idle" ? "Saving..." : text.settings.contactInfo.buttonText}
+            </Button>
           </div>
         </div>
-
-        <div>
-          <label
-            htmlFor={fields.email.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
-          <input
-            type="email"
-            id={fields.email.id}
-            name={fields.email.name}
-            defaultValue={fields.email.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div id={fields.email.errorId} className="text-sm text-red-600 mt-1">
-            {fields.email.errors}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor={fields.phone.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Phone
-          </label>
-          <input
-            id={fields.phone.id}
-            name={fields.phone.name}
-            defaultValue={fields.phone.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div id={fields.phone.errorId} className="text-sm text-red-600 mt-1">
-            {fields.phone.errors}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor={fields.location.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Location
-          </label>
-          <input
-            id={fields.location.id}
-            name={fields.location.name}
-            defaultValue={fields.location.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div
-            id={fields.location.errorId}
-            className="text-sm text-red-600 mt-1"
-          >
-            {fields.location.errors}
-          </div>
-        </div>
-
-        <button
-          name="intent"
-          value={SETTINGS_KEYS.CONTACT_INFO}
-          type="submit"
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Save Contact Info
-        </button>
-      </fieldset>
-    </Form>
+      </Form>
+    </div>
   );
 }

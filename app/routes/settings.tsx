@@ -3,21 +3,18 @@ import {
   type LoaderFunctionArgs,
   NavLink,
   Outlet,
-  useActionData,
-  useLoaderData,
   redirect,
 } from "react-router";
 import { parseWithZod } from "@conform-to/zod";
 import dbService, { type ContactInfo } from "~/services/db/dbService.server";
 import {
   SETTINGS_KEYS,
-  SETTINGS_SCHEMAS,
-  type SettingsKey,
+  SETTINGS_SCHEMAS
 } from "~/config/constants";
 import type { Route } from "./+types/settings";
 import type { Education } from "~/config/templates/sharedTypes";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async () => {
   const contactInfo = await dbService.getContactInfo();
   const education = await dbService.getEducation();
   return {
@@ -55,7 +52,6 @@ export interface SettingsOutletContext {
 }
 
 export default function SettingsLayout({loaderData}: Route.ComponentProps) {
-  const context: SettingsOutletContext = loaderData
 
   return (
     <div className="p-4 space-y-4">
@@ -90,7 +86,7 @@ export default function SettingsLayout({loaderData}: Route.ComponentProps) {
         </NavLink>
       </nav>
       <div className="mt-4">
-        <Outlet context={context} /> {/* Pass combined context */}
+        <Outlet context={loaderData} />
       </div>
     </div>
   );

@@ -1,117 +1,90 @@
-import { useForm, getFormProps } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
-import { Form, useOutletContext } from "react-router";
+import { useForm, getFormProps, getInputProps } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { Form, useActionData, useNavigation, useOutletContext } from "react-router";
 import {
   EducationSchema,
 } from "~/config/templates/sharedTypes";
 import type { SettingsOutletContext } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
+import text from "~/text";
+import { FormField } from "~/components/ui/FormField";
+import { Button } from "~/components/ui/Button";
+import { FieldsetSection } from "~/components/ui/FieldsetSection";
+import { FormGrid } from "~/components/ui/FormGrid";
 
 
 export default function SettingsEducation() {
   const {education} = useOutletContext<SettingsOutletContext>();
+  const lastResult = useActionData();
+  const navigation = useNavigation();
 
   const [form, fields] = useForm({
     id: "education-form",
+    lastResult: navigation.state === "idle" ? lastResult : undefined,
     defaultValue: education,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: EducationSchema });
     },
+    constraint: getZodConstraint(EducationSchema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
   });
 
   return (
-    <Form method="post" action="/settings" {...getFormProps(form)}>
-      <fieldset className="space-y-4">
-        <legend className="text-lg font-semibold mb-2">Education</legend>
-        <div>
-          <label
-            htmlFor={fields.degree.id}
-            className="block text-sm font-medium text-gray-700"
+    <div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-6">{text.settings.education.legend}</h1>
+      
+      <Form method="post" action="/settings" {...getFormProps(form)}>
+        <div className="space-y-8">
+          <FieldsetSection 
+            title="Education Information" 
+            description="Your academic background and qualifications"
           >
-            Degree
-          </label>
-          <input
-            id={fields.degree.id}
-            name={fields.degree.name}
-            defaultValue={fields.degree.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div id={fields.degree.errorId} className="text-sm text-red-600 mt-1">
-            {fields.degree.errors}
+            <FormGrid columns={2}>
+              <FormField
+                {...getInputProps(fields.degree, { type: "text" })}
+                label="Degree"
+                error={fields.degree.errors}
+                errorId={fields.degree.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.institution, { type: "text" })}
+                label="Institution"
+                error={fields.institution.errors}
+                errorId={fields.institution.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.dates, { type: "text" })}
+                label="Dates"
+                error={fields.dates.errors}
+                errorId={fields.dates.errorId}
+              />
+              
+              <FormField
+                {...getInputProps(fields.location, { type: "text" })}
+                label="Location"
+                error={fields.location.errors}
+                errorId={fields.location.errorId}
+              />
+            </FormGrid>
+          </FieldsetSection>
+
+          <div className="pt-4 pb-6 flex justify-end">
+            <Button
+              name="intent"
+              value={SETTINGS_KEYS.EDUCATION}
+              type="submit"
+              variant="primary"
+              disabled={navigation.state !== "idle"}
+              className="w-full sm:w-auto"
+            >
+              {navigation.state !== "idle" ? "Saving..." : text.settings.education.buttonText}
+            </Button>
           </div>
         </div>
-
-        <div>
-          <label
-            htmlFor={fields.institution.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Institution
-          </label>
-          <input
-            id={fields.institution.id}
-            name={fields.institution.name}
-            defaultValue={fields.institution.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div
-            id={fields.institution.errorId}
-            className="text-sm text-red-600 mt-1"
-          >
-            {fields.institution.errors}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor={fields.dates.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Dates
-          </label>
-          <input
-            id={fields.dates.id}
-            name={fields.dates.name}
-            defaultValue={fields.dates.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div id={fields.dates.errorId} className="text-sm text-red-600 mt-1">
-            {fields.dates.errors}
-          </div>
-        </div>
-
-        <div>
-          <label
-            htmlFor={fields.location.id}
-            className="block text-sm font-medium text-gray-700"
-          >
-            Location
-          </label>
-          <input
-            id={fields.location.id}
-            name={fields.location.name}
-            defaultValue={fields.location.initialValue}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
-          <div
-            id={fields.location.errorId}
-            className="text-sm text-red-600 mt-1"
-          >
-            {fields.location.errors}
-          </div>
-        </div>
-
-        <button
-          name="intent"
-          value={SETTINGS_KEYS.EDUCATION}
-          type="submit"
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Save Education
-        </button>
-      </fieldset>
-    </Form>
+      </Form>
+    </div>
   );
 }
