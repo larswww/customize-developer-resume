@@ -1,3 +1,4 @@
+import { TEST_IDS } from "~/config/testIds";
 import text from "../../app/text";
 import { expect, test } from "./fixtures/job-fixtures";
 
@@ -38,33 +39,28 @@ test.describe("Resume Generation E2E Flow", () => {
 		await test.step("Generate and Verify Structured Resume Content", async () => {
 			await page.getByText(text.resume.emptyState);
 			await page
-				.getByRole("button", { name: text.content.generateButton })
+				.getByRole("button", { name: text.resume.generateButton, exact: true })
 				.click();
-			await expect(page.getByText(text.resume.emptyState)).not.toBeVisible();
+			await expect(page.getByText(text.ui.generating).first()).toBeVisible();
+			await expect(page.getByText(text.ui.generating).first()).not.toBeVisible();
 		});
 
 		await test.step("Edit Resume Content", async () => {
-			await page.getByRole("button", { name: text.resume.editButton }).click();
+			const contentEdit = 'Change to this text'
+			const editElementInResume = await page.getByTestId(TEST_IDS.editElementInResume).first();
+			await editElementInResume.click();
+			await page.getByTestId(TEST_IDS.editableElementInResume).first().pressSequentially(contentEdit);
+			await expect(page.getByText(contentEdit)).toBeVisible();
 
-			const editResumeHeading = page.getByRole("button", {
-				name: text.resume.headings.edit,
-			});
-			await expect(editResumeHeading).toBeVisible();
-			await editResumeHeading.click();
-			const textarea = page.getByRole("textbox").nth(1);
-			await expect(textarea).toBeVisible();
+			await page.getByRole("button", { name: text.resume.saveChanges }).click();
+			await page.reload();
+			await page.waitForTimeout(1000);
 
-			const updatedContent = "Updated resume content for testing";
-			await textarea.click();
-			await textarea.pressSequentially(updatedContent);
-
-			await expect(textarea.getByText(updatedContent)).toBeVisible();
-			await page.getByRole("button", { name: text.resume.regenerateButton });
-			await expect(textarea.getByText(updatedContent)).toBeVisible();
+			await page.getByText(contentEdit).waitFor({ state: "visible" });
 		});
 
 		// TODO: will only work once mocking of structured output is fixed
-		await test.step.skip("Download PDF Resume", async () => {
+		await test.step("Download PDF Resume", async () => {
 			const downloadPromise = page.waitForEvent("download");
 			await page
 				.getByRole("button", { name: text.resume.downloadButton })

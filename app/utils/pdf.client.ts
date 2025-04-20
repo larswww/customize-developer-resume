@@ -3,8 +3,6 @@ import { exportHtmlToPdf } from "../services/pdf/clientPdfService";
 import { clientLogger } from "../utils/logger.client";
 interface DownloadPdfOptions {
 	elementId: string;
-	contactInfo: ContactInfo | null | undefined;
-	jobTitle: string | null | undefined;
 	onError: (message: string) => void;
 }
 
@@ -15,8 +13,6 @@ interface DownloadPdfOptions {
  */
 export async function downloadResumeAsPdf({
 	elementId,
-	contactInfo,
-	jobTitle,
 	onError,
 }: DownloadPdfOptions): Promise<boolean> {
 	clientLogger.log("--- Download PDF process started ---");
@@ -93,7 +89,7 @@ export async function downloadResumeAsPdf({
 		clientLogger.log("Calling exportHtmlToPdf service function");
 		try {
 			// Use displayData (passed as contactInfo/jobTitle) for filename generation
-			const filename = `${contactInfo?.name || jobTitle || "resume"}.pdf`;
+			const filename = "resume.pdf";
 			clientLogger.log("PDF options:", {
 				filename: filename,
 				format: "Letter",

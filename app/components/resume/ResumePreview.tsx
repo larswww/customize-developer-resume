@@ -3,7 +3,6 @@ import type { ConsultantOnePagerData } from "~/config/templates/consultantOnePag
 import type { DefaultResumeData } from "~/config/templates/default";
 import type { ResumeTemplateConfig } from "~/config/templates/sharedTypes";
 import type { SimpleConsultantData } from "~/config/templates/simple";
-import { clientLogger } from "~/utils/logger.client";
 
 interface ResumePreviewProps {
 	displayData:

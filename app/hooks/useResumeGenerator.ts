@@ -45,7 +45,6 @@ interface UseResumeGeneratorReturn {
 }
 
 export function useResumeGenerator({
-	jobId,
 	jobTitle,
 	resumeData,
 	initialSourceTexts,
@@ -55,9 +54,6 @@ export function useResumeGenerator({
 }: UseResumeGeneratorProps): UseResumeGeneratorReturn {
 	const [error, setError] = useState<string | null>(null);
 	const resumeRef = useRef<HTMLDivElement>(null);
-	const [currentSourceTexts, setCurrentSourceTexts] = useState<
-		Record<string, string>
-	>(initialSourceTexts || {});
 	const [formData, setFormData] = useState<any>({});
 	const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] =
 		useState(false);
@@ -88,9 +84,8 @@ export function useResumeGenerator({
 			: {};
 
 		setFormData(loadedCoreData);
-		setCurrentSourceTexts(initialSourceTexts || {});
 		setHasLoadedOrGeneratedData(!!resumeData?.structuredData);
-	}, [resumeData, initialSourceTexts]);
+	}, [resumeData]);
 
 	const displayData:
 		| DefaultResumeData
@@ -107,24 +102,6 @@ export function useResumeGenerator({
 				} as DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData)
 			: null;
 
-	const handlePrintClick = useCallback(() => {
-		setError(null);
-		printResumeElement("printable-resume", setError);
-	}, []);
-
-	const handleDownloadPdfClick = useCallback(async () => {
-		setError(null);
-		if (!displayData) {
-			setError("No resume data available to download.");
-			return;
-		}
-		await downloadResumeAsPdf({
-			elementId: "printable-resume",
-			contactInfo: displayData.contactInfo,
-			jobTitle,
-			onError: setError,
-		});
-	}, [displayData, jobTitle]);
 
 
 
@@ -132,8 +109,6 @@ export function useResumeGenerator({
 		error,
 		setError,
 		resumeRef,
-		currentSourceTexts,
-		setCurrentSourceTexts,
 		formData,
 		setFormData,
 		hasLoadedOrGeneratedData,

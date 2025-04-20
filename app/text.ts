@@ -30,9 +30,7 @@ export default {
 		regenerateButton: "Regenerate Resume Text",
 	},
 	resume: {
-		headings: {
-			edit: "Edit Resume",
-		},
+		saveChanges: "Save Changes",
 		generateButton: "Generate Resume",
 		regenerateButton: "Regenerate Resume",
 		editButton: "Edit Resume",

@@ -68,6 +68,6 @@ export interface ResumeTemplateConfig {
 	description: string;
 	component: ComponentType<{ data: any }>;
 	outputSchema: z.ZodType<ResumeCoreData>;
-	componentSchema?: z.ZodObject<any>;
+	componentSchema: z.ZodObject<any>;
 	orientation?: "portrait" | "landscape";
 }

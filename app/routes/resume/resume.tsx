@@ -1,68 +1,45 @@
-import { useEffect } from "react";
 import {
   Form,
-  useActionData,
-  useLoaderData,
   useNavigation,
   useOutletContext,
   useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { parseWithZod } from "@conform-to/zod";
-import { Collapsible } from "~/components/Collapsible";
-import { ContactInfoForm } from "~/components/ContactInfoForm";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
-import { SourceTextInputs } from "~/components/resume/SourceTextInputs";
 import { Button } from "~/components/ui/Button";
-import { useResumeGenerator } from "~/hooks/useResumeGenerator";
 import type { ResumeRouteContext } from "~/routes/resume/types";
 import { extractRouteParams, handleResumeAction } from "~/routes/resume/utils";
 import text from "~/text";
 import {
-  type ContactInfo,
-  availableTemplates,
-  defaultContactInfo as globalDefaultContactInfo,
-  globalResumeConstants
+  availableTemplates
 } from "../../config/templates";
-import type { WorkflowStep } from "../../services/ai/types";
 import dbService from "../../services/db/dbService.server";
 import { JOB_ROUTE_ID } from "./job";
 import type { Route } from "./+types/resume";
+import { downloadResumeAsPdf } from "~/utils/pdf.client";
+import { useCallback, useRef, useState } from "react";
+import { printResumeElement } from "~/utils/print.client";
+import { FeedbackMessage } from "~/components/FeedbackMessage";
 
 export async function loader(args: LoaderFunctionArgs) {
-  const { jobId, selectedWorkflowId, selectedWorkflow, selectedTemplateId } =
-    extractRouteParams(args);
+  const { jobId, selectedTemplateId } = extractRouteParams(args);
 
   const savedResume = dbService.getResume(jobId, selectedTemplateId);
-  const resumeSourceSteps = selectedWorkflow.steps.filter(
-    (step: WorkflowStep) => step.useInResume
-  );
-  const sourceTexts: Record<string, string> = {};
-  for (const step of resumeSourceSteps) {
-    const stepResult = dbService.getWorkflowStep(
-      jobId,
-      step.id,
-      selectedWorkflowId
-    );
-    sourceTexts[step.id] = stepResult?.result || "";
-  }
+  const education = dbService.getEducation();
+  const contactInfo = dbService.getContactInfo();
+  const hasResume = savedResume !== null && savedResume.structuredData !== null;
 
-
-	const resumeData = {
-		...globalResumeConstants,
-		...savedResume?.structuredData,
-	}
+  const resumeData = {
+    ...savedResume?.structuredData,
+    education,
+    contactInfo,
+  };
 
   return {
     resumeData,
-    sourceTexts,
-    resumeSourceSteps: resumeSourceSteps.map(
-      (s: { id: string; name: string }) => ({
-        id: s.id,
-        name: s.name,
-      })
-    )
+    hasResume,
   };
 }
 
@@ -85,7 +62,7 @@ export async function action(args: ActionFunctionArgs) {
     } else {
       return {
         success: false,
-        message: submission.error,
+        message: 'Fill out missing fields marked in red',
       };
     }
   }
@@ -98,14 +75,14 @@ export async function action(args: ActionFunctionArgs) {
 export default function JobResume({loaderData, actionData}: Route.ComponentProps) {
   const {
     resumeData,
-    sourceTexts: initialSourceTexts,
-    resumeSourceSteps,
+    hasResume,
   } = loaderData;
+	const resumeRef = useRef<HTMLDivElement>(null);
 
   const parentContext = useOutletContext<ResumeRouteContext>();
   const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } =
     parentContext;
-
+    const [error, setError] = useState<string | null>(null);
   const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID) as any;
   const jobData = job || parentRouteData?.job;
 
@@ -114,24 +91,18 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
   const isGenerating =
     isSubmitting && navigation.formData?.get("actionType") === "generate";
 
-  const {
-    error,
-    setError,
-    resumeRef,
-    setFormData,
-    hasLoadedOrGeneratedData,
-    setHasLoadedOrGeneratedData,
-    handlePrintClick,
-    handleDownloadPdfClick,
-    displayData,
-  } = useResumeGenerator({
-    jobId: jobData.id,
-    jobTitle: jobData.title,
-    resumeData,
-    initialSourceTexts,
-    resumeSourceSteps,
-  });
+	const handlePrintClick = useCallback(() => {
+		setError(null);
+		printResumeElement("printable-resume", setError);
+	}, []);
 
+	const handleDownloadPdfClick = async () => {
+		setError(null);
+		await downloadResumeAsPdf({
+			elementId: "printable-resume",
+			onError: setError,
+		});
+	};
   const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
   const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
@@ -148,19 +119,19 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
     >
       <div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
         <div className="col-span-12 md:col-span-6 px-0">
-          {resumeData ? (
+          {hasResume ? (
             <ResumePreview
               displayData={resumeData}
               resumeRef={resumeRef}
               TemplateComponent={CurrentTemplateComponent}
-              isGenerating={isGenerating}
+              // isGenerating={isGenerating}
             />
           ) : (
             <div className="text-center text-gray-500 py-10 flex items-center justify-center h-[400px] border rounded bg-gray-50">
               {(navigation.state === "submitting" ||
                 navigation.state === "loading") &&
               !actionData?.success ? (
-                <p>Loading or generating data...</p>
+                <p>{text.ui.generating}</p>
               ) : (
                 <p>{text.resume.emptyState}</p>
               )}
@@ -179,7 +150,7 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
           )}
         </div>
         <div className="col-span-6 space-y-6">
-          {hasLoadedOrGeneratedData && (
+          {hasResume && (
             <ResumePreviewActions
               onPrint={handlePrintClick}
               onDownloadPdf={handleDownloadPdfClick}
@@ -187,7 +158,7 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
           )}
           <div className="mt-auto pt-4 flex flex-row gap-2">
             <Button type="submit" name="actionType" value="save">
-              Save Changes
+              {text.resume.saveChanges}
             </Button>
             <Button
               type="submit"
@@ -199,6 +170,8 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
               {isGenerating ? text.ui.generating : text.resume.generateButton}
             </Button>
 
+          
+
             {!isWorkflowComplete && (
               <p className="text-sm text-gray-500">
                 This workflow is not complete. Please complete the workflow
@@ -206,6 +179,15 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
               </p>
             )}
           </div>
+          {actionData?.success === false && (
+        
+
+        <FeedbackMessage
+          type="error"
+        >
+          {actionData.message}
+        </FeedbackMessage>
+      )}
         </div>
       </div>
     </Form>
