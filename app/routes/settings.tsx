@@ -12,7 +12,7 @@ import {
   SETTINGS_SCHEMAS
 } from "~/config/constants";
 import type { Route } from "./+types/settings";
-import type { Education } from "~/config/templates/sharedTypes";
+import type { Education } from "~/config/schemas/sharedTypes";
 
 export const loader = async () => {
   const contactInfo = await dbService.getContactInfo();

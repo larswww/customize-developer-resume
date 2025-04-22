@@ -1,4 +1,4 @@
-import type { ContactInfo } from "../config/templates/sharedTypes";
+import type { ContactInfo } from "../config/schemas/sharedTypes";
 import { exportHtmlToPdf } from "../services/pdf/clientPdfService";
 import { clientLogger } from "../utils/logger.client";
 interface DownloadPdfOptions {

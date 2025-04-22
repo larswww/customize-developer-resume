@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import { serverLogger } from "~/utils/logger.server";
-import type { ContactInfo } from "../../config/templates";
+import type { ContactInfo } from "../../config/schemas";
 import { generateStructuredResume } from "../ai/resumeStructuredDataService";
 import dbService from "../db/dbService.server";
 export interface ResumeGenerationResult<T extends z.ZodTypeAny> {

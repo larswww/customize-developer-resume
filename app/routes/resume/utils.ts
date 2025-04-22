@@ -1,9 +1,9 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { availableTemplates, defaultTemplateId } from "~/config/templates";
+import { availableTemplates, defaultTemplateId } from "~/config/schemas";
 import {
   ContactInfoSchema,
   type ResumeTemplateConfig,
-} from "~/config/templates/sharedTypes";
+} from "~/config/schemas/sharedTypes";
 import {
   defaultWorkflowId,
   workflows,
@@ -17,7 +17,7 @@ import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
 import { serverLogger } from "~/utils/logger.server";
 import { SETTINGS_KEYS } from "~/config/constants";
-import type { ContactInfo } from "~/config/templates/sharedTypes";
+import type { ContactInfo } from "~/config/schemas/sharedTypes";
 
 export interface RouteParams {
   jobId: number;

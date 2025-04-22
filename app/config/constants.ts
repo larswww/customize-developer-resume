@@ -17,7 +17,7 @@ export const SETTINGS_KEYS = {
 } as const;
 
 import { z } from "zod";
-import { ContactInfoSchema, EducationSchema } from "./templates/sharedTypes";
+import { ContactInfoSchema, EducationSchema } from "./schemas/sharedTypes";
 
 export const SETTINGS_SCHEMAS = {
 	[SETTINGS_KEYS.WORK_HISTORY]: {

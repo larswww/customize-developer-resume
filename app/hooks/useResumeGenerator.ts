@@ -1,11 +1,11 @@
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
-import type { ContactInfo } from "../config/templates";
-import { availableTemplates, globalResumeConstants } from "../config/templates";
-import type { ConsultantOnePagerData } from "../config/templates/consultantOnePager";
-import type { DefaultResumeData } from "../config/templates/default";
-import type { SimpleConsultantData } from "../config/templates/simple";
+import type { ContactInfo } from "../config/schemas";
+import { availableTemplates, globalResumeConstants } from "../config/schemas";
+import type { ConsultantOnePagerData } from "../config/schemas/consultantOnePager";
+import type { DefaultResumeData } from "../config/schemas/default";
+import type { SimpleConsultantData } from "../config/schemas/simple";
 import { clientLogger } from "../utils/logger.client";
 import { downloadResumeAsPdf } from "../utils/pdf.client";
 import { printResumeElement } from "../utils/print.client";

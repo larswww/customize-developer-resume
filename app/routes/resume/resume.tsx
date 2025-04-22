@@ -15,7 +15,7 @@ import { extractRouteParams, handleResumeAction } from "~/routes/resume/utils";
 import text from "~/text";
 import {
   availableTemplates
-} from "../../config/templates";
+} from "../../config/schemas";
 import dbService from "../../services/db/dbService.server";
 import { JOB_ROUTE_ID } from "./job";
 import type { Route } from "./+types/resume";

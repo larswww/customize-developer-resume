@@ -10,7 +10,7 @@ import {
   type ContactInfo,
   ContactInfoSchema,
   type Education,
-} from "~/config/templates/sharedTypes";
+} from "~/config/schemas/sharedTypes";
 import type { action as settingsAction } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";

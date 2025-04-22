@@ -1,23 +1,34 @@
+**If you received a resume from me, it was made using this application, and manually verified for accuracy. I provide the source code for transparency and as sample of my work**
+
 # AI Resume Generator
-**If you received a resume from me, it was made using this application, and manually verified for accuracy.**
-
-
-It's difficult to minimize your entire work history onto just one page. Doing it over and over again for each role is time consuming. This app helps you write a main resume. You then provide a job description and it will run an AI workflow to produce a customization - whilst staying true to your original content.
+Write your full career story; get a focused, one‑page résumé for any job in seconds. An AI workflow distills your own words—no AI hallucinations—so every application is authentic. 
 
 #### Why
-In April 2025 I started looking for a new freelance assignment. Sending applications is not fun. Building apps is. So I will keep using this and building with it until I have my next gig. 
+April 2025: my contract wrapped up and the job boards beckoned. I was drowning in the rinse‑and‑repeat of tailoring the same résumé for every posting—time I'd rather spend writing code. So I turned the problem into a side‑project.
 
 ## How To Use
-- You can select multiple workflows or templates, tailored for different purposes, such as  personal letters, technical resumes, or traditional ones.
-- It is trivial to add a new AI workflow or template. 
-- I would really appreciate a PR with a better workflow or new template!
+- Write your career story, a detailed document covering all aspects of the work you have done and who you are professionally
+- Add description for a new role
+- Select a template and receive a one-page resume
 
-## Features
+## Customize
+You can easily make a resume that is unique to you due to the modular design.
 
-- Step-by-step visualization of the resume generation process
-- Support for various AI providers (Anthropic, OpenAI, Gemini)
-- Mock API integration for development and testing without API costs
-- End-to-end testing with Playwright
+Here's where you can customize the app to create resumes unique to you:
+```
+app/
+├── config/
+│   ├── schemas/         # Data Schemas
+│   └── workflows/       # AI Workflows
+└── components/
+    └── resume/
+        └── templates/   # Resume Templates 
+```
+
+To customize:
+1. **Schemas**: Data schemas control which sections and information a certain template should be populated with
+2. **Workflows**: Configuration for a series of AI steps, prompts, input variables to transform your work history into the desired resume schema
+3. **Templates**: React/Tailwind layouts of resumes or cover letter that renders your generated data
 
 ## Getting Started
 

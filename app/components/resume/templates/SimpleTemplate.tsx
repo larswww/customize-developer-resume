@@ -2,7 +2,7 @@ import type React from "react";
 import { use } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
-import type { SimpleConsultantData } from "~/config/templates/simple";
+import type { SimpleConsultantData } from "~/config/schemas/simple";
 
 // Helper to ensure URL starts with https://
 const ensureHttps = (url: string): string => {

@@ -7,13 +7,13 @@ import {
   ContactInfoSchema,
   type Education,
   EducationSchema,
-} from "~/config/templates/sharedTypes";
-import type { SimpleConsultantCoreData } from "~/config/templates/simple";
+} from "~/config/schemas/sharedTypes";
+import type { SimpleConsultantCoreData } from "~/config/schemas/simple";
 import serverLogger from "~/utils/logger.server";
 import type {
   DefaultResumeCoreData,
   DefaultResumeData,
-} from "../../config/templates/default";
+} from "../../config/schemas/default";
 import { defaultWorkflowId } from "../../config/workflows";
 import {
   DB_DIR,

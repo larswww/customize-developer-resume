@@ -3,7 +3,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation, useOutletContext } from "react-router";
 import {
   EducationSchema,
-} from "~/config/templates/sharedTypes";
+} from "~/config/schemas/sharedTypes";
 import type { SettingsOutletContext } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";

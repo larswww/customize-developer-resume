@@ -1,8 +1,8 @@
 import React from "react";
-import type { ConsultantOnePagerData } from "~/config/templates/consultantOnePager";
-import type { DefaultResumeData } from "~/config/templates/default";
-import type { ResumeTemplateConfig } from "~/config/templates/sharedTypes";
-import type { SimpleConsultantData } from "~/config/templates/simple";
+import type { ConsultantOnePagerData } from "~/config/schemas/consultantOnePager";
+import type { DefaultResumeData } from "~/config/schemas/default";
+import type { ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
+import type { SimpleConsultantData } from "~/config/schemas/simple";
 
 interface ResumePreviewProps {
 	displayData:

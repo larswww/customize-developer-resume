@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import type { ContactInfo } from "~/config/templates/sharedTypes";
-import type { DefaultResumeData } from "../../config/templates/default";
+import type { ContactInfo } from "~/config/schemas/sharedTypes";
+import type { DefaultResumeData } from "../../config/schemas/default";
 import { type WorkflowStepStatus, createDbService, DB_PATHS } from "./dbService.server";
 import deleteTestDb from "~/../tests/e2e/utils/deleteTestDb";
 
