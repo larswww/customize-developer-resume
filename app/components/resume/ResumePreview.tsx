@@ -1,9 +1,8 @@
 import React from "react";
-import type { ConsultantOnePagerData } from "~/config/templates/consultantOnePager";
-import type { DefaultResumeData } from "~/config/templates/default";
-import type { ResumeTemplateConfig } from "~/config/templates/sharedTypes";
-import type { SimpleConsultantData } from "~/config/templates/simple";
-import { clientLogger } from "~/utils/logger.client";
+import type { ConsultantOnePagerData } from "~/config/schemas/consultantOnePager";
+import type { DefaultResumeData } from "~/config/schemas/default";
+import type { ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
+import type { SimpleConsultantData } from "~/config/schemas/simple";
 
 interface ResumePreviewProps {
 	displayData:
@@ -54,8 +53,6 @@ export function ResumePreview({
 				>
 					{TemplateComponent && displayData ? (
 						(() => {
-							clientLogger.log("Forcing template render at:", Date.now());
-							// Call the component as a function instead of using JSX
 							return React.createElement(TemplateComponent, {
 								data: displayData,
 								key: Date.now(),

@@ -1,5 +1,5 @@
-import type { ContactInfo } from "../config/templates/sharedTypes";
-import { defaultContactInfo } from "../config/templates/sharedTypes";
+import type { ContactInfo } from "../config/schemas/sharedTypes";
+import { defaultContactInfo } from "../config/schemas/sharedTypes";
 interface ContactInfoFormProps {
 	contactInfo: ContactInfo;
 }

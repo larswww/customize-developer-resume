@@ -11,9 +11,9 @@ export const ContactInfoSchema = z
 		location: z.string(),
 		phone: z.string(),
 		email: z.string(),
-		linkedin: z.string(),
-		portfolio: z.optional(z.string()),
-		github: z.optional(z.string()),
+		linkedin: z.string().url().describe("LinkedIn profile URL"),
+		portfolio: z.optional(z.string().url().describe("Portfolio website URL")),
+		github: z.optional(z.string().url().describe("GitHub profile URL")),
 		imageUrl: z.optional(z.string()),
 	})
 	.partial();
@@ -68,6 +68,6 @@ export interface ResumeTemplateConfig {
 	description: string;
 	component: ComponentType<{ data: any }>;
 	outputSchema: z.ZodType<ResumeCoreData>;
-	componentSchema?: z.ZodObject<any>;
+	componentSchema: z.ZodObject<any>;
 	orientation?: "portrait" | "landscape";
 }

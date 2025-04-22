@@ -7,7 +7,7 @@ import { JobControlsHeader } from "../../components/JobControlsHeader";
 import {
 	type ResumeTemplateConfig,
 	availableTemplates,
-} from "../../config/templates";
+} from "../../config/schemas";
 import { workflows } from "../../config/workflows";
 import type { Route } from "./+types/job";
 

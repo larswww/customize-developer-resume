@@ -2,6 +2,7 @@ export default {
 	nav: {
 		dashboard: "Dashboard",
 		settings: "Work History",
+		info: "About Me",
 	},
 	ui: {
 		delete: "Delete",
@@ -11,6 +12,18 @@ export default {
 	settings: {
 		workHistory: {
 			buttonText: "Save Work History",
+		},
+		contactInfo: {
+			legend: "Contact Information",
+			buttonText: "Save Contact Info",
+		},
+		education: {
+			legend: "Education",
+			buttonText: "Save Education",
+		},
+		nav: {
+			contactInfo: "Contact Info",
+			education: "Education",
 		},
 	},
 	dashboard: {
@@ -30,9 +43,7 @@ export default {
 		regenerateButton: "Regenerate Resume Text",
 	},
 	resume: {
-		headings: {
-			edit: "Edit Resume",
-		},
+		saveChanges: "Save Changes",
 		generateButton: "Generate Resume",
 		regenerateButton: "Regenerate Resume",
 		editButton: "Edit Resume",

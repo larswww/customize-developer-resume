@@ -1,6 +1,6 @@
 import { zodToJsonSchema } from "zod-to-json-schema"; // Helper to convert Zod schema to JSON schema
 import type { WorkflowStep } from "../../services/ai/types";
-import { SimpleConsultantCoreDataSchema } from "../templates/simple"; // Import the schema
+import { SimpleConsultantCoreDataSchema } from "../schemas/simple"; // Import the schema
 
 // Convert the Zod schema to a JSON schema string for use in prompts
 const targetJsonSchema = JSON.stringify(

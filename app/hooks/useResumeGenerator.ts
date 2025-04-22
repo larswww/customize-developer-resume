@@ -1,11 +1,11 @@
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
-import type { ContactInfo } from "../config/templates";
-import { availableTemplates, globalResumeConstants } from "../config/templates";
-import type { ConsultantOnePagerData } from "../config/templates/consultantOnePager";
-import type { DefaultResumeData } from "../config/templates/default";
-import type { SimpleConsultantData } from "../config/templates/simple";
+import type { ContactInfo } from "../config/schemas";
+import { availableTemplates, globalResumeConstants } from "../config/schemas";
+import type { ConsultantOnePagerData } from "../config/schemas/consultantOnePager";
+import type { DefaultResumeData } from "../config/schemas/default";
+import type { SimpleConsultantData } from "../config/schemas/simple";
 import { clientLogger } from "../utils/logger.client";
 import { downloadResumeAsPdf } from "../utils/pdf.client";
 import { printResumeElement } from "../utils/print.client";
@@ -45,7 +45,6 @@ interface UseResumeGeneratorReturn {
 }
 
 export function useResumeGenerator({
-	jobId,
 	jobTitle,
 	resumeData,
 	initialSourceTexts,
@@ -55,20 +54,14 @@ export function useResumeGenerator({
 }: UseResumeGeneratorProps): UseResumeGeneratorReturn {
 	const [error, setError] = useState<string | null>(null);
 	const resumeRef = useRef<HTMLDivElement>(null);
-	const [currentSourceTexts, setCurrentSourceTexts] = useState<
-		Record<string, string>
-	>(initialSourceTexts || {});
 	const [formData, setFormData] = useState<any>({});
 	const [hasLoadedOrGeneratedData, setHasLoadedOrGeneratedData] =
 		useState(false);
 
-	// Get the template configuration
 	const templateConfig = templateId
 		? availableTemplates[templateId] || null
 		: null;
 
-	// Check if the template uses landscape orientation - no longer needed but kept for backward compatibility
-	const isLandscape = false;
 
 	const editorRefsRef = useRef<
 		Record<string, React.RefObject<MDXEditorMethods | null>>
@@ -91,9 +84,8 @@ export function useResumeGenerator({
 			: {};
 
 		setFormData(loadedCoreData);
-		setCurrentSourceTexts(initialSourceTexts || {});
 		setHasLoadedOrGeneratedData(!!resumeData?.structuredData);
-	}, [resumeData, initialSourceTexts]);
+	}, [resumeData]);
 
 	const displayData:
 		| DefaultResumeData
@@ -110,56 +102,13 @@ export function useResumeGenerator({
 				} as DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData)
 			: null;
 
-	const handlePrintClick = useCallback(() => {
-		setError(null);
-		printResumeElement("printable-resume", setError);
-	}, []);
 
-	const handleDownloadPdfClick = useCallback(async () => {
-		setError(null);
-		if (!displayData) {
-			setError("No resume data available to download.");
-			return;
-		}
-		await downloadResumeAsPdf({
-			elementId: "printable-resume",
-			contactInfo: displayData.contactInfo,
-			jobTitle,
-			onError: setError,
-		});
-	}, [displayData, jobTitle]);
 
-	const handleFormSubmit = useCallback(
-		(event: React.FormEvent<HTMLFormElement>) => {
-			const form = event.currentTarget;
-			for (const step of resumeSourceSteps) {
-				const editorRef = editorRefsRef.current[step.id]?.current;
-				if (editorRef) {
-					const markdown = editorRef.getMarkdown();
-					const hiddenInput = form.elements.namedItem(
-						step.id,
-					) as HTMLInputElement | null;
-					if (hiddenInput) {
-						hiddenInput.value = markdown;
-					} else {
-						clientLogger.warn(
-							`Could not find hidden input for step: ${step.id}`,
-						);
-					}
-				} else {
-					clientLogger.warn(`Could not find editor ref for step: ${step.id}`);
-				}
-			}
-		},
-		[resumeSourceSteps],
-	);
 
 	return {
 		error,
 		setError,
 		resumeRef,
-		currentSourceTexts,
-		setCurrentSourceTexts,
 		formData,
 		setFormData,
 		hasLoadedOrGeneratedData,
@@ -167,7 +116,6 @@ export function useResumeGenerator({
 		editorRefs: editorRefsRef.current,
 		handlePrintClick,
 		handleDownloadPdfClick,
-		handleFormSubmit,
 		displayData,
 		templateConfig,
 	};

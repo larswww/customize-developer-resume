@@ -6,6 +6,7 @@ import text from "~/text";
 const navLinks = [
 	{ to: "/dashboard", label: text.nav.dashboard },
 	{ to: "/settings/work-history", label: text.nav.settings },
+	{ to: "/settings", label: text.nav.info },
 ];
 
 export default function AppLayout() {

@@ -34,5 +34,6 @@ export default defineConfig({
 	webServer: {
 		command: "pnpm dev:msw",
 		url: "http://localhost:4000",
+		reuseExistingServer: true,
 	},
 });
