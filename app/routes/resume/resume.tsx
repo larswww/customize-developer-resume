@@ -2,6 +2,7 @@ import {
   Form,
   useNavigation,
   useOutletContext,
+  useRouteError,
   useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
@@ -192,4 +193,17 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
       </div>
     </Form>
   );
+}
+
+export function ErrorBoundary() {
+  const url = useNavigation();
+  const error = useRouteError();
+  console.error(error);
+  return <div>Error: {error instanceof Error ? error.message : 'An unknown error occurred'}
+  
+  <Form method="post" action={url.location?.pathname}>
+    <input type="hidden" name="actionType" value="generate" />
+    <Button type="submit">Regenerate Resume</Button>
+  </Form>
+  </div>;
 }

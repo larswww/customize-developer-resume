@@ -30,7 +30,7 @@ interface SimpleTemplateProps {
 }
 
 const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
-  const { contactInfo, summary, employmentHistory, education, templateSections } = data;
+  const { contactInfo, employmentHistory, education, summary, templateSections } = data;
 
   return (
     <div className="p-8 font-sans text-sm bg-white">
@@ -89,7 +89,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 		
         <section className="mb-4">
           <h2 className="text-xl font-semibold border-b pb-1 mb-4 text-gray-800">
-            <TextWrap text="Relevant Experience" name="templateSections.experienceTitle" label="Experience Section Title" />
+            <TextWrap text={templateSections.experienceTitle || "Experience"} name="templateSections.experienceTitle" label="Experience Section Title" />
           </h2>
 
 		  <ArrayRenderer
@@ -186,7 +186,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
       {education && education.length > 0 && (
         <section className="mb-4">
           <h2 className="text-xl font-semibold border-b pb-1 mb-3 text-gray-800">
-            <TextWrap text="Education" name="templateSections.educationTitle" label="Education Section Title" />
+            <TextWrap text={templateSections.educationTitle} name="templateSections.educationTitle" label="Education Section Title" />
           </h2>
           <ArrayRenderer
             items={education}

@@ -1,5 +1,7 @@
+export const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT}`;
+
 export default {
-	stylesheetUrl: "http://localhost:3000/index.css",
+	stylesheetUrl: `${BASE_URL}/index.css`,
 };
 
 export const DB_DIR = "./db-data";

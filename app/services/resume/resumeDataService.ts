@@ -8,18 +8,12 @@ export interface ResumeGenerationResult<T extends z.ZodTypeAny> {
   structuredData?: T;
   error?: string;
 }
-
-/**
- * Generates and saves structured resume data
- */
 export async function generateAndSaveResume<T extends z.ZodTypeAny>(
   combinedSourceText: string,
   jobDescription: string,
-  outputSchema: T,
+  outputSchema: T
 ): Promise<ResumeGenerationResult<T>> {
   try {
-    // Validate inputs
-
     const generatedCoreData = await generateStructuredResume(
       combinedSourceText,
       jobDescription,

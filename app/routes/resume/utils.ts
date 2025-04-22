@@ -146,18 +146,7 @@ export async function handleContentAction(args: ActionFunctionArgs) {
   }
 }
 
-export async function handleResumeAction(args: ActionFunctionArgs) {
-  const { params } = args;
-  const jobId = Number(params.jobId);
-
-  const {
-    job,
-    selectedWorkflow,
-    selectedTemplateConfig,
-    selectedWorkflowId,
-    selectedTemplateId,
-  } = await extractRouteParams(args);
-
+export const getResumeText = (jobId: number, selectedWorkflowId: string, selectedWorkflow: WorkflowConfig) => {
   const completedSteps = dbService.getWorkflowSteps(jobId, selectedWorkflowId);
   const resumeSourceSteps = selectedWorkflow.steps
     .filter((step: any) => step.useInResume)
@@ -177,17 +166,31 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
   }
 
   if (missingSteps.length > 0) {
-    return {
-      success: false,
-      error: `Missing required input: Text for ${missingSteps.join(
-        ", "
-      )} cannot be empty. Please ensure all source text sections are filled.`,
-    };
+    throw new Error(`Missing required input: Text for ${missingSteps.join(
+      ", "
+    )} cannot be empty. Please ensure all source text sections are filled.`);
   }
 
   const combinedSourceText = resumeSourceSteps
     .map((step) => `${step.name.toUpperCase()}:\n${sourceTexts[step.id]}`)
     .join("\n\n---\n\n");
+
+  return combinedSourceText;
+}
+
+export async function handleResumeAction(args: ActionFunctionArgs) {
+  const { params } = args;
+  const jobId = Number(params.jobId);
+
+  const {
+    job,
+    selectedWorkflow,
+    selectedTemplateConfig,
+    selectedWorkflowId,
+    selectedTemplateId,
+  } = await extractRouteParams(args);
+
+  const combinedSourceText = getResumeText(jobId, selectedWorkflowId, selectedWorkflow);
 
   const outputSchema = selectedTemplateConfig.outputSchema;
   const result = await generateAndSaveResume(
