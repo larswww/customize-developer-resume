@@ -19,12 +19,14 @@ export const workflowSteps: WorkflowStep[] = [
 	- how can the job descriptions language and tone of voice be mirrored?`,
     provider: "openai",
     options: {
-      model: "gpt-4.1-mini-2025-04-14",
-      provider: "openai"
+      provider: "openai",
+      temperature: 0.2,
+      model: "gpt-4.1-mini-2025-04-14"
     },
     prompt: `
-
-  {jobDescription}
+---BEGIN JOB DESCRIPTION---
+{jobDescription}
+---END JOB DESCRIPTION---
 
 	Provide only the guide, no other text or commentary.`,
     dependencies: []
@@ -33,27 +35,35 @@ export const workflowSteps: WorkflowStep[] = [
     id: "extract-skills",
     name: "Extract Skills",
     description: "Identify relevant skills from work history",
-    systemPrompt:
-      "You are expert engineering manager.",
+    systemPrompt: `ROLE & GOAL:
+You are an expert engineering manager. Your goal is to extract and group skills from the candidate's work history relative to the target job description.
+
+OUTPUT SPEC:
+Return a JSON object with exactly two keys:
+  "topPreferredSkills": string[],
+  "otherRelevantSkills": string[]
+
+GUIDELINES:
+- Base relevance on direct mentions or well‑known synonyms.
+- Preserve the original skill name unless a widely‑used local translation exists.
+- Output valid JSON only, no prose.
+
+All content must be written in the language requested in the job‑description‑analysis.`,
     provider: "openai",
     options: {
-      model: "gpt-4.1-mini-2025-04-14",
-      provider: "openai"
+      provider: "openai",
+      temperature: 0.2,
+      response_format: { type: "json_object" },
+      model: "gpt-4.1-mini-2025-04-14"
     },
-	prompt: `Consider the provided job description, then analyze your engineers most relevant skills.
+	prompt: `
+---BEGIN JOB DESCRIPTION---
+{jobDescription}
+---END JOB DESCRIPTION---
 
-	Provide a list of each skill, grouped by category.
-	Where there is no exact match, use a relevant skill. Only provide the list of skills, no other text or commentary. 
-
-  Finally, divide the list into two parts:
-  - top preferred skills based on the job description
-  - other relevant skills
-
-Instructions:
-"""{jobDescription}"""
-
-Work experience:
-"""{workHistory}"""`,
+---BEGIN WORK HISTORY---
+{workHistory}
+---END WORK HISTORY---`,
 	useInResume: true,
 	dependencies: []
   },
@@ -62,7 +72,8 @@ Work experience:
     name: "Craft Work Experience",
     description: "Create a tailored work experience",
     systemPrompt:
-      `You are expert career advisor. You Rewrite the candidates work experience based on the instructions, carefully considering language and selecting the most relevant experience. Reduce the full work experience to approximately one page by focusing on the most relevant experience and track record. Prefer more recent experience.
+      `You are expert career advisor. You Rewrite the candidates work experience based on the instructions, carefully considering language and selecting the most relevant experience. Reduce the full work experience to approximately one page by focusing on the most relevant experience and track record.
+All content you write must be in the language requested in the job‑description‑analysis.
 
   Your content should be structured as follows:
   
@@ -85,8 +96,9 @@ Work experience:
 	Include original time periods and ensure anything in the resume stays true to the provided work experience. `,
     provider: "openai",
 	options: {
-      model: "gpt-4.1-mini-2025-04-14",
-      provider: "openai"
+      provider: "openai",
+      temperature: 0.2,
+      model: "gpt-4.1-mini-2025-04-14"
     },
 	prompt: `
   The resume follows this structure:
@@ -127,13 +139,19 @@ Work experience:
   \`\`\`
 
 Customizations instructions:
-"""{job-description-analysis}"""
+---BEGIN JD ANALYSIS---
+{job-description-analysis}
+---END JD ANALYSIS---
 
-Ideal skills:
-"""{extract-skills}"""
+Ideal skills JSON:
+---BEGIN SKILLS---
+{extract-skills}
+---END SKILLS---
 
 Work experience:
-"""{workHistory}"""`,
+---BEGIN WORK HISTORY---
+{workHistory}
+---END WORK HISTORY---`,
 	useInResume: true,
 	dependencies: ["job-description-analysis"]
   },
