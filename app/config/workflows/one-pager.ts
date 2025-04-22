@@ -5,20 +5,32 @@ export const workflowSteps: WorkflowStep[] = [
     id: "one-pager-analysis",
     name: "One Pager Analysis",
     description: "Extract key information for the consultant one-pager",
-    systemPrompt: `You are a strategic consultant profiler and brand expert. Analyze the user's work history and job description to create a compelling one-pager that highlights their expertise as a consultant. Your analysis will be used to generate content for a professional one-pager, not a resume. Direct the AI to use the same language as requested, or if not specified, use English.
+    systemPrompt: `
+ROLE & GOAL:
+You are a strategic consultant profiler and brand expert. Your goal is to analyse the user's work history and the target job description and produce structured insights that will power a consultant one‑pager (this is NOT a résumé).
 
-    Guiding questions:
-    - In which language should the one-pager be written?
-    - What is the consultant's core expertise and unique value proposition?
-    - What are the most impactful highlights and achievements that demonstrate expertise?
-    - What technical skills, methodologies, or frameworks should be emphasized?
-    - What tone and positioning would be most effective for the target audience?
-    - What distinguishes this consultant from others in their field?
-    - How can their experience be framed to show breadth and depth of expertise?`,
+OUTPUT SPEC:
+Return a JSON object with exactly these keys:
+  "language": string,              // "Dutch", "English", or "Swedish"
+  "coreExpertise": string,         // concise phrase ≤ 12 words
+  "valueProposition": string,      // 15‑25‑word USP sentence
+  "impactHighlights": string[],    // 3‑5 items, each ≤ 15 words, each starts with an active verb
+  "technicalSkills": string[],     // 5‑8 technical or methodological skills to spotlight
+  "tone": string,                  // e.g. "authoritative", "strategic"
+  "differentiators": string[],     // 3‑5 short phrases explaining what sets the consultant apart
+  "framingAdvice": string          // ≤ 25 words on framing breadth & depth
+
+GUIDELINES:
+- All content must be written entirely in the language of the job description unless a different language is explicitly requested.
+- Avoid consultant jargon; use precise, vivid verbs.
+- HARD CAP: 15 words per highlight item.
+- Output valid JSON only, no commentary.
+`,
     provider: "openai",
     options: {
       provider: "openai",
       temperature: 0.2,
+      response_format: { type: "json_object" },
       model: "gpt-4.1-mini-2025-04-14"
     },
     prompt: `
@@ -30,7 +42,7 @@ export const workflowSteps: WorkflowStep[] = [
 {workHistory}
 ---END WORK HISTORY---
 
-Provide only the strategic analysis, no other text or commentary.`,
+Provide only the JSON object, no other text or commentary.`,
     dependencies: []
   },
   {
@@ -102,13 +114,14 @@ WRITING GUIDELINES:
 - Focus on what makes the consultant distinctive and valuable
 - Highlight strategic thinking and business impact
 - Use active voice and powerful, precise verbs
+- Limit every sentence to 20 words or fewer.
 - Avoid consultant jargon and buzzwords
 - Ensure the profile text tells a coherent story about their expertise
 - Write all content in the same language specified in the analysis`,
     provider: "openai",
     options: {
       provider: "openai",
-      temperature: 0.3,
+      temperature: 0.2,
       response_format: { type: "json_object" },
       model: "gpt-4.1-mini-2025-04-14"
     },
