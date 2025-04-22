@@ -47,7 +47,7 @@ Please extract the relevant information and structure it as JSON matching the re
 		// Make a single call to the AI
 		serverLogger.log("Calling OpenAI API...");
 		const completion = await openai.beta.chat.completions.parse({
-			model: "gpt-4o", // Or another suitable model
+			model: "gpt-4.1-nano-2025-04-14", // Or another suitable model
 			messages: [
 				{ role: "system", content: systemPrompt },
 				{ role: "user", content: userPrompt },

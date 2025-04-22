@@ -101,11 +101,11 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 				  className="mb-6 pb-3 border-b border-gray-100 last:border-b-0"
 				>
 				  <h3 className="text-lg">
-					<span className="font-normal text-gray-600">
+					<span className="font-normal text-gray-600 mr-1">
 					  <TextWrap text={employment.title} name={`employmentHistory[${empIndex}].title`} label="Job Title" />
 					</span>
 					at 
-					<span className="text-gray-800 font-semibold">
+					<span className="text-gray-800 font-semibold ml-1">
 					  <TextWrap text={employment.employer} name={`employmentHistory[${empIndex}].employer`} label="Employer" />
 					</span>
 				  </h3>

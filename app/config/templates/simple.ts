@@ -40,11 +40,9 @@ export const EmploymentSchema = z.object({
 const OtherTemplateSections = z.object({
   experienceTitle: z
     .string()
-    .default("Experience")
     .describe("The title of the experience section."),
   educationTitle: z
     .string()
-    .default("Education")
     .describe("The title of the education section."),
 });
 export const SimpleConsultantCoreDataSchema = z.object({
