@@ -1,5 +1,6 @@
 # AI Resume Generator
-*Customize your main resume to a particular role automatically.*
+**If you received a resume from me, it was made using this application, and manually verified for accuracy.**
+
 
 It's difficult to minimize your entire work history onto just one page. Doing it over and over again for each role is time consuming. This app helps you write a main resume. You then provide a job description and it will run an AI workflow to produce a customization - whilst staying true to your original content.
 
