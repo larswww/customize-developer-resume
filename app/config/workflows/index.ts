@@ -4,6 +4,7 @@ import { workflowSteps as defaultWorkflowSteps } from "./default";
 import { workflowSteps as developerWorkflowSteps } from "./developer";
 import { workflowSteps as instructionsWorkflowSteps } from "./instructions";
 import { workflowSteps as testWorkflowSteps } from "./test";
+import { workflowSteps as defaultAltWorkflowSteps } from "./default-alt";
 export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];
@@ -29,7 +30,11 @@ export const workflows: Record<string, WorkflowConfig> = {
 	instructions: {
 		label: "Instructions Workflow",
 		steps: instructionsWorkflowSteps,
-	}
+	},
+	defaultAlt: {
+		label: "Default Workflow Alt",
+		steps: defaultAltWorkflowSteps,
+	},
 };
 
 export const defaultWorkflowId = "default";
