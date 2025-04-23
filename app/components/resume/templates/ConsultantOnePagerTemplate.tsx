@@ -23,14 +23,16 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 		expertise,
 		highlights,
 		profileText,
-		companyName = "McKinsey & Company",
+		companyName,
 		language = "English",
+		highlightHeadline = "Key Highlights",
+		expertiseHeadline = "Areas of Expertise",
 	} = data;
 
-	const whatsappLink = "https://wa.me/31612345678";
-	const calendarLink = "https://calendly.com/yourname/meeting";
+	const whatsappLink = "https://wa.me/message/RDGPSHJHCOZ6I1";
+	const calendarLink = "https://cal.com/productworks";
 	const emailAddress = "lars@productworks.nl";
-	const githubLink = "https://github.com/larsww";
+	const githubLink = "https://github.com/larswww/customize-developer-resume";
 
 	const textMap = {
 		scheduleIntro: {
@@ -50,11 +52,7 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 					" med min egen applikation. All information är verifierad av mig. ",
 				Dutch: " met eigen applicatie. Informatie is geverifieerd door mij. ",
 			},
-			end: {
-				English: " open source ",
-				Swedish: " open source ",
-				Dutch: " open source ",
-			},
+			end: "[Open Source]",
 		},
 	};
 
@@ -72,6 +70,7 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 
 	return (
 		<div className="font-serif text-gray-800 w-full h-full flex flex-col relative overflow-hidden">
+			<input type="hidden" name="language" value={language} />
 			{/* Header with just company name and personal name */}
 			<header className="bg-[#1e3a8a] text-white py-5">
 				<div className="max-w-4xl mx-auto px-6 flex justify-between items-center">
@@ -96,6 +95,11 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 							<p className="text-xl text-gray-600 mb-7 leading-relaxed">
 								<TextWrap text={subtitle || "Consultant subtitle"} name="subtitle" label="Subtitle" />
 							</p>
+							
+							{/* Highlight section headline */}
+							<h3 className="text-lg font-medium text-gray-700 mb-3">
+								<TextWrap text={highlightHeadline} name="highlightHeadline" label="Highlight Headline" />
+							</h3>
 							
 							{/* Key bullet points */}
 							<ul className="space-y-4 mb-6">
@@ -130,42 +134,28 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 
 						{/* Expertise tags */}
 						{expertise && expertise.length > 0 && (
-							<div className="flex flex-wrap gap-2 mt-8 mb-10 mx-4">
-								<ArrayRenderer
-									items={expertise}
-									getKey={(skill, index) => `expertise-${skill}-${index}`}
-									renderItem={(skill, index) => (
-										<span className="px-3 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
-											<TextWrap text={skill} name={`expertise[${index}]`} label="Expertise" />
-										</span>
-									)}
-								/>
+							<div className="mx-4">
+								{/* Expertise headline */}
+								<h3 className="text-lg font-medium text-gray-700 mb-3">
+									<TextWrap text={expertiseHeadline} name="expertiseHeadline" label="Expertise Headline" />
+								</h3>
+								
+								<div className="flex flex-wrap gap-2 mb-10">
+									<ArrayRenderer
+										items={expertise}
+										getKey={(skill, index) => `expertise-${skill}-${index}`}
+										renderItem={(skill, index) => (
+											<span className="px-3 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
+												<TextWrap text={skill} name={`expertise[${index}]`} label="Expertise" />
+											</span>
+										)}
+									/>
+								</div>
 							</div>
 						)}
 					</section>
 
-					{/* Additional highlights - if there are more than shown in the header */}
-					{highlights && highlights.length > 3 && (
-						<section className="mt-10 border-t border-gray-200 pt-8">
-							<h2 className="text-2xl font-normal text-gray-700 mb-6">
-								<TextWrap text="Additional Highlights" name="additionalHighlightsTitle" label="Additional Highlights Title" />
-							</h2>
-							<ul className="space-y-3 mx-4">
-								<ArrayRenderer
-									items={highlights.slice(3)}
-									getKey={(highlight, index) => `additional-highlight-${highlight.substring(0, 10)}-${index}`}
-									renderItem={(highlight, index) => (
-										<li className="flex items-start">
-											<span className="text-blue-700 mr-3 text-lg">•</span>
-											<span className="text-lg text-gray-700">
-												<TextWrap text={highlight} name={`highlights[${index + 3}]`} label="Additional Highlight" />
-											</span>
-										</li>
-									)}
-								/>
-							</ul>
-						</section>
-					)}
+					{/* Main content ends here - Additional highlights section removed */}
 				</div>
 			</main>
 
@@ -213,8 +203,8 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 			<footer className="bg-gray-50 py-3 border-t border-gray-200">
 				<div className="max-w-4xl mx-auto px-6 text-center text-gray-600 text-sm">
 					<TextWrap text={textMap.disclaimer.start[language]} name="disclaimerStart" label="Disclaimer Start" />
-					<span className="font-medium mx-1">
-						<TextWrap text={companyName} name="companyName" label="Company Name" />
+					<span className="font-bold">
+						<TextWrap text={companyName} name="companyNameSecond" label="Company Name" />
 					</span>
 					<TextWrap text={textMap.disclaimer.middle[language]} name="disclaimerMiddle" label="Disclaimer Middle" />
 					<a
@@ -227,7 +217,7 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 							textUnderlineOffset: "2px",
 						}}
 					>
-						<TextWrap text={textMap.disclaimer.end[language]} name="disclaimerEnd" label="Disclaimer End" />
+						<TextWrap text={textMap.disclaimer.end} name="disclaimerEnd" label="Disclaimer End" />
 					</a>
 				</div>
 			</footer>

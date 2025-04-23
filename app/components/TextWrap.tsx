@@ -82,14 +82,14 @@ export function TextWrap({ text, name, label = "Edit" }: TextWrapProps) {
 
   return (
     <span className="inline-text" ref={wrapperRef}>
-      {!inputExistsAlready ? (
+      {/* {!inputExistsAlready ? ( */}
         <input
           type="hidden"
           name={name}
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-      ) : null}
+      {/* ) : null} */}
       {edit ? (
         <span
           data-testid={TEST_IDS.editableElementInResume}

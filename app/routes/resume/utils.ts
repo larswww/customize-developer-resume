@@ -1,7 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { availableTemplates, defaultTemplateId } from "~/config/schemas";
 import {
-  ContactInfoSchema,
   type ResumeTemplateConfig,
 } from "~/config/schemas/sharedTypes";
 import {
@@ -11,13 +10,10 @@ import {
 } from "~/config/workflows";
 import dbService, {
   type Job,
-  type WorkflowStep,
 } from "~/services/db/dbService.server";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
 import { serverLogger } from "~/utils/logger.server";
-import { SETTINGS_KEYS } from "~/config/constants";
-import type { ContactInfo } from "~/config/schemas/sharedTypes";
 
 export interface RouteParams {
   jobId: number;
@@ -80,8 +76,11 @@ export function getWorkflow(jobId: number, selectedWorkflowId: string) {
   );
   const isWorkflowComplete =
     workflowStepsData &&
-    workflowStepsData.length === selectedWorkflow.steps.length &&
-    workflowStepsData.every((step) => step.status === "success");
+    selectedWorkflow.steps.every((step) => 
+      workflowStepsData.some(
+        (workflowStep) => workflowStep.stepId === step.id && workflowStep.status === "success"
+      )
+    );
 
   return {
     selectedWorkflow,

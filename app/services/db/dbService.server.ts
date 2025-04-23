@@ -110,7 +110,7 @@ const ResumeSchema = z
     id: z.number().optional(),
     jobId: z.number(),
     templateId: z.string().default("default"),
-    resumeText: z.string().optional(),
+    resumeText: z.string().nullable(),
     structuredData: z.preprocess((val) => {
       if (typeof val === "string") {
         try {

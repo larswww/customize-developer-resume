@@ -5,37 +5,19 @@ import ConsultantOnePagerTemplate from "../../components/resume/templates/Consul
 import { ContactInfoSchema, type ResumeTemplateConfig } from "./sharedTypes";
 
 export const ConsultantOnePagerCoreDataSchema = z.object({
-	title: z
-		.string()
-		.describe("The main title/headline for the consultant introduction."),
-	subtitle: z
-		.string()
-		.describe("A brief paragraph serving as introduction or subtitle."),
-	expertise: z.array(z.string()).describe("Key areas of expertise."),
-	highlights: z
-		.array(z.string())
-		.describe("Key achievements or selling points."),
-	profileText: z
-		.string()
-		.describe("Text describing the consultant's profile and background."),
-	companyName: z
-		.string()
-		.optional()
-		.describe("Company name to display in the footer."),
-	language: z
-		.enum(["English", "Swedish", "Dutch"])
-		.describe("Language for the template text elements."),
+	title: z.string().describe("Main title/headline for the consultant introduction."),
+	subtitle: z.string().describe("Brief paragraph serving as introduction or subtitle."),
+	highlightHeadline: z.string().describe("Headline for the highlights section."),
+	highlights: z.array(z.string()).describe("Key achievements supporting the subtitle."),
+	expertiseHeadline: z.string().describe("Headline for the expertise section."),
+	expertise: z.array(z.string()).describe("List of tags/skills with relevant expertise."),
+	profileText: z.string().describe("Synthesized career story as relevant to the job description."),
+	companyName: z.string().optional().describe("Name of company/stakeholder the letter is addressed to.")
 });
 
-export const ConsultantOnePagerDataSchema = z.object({
+export const ConsultantOnePagerDataSchema = ConsultantOnePagerCoreDataSchema.extend({
 	contactInfo: ContactInfoSchema,
-	title: z.string(),
-	subtitle: z.string(),
-	expertise: z.array(z.string()),
-	highlights: z.array(z.string()),
-	profileText: z.string(),
-	companyName: z.string().optional(),
-	language: z.enum(["English", "Swedish", "Dutch"]),
+	language: z.enum(["English", "Swedish", "Dutch"]).describe("Language of the template text elements."),
 });
 
 export const templateConfig: ResumeTemplateConfig = {
