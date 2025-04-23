@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
 import text from "~/text";
-import { fillForm, submitForm, verifyInputValues } from "./utils";
 
 
 test.describe("Settings Page", () => {

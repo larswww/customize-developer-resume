@@ -6,6 +6,7 @@ import { workflowSteps as instructionsWorkflowSteps } from "./instructions";
 import { workflowSteps as testWorkflowSteps } from "./test";
 import { workflowSteps as defaultAltWorkflowSteps } from "./default-alt";
 import { workflowSteps as onePagerWorkflowSteps } from "./one-pager";
+import { workflowSteps as simpleResumeWorkflowSteps } from "./simple-resume";
 export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];
@@ -39,6 +40,10 @@ export const workflows: Record<string, WorkflowConfig> = {
 	onePager: {
 		label: "One Pager Workflow",
 		steps: onePagerWorkflowSteps,
+	},
+	simpleResume: {
+		label: "Simple Resume Workflow",
+		steps: simpleResumeWorkflowSteps,
 	},
 };
 

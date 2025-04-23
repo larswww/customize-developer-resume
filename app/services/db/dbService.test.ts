@@ -401,7 +401,7 @@ describe("DbService", () => {
   describe("Contact info settings", () => {
     it("should save and retrieve contact info", () => {
       const contactData: ContactInfo = {
-        name: "Test User",
+        firstName: "Test User",
         title: "Tester",
         location: "Test City",
         phone: "111-222-3333",
@@ -420,7 +420,7 @@ describe("DbService", () => {
 
     it("should update existing contact info", () => {
       const initialData: ContactInfo = {
-        name: "Initial User",
+        firstName: "Initial User",
         title: "Initial Title",
         location: "Initial City",
         phone: "111-111-1111",
@@ -433,7 +433,7 @@ describe("DbService", () => {
 
       const updatedData: ContactInfo = {
         ...initialData, // Keep some initial data
-        name: "Updated User",
+        firstName: "Updated User",
         title: "Updated Title",
         imageUrl: "https://example.com/new-image.png",
       };
