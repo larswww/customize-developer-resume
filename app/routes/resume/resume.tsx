@@ -1,5 +1,6 @@
 import {
   Form,
+  Link,
   useNavigation,
   useOutletContext,
   useRouteError,
@@ -33,9 +34,10 @@ export async function loader(args: LoaderFunctionArgs) {
   const hasResume = savedResume !== null && savedResume.structuredData !== null;
 
   const resumeData = {
-    ...savedResume?.structuredData,
     education,
     contactInfo,
+    ...savedResume?.structuredData,
+
   };
 
   return {
@@ -58,12 +60,12 @@ export async function action(args: ActionFunctionArgs) {
       dbService.saveResume({
         jobId,
         templateId: selectedTemplateId,
-        structuredData: submission.value,
+        structuredData: submission.value as any,
       });
     } else {
       return {
         success: false,
-        message: 'Fill out missing fields marked in red',
+        message: "Fill out missing fields marked in red.",
       };
     }
   }
@@ -107,6 +109,15 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
   const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
   const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
+  // Check if contactInfo has any empty required fields
+  const hasEmptyContactInfo = !resumeData.contactInfo || 
+    !resumeData.contactInfo.name || 
+    !resumeData.contactInfo.email || 
+    !resumeData.contactInfo.phone;
+
+  // Check if education is empty or missing required fields
+  const hasEmptyEducation = !resumeData.education || 
+    (Array.isArray(resumeData.education) && resumeData.education.length === 0);
 
   const formId = "resume-form";
   const formActionUrl = `/job/${jobData.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
@@ -120,6 +131,18 @@ export default function JobResume({loaderData, actionData}: Route.ComponentProps
     >
       <div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
         <div className="col-span-12 md:col-span-6 px-0">
+          {hasEmptyContactInfo && (
+            <FeedbackMessage type="info">
+              Your contact information is incomplete. Please add your details in the <Link to="/settings" className="underline font-medium">Contact Info settings</Link>.
+            </FeedbackMessage>
+          )}
+          
+          {hasEmptyEducation && (
+            <FeedbackMessage type="info">
+              Your education information is incomplete. Please add your education details in the <Link to="/settings/education" className="underline font-medium">Education settings</Link>.
+            </FeedbackMessage>
+          )}
+
           {hasResume ? (
             <ResumePreview
               displayData={resumeData}

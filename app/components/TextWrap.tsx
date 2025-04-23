@@ -5,12 +5,18 @@ interface TextWrapProps {
   text: string | undefined;
   name: string;
   label?: string;
+  alternativeValue?: string;
+
 }
 
-export function TextWrap({ text, name, label = "Edit" }: TextWrapProps) {
-  const [value, setValue] = useState(text || "");
+export function TextWrap({
+  text,
+  name,
+  label = "Edit",
+  alternativeValue,
+}: TextWrapProps) {
+  const [value, setValue] = useState(alternativeValue || text || "");
   const [edit, setEdit] = useState(false);
-  const [inputExistsAlready, setInputExistsAlready] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const editableRef = useRef<HTMLSpanElement>(null);
 
@@ -18,7 +24,6 @@ export function TextWrap({ text, name, label = "Edit" }: TextWrapProps) {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         wrapperRef.current &&
-        
         !wrapperRef.current.contains(event.target as Node) &&
         edit
       ) {
@@ -54,10 +59,6 @@ export function TextWrap({ text, name, label = "Edit" }: TextWrapProps) {
     }
   }, [edit]);
 
-  useEffect(() => {
-    setInputExistsAlready(document.querySelector(`input[name="${name}"]`) !== null);
-  }, [name]);
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -82,14 +83,12 @@ export function TextWrap({ text, name, label = "Edit" }: TextWrapProps) {
 
   return (
     <span className="inline-text" ref={wrapperRef}>
-      {/* {!inputExistsAlready ? ( */}
-        <input
-          type="hidden"
-          name={name}
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-        />
-      {/* ) : null} */}
+      <input
+        type="hidden"
+        name={name}
+        value={alternativeValue || value}
+        onChange={(e) => setValue(e.target.value)}
+      />
       {edit ? (
         <span
           data-testid={TEST_IDS.editableElementInResume}

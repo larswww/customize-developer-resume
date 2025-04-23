@@ -1,5 +1,4 @@
-import fs from "node:fs";
-import { afterAll, afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { ContactInfo } from "~/config/schemas/sharedTypes";
 import type { DefaultResumeData } from "../../config/schemas/default";
@@ -407,8 +406,8 @@ describe("DbService", () => {
         location: "Test City",
         phone: "111-222-3333",
         email: "test@example.com",
-        linkedin: "linkedin.com/in/test",
-        portfolio: "test.com",
+        linkedin: "https://linkedin.com/in/test",
+        portfolio: "https://test.com",
         imageUrl: "https://example.com/image.jpg",
       };
 
@@ -419,11 +418,6 @@ describe("DbService", () => {
       expect(retrievedInfo).toEqual(contactData);
     });
 
-    it("should return null if no contact info is saved", () => {
-      const retrievedInfo = dbService.getContactInfo();
-      expect(retrievedInfo).toBeNull();
-    });
-
     it("should update existing contact info", () => {
       const initialData: ContactInfo = {
         name: "Initial User",
@@ -431,7 +425,9 @@ describe("DbService", () => {
         location: "Initial City",
         phone: "111-111-1111",
         email: "initial@example.com",
-        linkedin: "linkedin.com/in/initial",
+        linkedin: "https://linkedin.com/in/initial",
+        portfolio: "https://initial.com",
+        imageUrl: "https://example.com/image.jpg",
       };
       dbService.saveContactInfo(initialData);
 

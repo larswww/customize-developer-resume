@@ -19,7 +19,8 @@ test.describe("Global Setup", () => {
         await expect(page.locator(`legend:has-text("${text.settings.contactInfo.legend}")`)).toBeVisible();
     
         const contactData = {
-            name: `Test User ${Date.now()}`,
+            firstName: `Test User ${Date.now()}`,
+            lastName: "LastName",
             title: "Software Engineer",
             email: `test-${Date.now()}@example.com`,
             phone: "123-456-7890",

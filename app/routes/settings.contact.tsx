@@ -53,10 +53,17 @@ export default function SettingsContact() {
           >
             <FormGrid columns={2}>
               <FormField
-                {...getInputProps(fields.name, { type: "text" })}
-                label="Name"
-                error={fields.name.errors}
-                errorId={fields.name.errorId}
+                {...getInputProps(fields.firstName, { type: "text" })}
+                label="First Name"
+                error={fields.firstName.errors}
+                errorId={fields.firstName.errorId}
+              />
+
+              <FormField
+                {...getInputProps(fields.lastName, { type: "text" })}
+                label="Last Name"
+                error={fields.lastName.errors}
+                errorId={fields.lastName.errorId}
               />
               
               <FormField

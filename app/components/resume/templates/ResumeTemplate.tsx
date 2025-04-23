@@ -36,10 +36,10 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 					>
 						<div className="mb-3">
 							<h1 className="text-3xl font-bold uppercase leading-tight">
-								<TextWrap text={contactInfo.name?.split(" ")[0] ?? ""} name="contactInfo.firstName" />
+								<TextWrap text={contactInfo.firstName ?? ""} name="contactInfo.firstName" label="First Name" />
 							</h1>
 							<h1 className="text-3xl font-bold uppercase mb-0 leading-tight">
-								<TextWrap text={contactInfo.name?.split(" ").slice(1).join(" ") ?? ""} name="contactInfo.lastName" label="Last Name" />
+								<TextWrap text={contactInfo.lastName ?? ""} name="contactInfo.lastName" label="Last Name" />
 							</h1>
 							<p className="text-lg italic"><TextWrap text={contactInfo.title} name="contactInfo.title" label="Title" /></p>
 						</div>
@@ -57,23 +57,19 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 									href={`mailto:${contactInfo.email}`}
 									className="hover:underline"
 								>
-									<TextWrap text={contactInfo.email} name="contactInfo.email" label="Email" />
+									<TextWrap text={contactInfo.email} name="contactInfo.email" label="Email" alternativeValue={contactInfo.email} />
 								</a>
 							</p>
 							{contactInfo.portfolio && (
 								<p className="flex items-center text-sm">
 									<span className="mr-2">💼</span>
 									<a
-										href={
-											contactInfo.portfolio.startsWith("http")
-												? contactInfo.portfolio
-												: `https://${contactInfo.portfolio}`
-										}
+										href={contactInfo.portfolio}
 										target="_blank"
 										rel="noopener noreferrer"
 										className="hover:underline"
 									>
-										<TextWrap text={contactInfo.portfolio.replace(/^https?:\/\//, "")} name="contactInfo.portfolio" label="Portfolio" />
+										<TextWrap text="Portfolio" name="contactInfo.portfolio" label="Portfolio" alternativeValue={contactInfo.portfolio} />
 									</a>
 								</p>
 							)}
@@ -81,15 +77,12 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								<span className="mr-2">🔗</span>
 								<a
 									href={
-										contactInfo.linkedin?.startsWith("http")
-											? contactInfo.linkedin
-											: `https://${contactInfo.linkedin}`
-									}
+										contactInfo.linkedin}
 									target="_blank"
 									rel="noopener noreferrer"
 									className="hover:underline"
 								>
-									<TextWrap text={contactInfo.linkedin?.replace(/^https?:\/\//, "") ?? ""} name="contactInfo.linkedin" label="LinkedIn" />
+									<TextWrap text="LinkedIn" name="contactInfo.linkedin" label="LinkedIn" alternativeValue={contactInfo.linkedin} />
 								</a>
 							</p>
 						</div>
@@ -107,7 +100,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 							</>
 						)}
 
-						<h2 className="text-xl font-bold uppercase mt-5 mb-2"><TextWrap text="SKILLS" name="skills.title" label="Skills Section Title" /></h2>
+						<h2 className="text-xl font-bold uppercase mt-5 mb-2"><TextWrap text="SKILLS" name="skillsTitle" label="Skills Section Title" /></h2>
 
 						{/* --- Dynamic Skills Section --- */}
 						<ArrayRenderer
@@ -179,7 +172,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 				{/* Right content area - Work Experience */}
 				<div className="w-[70%] p-8 overflow-y-auto flex-grow">
 					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">
-						<TextWrap text="WORK EXPERIENCE" name="workExperience.title" label="Work Experience Section Title" />
+						<TextWrap text="WORK EXPERIENCE" name="workExperienceTitle" label="Work Experience Section Title" />
 					</h2>
 
 					<ArrayRenderer

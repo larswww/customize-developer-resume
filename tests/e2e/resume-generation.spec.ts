@@ -53,8 +53,9 @@ test.describe("Resume Generation E2E Flow", () => {
 			await expect(page.getByText(contentEdit)).toBeVisible();
 
 			await page.getByRole("button", { name: text.resume.saveChanges }).click();
-			await page.reload();
 			await page.waitForTimeout(1000);
+
+			await page.reload();
 
 			await page.getByText(contentEdit).waitFor({ state: "visible" });
 		});

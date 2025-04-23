@@ -6,7 +6,8 @@ import type { SimpleConsultantCoreData } from "./simple";
 
 export const ContactInfoSchema = z
 	.object({
-		name: z.string(),
+		firstName: z.string(),
+		lastName: z.string(),
 		title: z.string(),
 		location: z.string(),
 		phone: z.string(),

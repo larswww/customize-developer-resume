@@ -1,4 +1,14 @@
-export const BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT}`;
+const getEnv = (key: string, defaultValue?: string): string | undefined => {
+	if (typeof import.meta !== 'undefined' && import.meta.env) {
+		return import.meta.env[key] || defaultValue;
+	}
+	if (typeof process !== 'undefined' && process.env) {
+		return process.env[key] || defaultValue;
+	}
+	return defaultValue;
+};
+
+export const BASE_URL = getEnv('BASE_URL') || `http://localhost:${getEnv('PORT')}`;
 
 export default {
 	stylesheetUrl: `${BASE_URL}/index1.css`,
