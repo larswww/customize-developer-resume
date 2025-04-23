@@ -1,32 +1,10 @@
 import type React from "react";
-import { use } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
-import type { SimpleConsultantData } from "~/config/schemas/simple";
-
-// Helper to ensure URL starts with https://
-const ensureHttps = (url: string): string => {
-  if (!url) return "";
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
-  }
-  // Handle cases like linkedin.com/in/username
-  if (url.includes(".")) {
-    // Basic check if it looks like a domain
-    return `https://${url}`;
-  }
-  // Assume it's something like a handle (less likely for portfolio, maybe linkedin)
-  // This part might need refinement based on expected input format
-  if (url.includes("/")) {
-    // Simple check for path like linkedin
-    return `https://${url}`;
-  }
-  // Fallback - might not be a valid URL scenario
-  return url;
-};
+import type { SimpleConsultantComponentData } from "~/config/schemas/simple";
 
 interface SimpleTemplateProps {
-  data: SimpleConsultantData;
+  data: SimpleConsultantComponentData;
 }
 
 const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
@@ -36,7 +14,8 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
     <div className="p-8 font-sans text-sm bg-white">
       <header className="mb-6 text-center pb-2">
         <h1 className="text-3xl font-bold text-gray-800">
-          <TextWrap text={contactInfo.name} name="contactInfo.name" label="Name" />
+          <TextWrap text={contactInfo.firstName} name="contactInfo.firstName" label="Name" />
+          <TextWrap text={contactInfo.lastName} name="contactInfo.lastName" label="Name" />
         </h1>
         <p className="text-lg text-gray-600 mt-1"><TextWrap text={contactInfo.title} name="contactInfo.title" label="Title" /></p>
         <div className="text-xs text-gray-500 mt-2 space-x-2 flex flex-wrap justify-center items-center gap-x-3 gap-y-1">
@@ -54,7 +33,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
             <>
               <span className="text-gray-300">&bull;</span>
               <a
-                href={ensureHttps(contactInfo.linkedin)}
+                href={contactInfo.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"
@@ -67,7 +46,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
             <>
               <span className="text-gray-300">&bull;</span>
               <a
-                href={ensureHttps(contactInfo.portfolio)}
+                href={contactInfo.portfolio}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-600 hover:underline"

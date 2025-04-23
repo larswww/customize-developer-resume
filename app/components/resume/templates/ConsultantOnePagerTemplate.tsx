@@ -78,7 +78,8 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 						<TextWrap text={companyName} name="companyName" label="Company Name" />
 					</h2>
 					<h1 className="text-2xl font-semibold tracking-wide">
-						<TextWrap text={contactInfo.name || "Lars Wöldern"} name="contactInfo.name" label="Name" />
+						<TextWrap text={contactInfo.firstName} name="contactInfo.firstName" label="Name" />
+						<TextWrap text={contactInfo.lastName} name="contactInfo.lastName" label="Name" />
 					</h1>
 				</div>
 			</header>
@@ -122,7 +123,7 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 						<div className="flex-shrink-0">
 							<img
 								src={contactInfo.imageUrl || "https://productworks.nl/image/lars_2.jpg?height=1096&width=625&format=webp&fit=cover"}
-								alt={contactInfo.name || "Profile"}
+								alt={contactInfo.firstName || "Profile"}
 								className="w-48 h-auto rounded-lg border border-white shadow-sm object-cover"
 							/>
 						</div>

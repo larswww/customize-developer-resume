@@ -55,19 +55,11 @@ export const SimpleConsultantCoreDataSchema = z.object({
   templateSections: OtherTemplateSections,
 });
 
-export const SimpleConsultantDataSchema = z.object({
-  contactInfo: ContactInfoSchema.pick({
-    name: true,
-    title: true,
-    location: true,
-    phone: true,
-    email: true,
-    portfolio: true,
-    linkedin: true,
-  }),
-  employmentHistory: z.array(EmploymentSchema),
+export const SimpleConsultantComponentSchema = SimpleConsultantCoreDataSchema.extend({
   education: z.array(EducationSchema),
+  contactInfo: ContactInfoSchema,
 });
+
 
 export const templateConfig: ResumeTemplateConfig = {
   id: "simpleConsultant",
@@ -76,10 +68,7 @@ export const templateConfig: ResumeTemplateConfig = {
     "A senior developer resume format. One-paragraph intro summary. Lists employers and client projects underneath each employer. Each project has a list of technologies skills that can be used to highlight key tech relevant to current job. Under each project, there are bullet point descriptions.",
   component: SimpleTemplate as ComponentType<{ data: unknown }>,
   outputSchema: SimpleConsultantCoreDataSchema,
-  componentSchema: SimpleConsultantCoreDataSchema.extend({
-    education: z.array(EducationSchema),
-    contactInfo: ContactInfoSchema,
-  }),
+  componentSchema: SimpleConsultantComponentSchema,
 };
 
 export type ConsultantProject = z.infer<typeof ConsultantProjectSchema>;
@@ -87,4 +76,7 @@ export type Employment = z.infer<typeof EmploymentSchema>;
 export type SimpleConsultantCoreData = z.infer<
   typeof SimpleConsultantCoreDataSchema
 >;
-export type SimpleConsultantData = z.infer<typeof SimpleConsultantDataSchema>;
+export type SimpleConsultantComponentData = z.infer<
+  typeof SimpleConsultantComponentSchema
+>;
+

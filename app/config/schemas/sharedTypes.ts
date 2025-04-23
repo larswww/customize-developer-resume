@@ -34,9 +34,10 @@ export type ContactInfo = z.infer<typeof ContactInfoSchema>;
 export type Education = z.infer<typeof EducationSchema>;
 
 export const defaultContactInfo: ContactInfo = {
-	name: "Your Name",
-	title: "Your Title",
-	location: "Your Location",
+	firstName: "",
+	lastName: "",
+	title: "",
+	location: "",
 	phone: "",
 	email: "",
 	linkedin: "",
