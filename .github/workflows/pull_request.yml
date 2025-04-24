@@ -32,6 +32,8 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
+      - name: Install browser for puppeteer
+        run: pnpm dlx puppeteer browsers install
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-modules
