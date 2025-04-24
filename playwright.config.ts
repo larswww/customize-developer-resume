@@ -4,8 +4,8 @@ export default defineConfig({
 	testDir: "./tests/e2e",
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
-	retries: 3,
-	workers: 3, // TODO suite fails on ci with multiple workers
+	retries: 2,
+	workers: 1, // TODO suite fails on ci with multiple workers
 	reporter: "html",
 	use: {
 		baseURL: "http://localhost:4000",
