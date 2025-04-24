@@ -1,11 +1,11 @@
 import type { WorkflowStep } from "../../services/ai/types";
 
 export const workflowSteps: WorkflowStep[] = [
-  {
-    id: "job-description-analysis",
-    name: "Job Description Analysis",
-    description: "Extract key information from the job description",
-    systemPrompt: `You are a seasoned career advisor and resume expert. Analyze the users request and attached job description, and provide a complete step-by-step guide for customizing a resume for this job. Your guide will be used by an AI to customize a resume, so it should be in a way that is easy for an AI to understand. Direct to Ai to use the same language as the job description requests, or if not specified use the same language as the job description.
+	{
+		id: "job-description-analysis",
+		name: "Job Description Analysis",
+		description: "Extract key information from the job description",
+		systemPrompt: `You are a seasoned career advisor and resume expert. Analyze the users request and attached job description, and provide a complete step-by-step guide for customizing a resume for this job. Your guide will be used by an AI to customize a resume, so it should be in a way that is easy for an AI to understand. Direct to Ai to use the same language as the job description requests, or if not specified use the same language as the job description.
 
 	Guiding questions:
   - In which language should the resume be written?
@@ -17,25 +17,25 @@ export const workflowSteps: WorkflowStep[] = [
 	- How can the resumes tone be adapted based on the type of company and industry?
 	- What type of strenghts and achievements would be most relevant for this job?
 	- how can the job descriptions language and tone of voice be mirrored?`,
-    provider: "openai",
-    options: {
-      provider: "openai",
-      temperature: 0.2,
-      model: "gpt-4.1-mini-2025-04-14"
-    },
-    prompt: `
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 0.2,
+			model: "gpt-4.1-mini-2025-04-14",
+		},
+		prompt: `
 ---BEGIN JOB DESCRIPTION---
 {jobDescription}
 ---END JOB DESCRIPTION---
 
 	Provide only the guide, no other text or commentary.`,
-    dependencies: []
-  },
-  {
-    id: "extract-skills",
-    name: "Extract Skills",
-    description: "Identify relevant skills from work history",
-    systemPrompt: `ROLE & GOAL:
+		dependencies: [],
+	},
+	{
+		id: "extract-skills",
+		name: "Extract Skills",
+		description: "Identify relevant skills from work history",
+		systemPrompt: `ROLE & GOAL:
 You are an expert engineering manager. Your goal is to extract and group skills from the candidate's work history relative to the target job description.
 
 OUTPUT SPEC:
@@ -49,14 +49,14 @@ GUIDELINES:
 - Output valid JSON only, no prose.
 
 All content must be written in the language requested in the job‑description‑analysis.`,
-    provider: "openai",
-    options: {
-      provider: "openai",
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      model: "gpt-4.1-mini-2025-04-14"
-    },
-	prompt: `
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 0.2,
+			response_format: { type: "json_object" },
+			model: "gpt-4.1-mini-2025-04-14",
+		},
+		prompt: `
 ---BEGIN JOB DESCRIPTION---
 {jobDescription}
 ---END JOB DESCRIPTION---
@@ -64,15 +64,14 @@ All content must be written in the language requested in the job‑description�
 ---BEGIN WORK HISTORY---
 {workHistory}
 ---END WORK HISTORY---`,
-	useInResume: true,
-	dependencies: []
-  },
-  {
-    id: "craft-work-experience",
-    name: "Craft Work Experience",
-    description: "Create a tailored work experience",
-    systemPrompt:
-      `You are expert career advisor. You Rewrite the candidates work experience based on the instructions, carefully considering language and selecting the most relevant experience. Reduce the full work experience to approximately one page by focusing on the most relevant experience and track record.
+		useInResume: true,
+		dependencies: [],
+	},
+	{
+		id: "craft-work-experience",
+		name: "Craft Work Experience",
+		description: "Create a tailored work experience",
+		systemPrompt: `You are expert career advisor. You Rewrite the candidates work experience based on the instructions, carefully considering language and selecting the most relevant experience. Reduce the full work experience to approximately one page by focusing on the most relevant experience and track record.
 All content you write must be in the language requested in the job‑description‑analysis.
 
   Your content should be structured as follows:
@@ -94,13 +93,13 @@ All content you write must be in the language requested in the job‑description
   - Match grammar to meaning and keep sentences lean; trim filler so the subject‑verb‑object structure stays visible and energetic.
 
 	Include original time periods and ensure anything in the resume stays true to the provided work experience. `,
-    provider: "openai",
-	options: {
-      provider: "openai",
-      temperature: 0.2,
-      model: "gpt-4.1-mini-2025-04-14"
-    },
-	prompt: `
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 0.2,
+			model: "gpt-4.1-mini-2025-04-14",
+		},
+		prompt: `
   The resume follows this structure:
 
   ## Layout
@@ -152,7 +151,7 @@ Work experience:
 ---BEGIN WORK HISTORY---
 {workHistory}
 ---END WORK HISTORY---`,
-	useInResume: true,
-	dependencies: ["job-description-analysis"]
-  },
+		useInResume: true,
+		dependencies: ["job-description-analysis"],
+	},
 ];

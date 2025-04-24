@@ -47,7 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	try {
 		const success = dbService.saveWorkHistory(newWorkHistory);
-		
+
 		if (success) {
 			return { success: true, message: "Work history updated successfully!" };
 		}

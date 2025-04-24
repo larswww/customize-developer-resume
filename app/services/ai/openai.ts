@@ -19,7 +19,7 @@ export class OpenAIClient implements AIClient {
 
 	async generate(
 		prompt: string,
-		options: AIRequestOptions = {},
+		options: AIRequestOptions,
 	): Promise<AIResponse> {
 		serverLogger.log("[OpenAI Client] Making request to OpenAI API");
 

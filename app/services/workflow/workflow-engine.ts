@@ -329,10 +329,21 @@ export class WorkflowEngine {
 		stepOptions: AIRequestOptions | undefined,
 		systemPrompt: string | AnthropicSystemParam[] | undefined,
 	): AIRequestOptions {
+		if (!stepOptions || !stepOptions.provider) {
+			throw new Error("Provider must be specified in AIRequestOptions");
+		}
+		
+		if (stepOptions.provider === 'anthropic') {
+			return {
+				...stepOptions,
+				systemPrompt,
+			} as Extract<AIRequestOptions, { provider: 'anthropic' }>;
+		}
+		
 		return {
-			...(stepOptions || {}),
-			systemPrompt,
-		};
+			...stepOptions,
+			systemPrompt: typeof systemPrompt === 'string' ? systemPrompt : undefined,
+		} as AIRequestOptions;
 	}
 
 	private processStepResponse(

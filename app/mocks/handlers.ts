@@ -169,7 +169,7 @@ interface OpenAIMessage {
 interface OpenAIRequestBody {
   model?: string;
   messages?: OpenAIMessage[];
-  response_format?: { type: string };
+  response_format?: { type: string; json_schema?: { schema: any } };
 }
 
 const openAIHandler = http.post(
@@ -188,7 +188,10 @@ const openAIHandler = http.post(
       requestBody.response_format?.type === "json_object"
     ) {
       responseContent = JSON.stringify(mockResumeData);
-    } else if (requestBody.response_format?.type === "json_schema") {
+    } else if (
+      requestBody.response_format?.type === "json_schema" &&
+      requestBody.response_format?.json_schema?.schema
+    ) {
       const schemaMock = JSONSchemaFaker.generate(
         requestBody.response_format.json_schema.schema
       );

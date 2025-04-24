@@ -42,14 +42,21 @@ test.describe("Resume Generation E2E Flow", () => {
 				.getByRole("button", { name: text.resume.generateButton, exact: true })
 				.click();
 			await expect(page.getByText(text.ui.generating).first()).toBeVisible();
-			await expect(page.getByText(text.ui.generating).first()).not.toBeVisible();
+			await expect(
+				page.getByText(text.ui.generating).first(),
+			).not.toBeVisible();
 		});
 
 		await test.step("Edit Resume Content", async () => {
-			const contentEdit = 'Change to this text'
-			const editElementInResume = await page.getByTestId(TEST_IDS.editElementInResume).first();
+			const contentEdit = "Change to this text";
+			const editElementInResume = await page
+				.getByTestId(TEST_IDS.editElementInResume)
+				.first();
 			await editElementInResume.click();
-			await page.getByTestId(TEST_IDS.editableElementInResume).first().pressSequentially(contentEdit);
+			await page
+				.getByTestId(TEST_IDS.editableElementInResume)
+				.first()
+				.pressSequentially(contentEdit);
 			await expect(page.getByText(contentEdit)).toBeVisible();
 
 			await page.getByRole("button", { name: text.resume.saveChanges }).click();

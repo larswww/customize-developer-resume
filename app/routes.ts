@@ -1,28 +1,28 @@
 import {
-  type RouteConfig,
-  index,
-  layout,
-  route,
+	type RouteConfig,
+	index,
+	layout,
+	route,
 } from "@react-router/dev/routes";
 import { SETTINGS_KEYS } from "./config/constants";
 
 export default [
-  layout("components/AppLayout.tsx", [
-    route("dashboard", "routes/dashboard.tsx"),
+	layout("components/AppLayout.tsx", [
+		route("dashboard", "routes/dashboard.tsx"),
 
-    layout("routes/resume/job.tsx", [
-      route("job/:jobId", "routes/resume/content.tsx", [
-        route("resume", "routes/resume/resume.tsx"),
-      ]),
-    ]),
+		layout("routes/resume/job.tsx", [
+			route("job/:jobId", "routes/resume/content.tsx", [
+				route("resume", "routes/resume/resume.tsx"),
+			]),
+		]),
 
-    route("settings", "routes/settings.tsx", [
-      index("routes/settings.contact.tsx"),
-      route(SETTINGS_KEYS.EDUCATION, "routes/settings.education.tsx"),
-    ]),
+		route("settings", "routes/settings.tsx", [
+			index("routes/settings.contact.tsx"),
+			route(SETTINGS_KEYS.EDUCATION, "routes/settings.education.tsx"),
+		]),
 
-    route("settings/work-history", "routes/settings.work-history.tsx"),
-  ]),
-  route("export-pdf", "routes/export-pdf.tsx"),
-  index("routes/index.tsx"),
+		route("settings/work-history", "routes/settings.work-history.tsx"),
+	]),
+	route("export-pdf", "routes/export-pdf.tsx"),
+	index("routes/index.tsx"),
 ] satisfies RouteConfig;

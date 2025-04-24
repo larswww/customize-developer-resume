@@ -1,6 +1,12 @@
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { useRef } from "react";
-import { Form, Outlet, useNavigation, useOutletContext, useRouteError	 } from "react-router";
+import {
+	Form,
+	Outlet,
+	useNavigation,
+	useOutletContext,
+	useRouteError,
+} from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { Collapsible } from "~/components/Collapsible";
 import {
@@ -110,7 +116,12 @@ export default function JobContent({ actionData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-  console.error(error);
-  return <div>Error: {error instanceof Error ? error.message : 'An unknown error occurred'}</div>;
+	const error = useRouteError();
+	console.error(error);
+	return (
+		<div>
+			Error:{" "}
+			{error instanceof Error ? error.message : "An unknown error occurred"}
+		</div>
+	);
 }

@@ -4,34 +4,34 @@ import type { ContactInfo } from "../../config/schemas";
 import { generateStructuredResume } from "../ai/resumeStructuredDataService";
 import dbService from "../db/dbService.server";
 export interface ResumeGenerationResult<T extends z.ZodTypeAny> {
-  success: boolean;
-  structuredData?: T;
-  error?: string;
+	success: boolean;
+	structuredData?: T;
+	error?: string;
 }
 export async function generateAndSaveResume<T extends z.ZodTypeAny>(
-  combinedSourceText: string,
-  jobDescription: string,
-  outputSchema: T
+	combinedSourceText: string,
+	jobDescription: string,
+	outputSchema: T,
 ): Promise<ResumeGenerationResult<T>> {
-  try {
-    const generatedCoreData = await generateStructuredResume(
-      combinedSourceText,
-      jobDescription,
-      outputSchema
-    );
+	try {
+		const generatedCoreData = await generateStructuredResume(
+			combinedSourceText,
+			jobDescription,
+			outputSchema,
+		);
 
-    return {
-      success: true,
-      structuredData: generatedCoreData,
-    };
-  } catch (error) {
-    serverLogger.error("Error in resume generation:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "An unknown error occurred during resume processing",
-    };
-  }
+		return {
+			success: true,
+			structuredData: generatedCoreData,
+		};
+	} catch (error) {
+		serverLogger.error("Error in resume generation:", error);
+		return {
+			success: false,
+			error:
+				error instanceof Error
+					? error.message
+					: "An unknown error occurred during resume processing",
+		};
+	}
 }

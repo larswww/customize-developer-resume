@@ -5,7 +5,7 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	workers: 1, // TODO suite fails on ci with multiple workers
 	reporter: "html",
 	use: {
 		baseURL: "http://localhost:4000",
@@ -13,22 +13,22 @@ export default defineConfig({
 		screenshot: "only-on-failure",
 		launchOptions: {
 			devtools: true,
-		  },
+		},
 	},
 	projects: [
 		{
-			name: 'setup',
+			name: "setup",
 			testMatch: /global\.setup\.ts/,
-			teardown: 'cleanup',
+			teardown: "cleanup",
 		},
 		{
-			name: 'cleanup',
+			name: "cleanup",
 			testMatch: /global\.teardown\.ts/,
-		  },
+		},
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
-			dependencies: ['setup'],
+			dependencies: ["setup"],
 		},
 	],
 	webServer: {

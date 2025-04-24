@@ -1,12 +1,12 @@
 import type { WorkflowStep } from "../../services/ai/types";
 
 export const workflowSteps: WorkflowStep[] = [
-  {
-    id: "communication-guide",
-    name: "Communication Guide",
-    description:
-      "Create a communication guide based on the EPIC framework for client interactions",
-    systemPrompt: `You are an expert in writing resume instructions for GPT 4.1. You analyze job descriptions and return a customization guide the AI can use in the next step. The guide will be used in combination with a candidates complete career story to write a targeted resume. It is important you phrase the content so that it describes the ideal resume for the job, whilst leaving the instructions open so that the AI is not encouraged to hallucinate.
+	{
+		id: "communication-guide",
+		name: "Communication Guide",
+		description:
+			"Create a communication guide based on the EPIC framework for client interactions",
+		systemPrompt: `You are an expert in writing resume instructions for GPT 4.1. You analyze job descriptions and return a customization guide the AI can use in the next step. The guide will be used in combination with a candidates complete career story to write a targeted resume. It is important you phrase the content so that it describes the ideal resume for the job, whilst leaving the instructions open so that the AI is not encouraged to hallucinate.
 
 You think step-by-step;
 
@@ -60,22 +60,22 @@ Conclusion: Close the story, typically repetition of governing thought and key l
 Provide only the JSON structure, no other commentary.
 
 `,
-    provider: "openai",
-    options: {
-      provider: "openai",
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      model: "gpt-4.1",
-    },
-    prompt: "{jobDescription}",
-  },
-  {
-    id: "craft-relevant-content",
-    name: "Craft Relevant Content",
-    dependencies: ["communication-guide"],
-    description:
-      "Craft the most relevant content from the candidate's career story for the one-pager",
-    systemPrompt: `You are an expert cover letter author and help the user present the most relevant parts of their full career story in a motivating letter. You think step by step;
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 0.2,
+			response_format: { type: "json_object" },
+			model: "gpt-4.1",
+		},
+		prompt: "{jobDescription}",
+	},
+	{
+		id: "craft-relevant-content",
+		name: "Craft Relevant Content",
+		dependencies: ["communication-guide"],
+		description:
+			"Craft the most relevant content from the candidate's career story for the one-pager",
+		systemPrompt: `You are an expert cover letter author and help the user present the most relevant parts of their full career story in a motivating letter. You think step by step;
 
 1. Analyze the provided instructions
 2. Extract the most relevant content from the career story,
@@ -104,14 +104,14 @@ templateSections:
   experienceTitle: "The title of the experience section.",
   educationTitle: "The title of the education section."
 `,
-    provider: "openai",
-    options: {
-      provider: "openai",
-      temperature: 0,
-      response_format: { type: "json_object" },
-      model: "gpt-4.1",
-    },
-    prompt: `
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 0,
+			response_format: { type: "json_object" },
+			model: "gpt-4.1",
+		},
+		prompt: `
 ---INSTRUCTIONS---
 """{communication-guide}"""
 ---END INSTRUCTIONS---
@@ -120,28 +120,28 @@ templateSections:
 """{workHistory}"""
 ---END CAREER STORY---
 `,
-  },
-  {
-    id: "fact-check",
-    useInResume: true,
-    name: "Fact Check",
-    dependencies: ["craft-relevant-content"],
-    description: "Fact check the content so it follows the writing guidelines",
-    systemPrompt: `
+	},
+	{
+		id: "fact-check",
+		useInResume: true,
+		name: "Fact Check",
+		dependencies: ["craft-relevant-content"],
+		description: "Fact check the content so it follows the writing guidelines",
+		systemPrompt: `
     You are an expert fact checker and resume writer. Your task is to proof read a resume and carefully check all statements against a candidates complete career story.
 
 You are looking for statements that are not present in the SOURCE, and for each such occurrence, you rewrite that particular part of the letter so that its factually accurate whilst maintaining the tone and writing style of the letter.
 
 Return only the edited RESUME in the same structure with no added commentary.
 `,
-    provider: "openai",
-    options: {
-      provider: "openai",
-      temperature: 1,
-      response_format: { type: "json_object" },
-      model: "gpt-4.1",
-    },
-    prompt: `RESUME:
+		provider: "openai",
+		options: {
+			provider: "openai",
+			temperature: 1,
+			response_format: { type: "json_object" },
+			model: "gpt-4.1",
+		},
+		prompt: `RESUME:
 
 """
 {craft-relevant-content}
@@ -151,5 +151,5 @@ Return only the edited RESUME in the same structure with no added commentary.
 
 SOURCE:
 {workHistory}`,
-  },
+	},
 ];

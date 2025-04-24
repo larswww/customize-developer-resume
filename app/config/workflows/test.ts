@@ -7,6 +7,7 @@ export const workflowSteps: WorkflowStep[] = [
 		description: "First independent step",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:
@@ -25,6 +26,7 @@ Just provide the paragraph, nothing else.`,
 		description: "Second independent step",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:
@@ -41,6 +43,7 @@ Work History:
 		description: "Depends on Step A",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:
@@ -59,6 +62,7 @@ Just provide the statement, nothing else.`,
 		description: "Depends on Step B",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:
@@ -77,6 +81,7 @@ Just provide the headline, nothing else.`,
 		description: "Depends on Steps C and D",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:

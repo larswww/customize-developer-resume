@@ -10,7 +10,7 @@ import { workflowSteps as simpleResumeWorkflowSteps } from "./simple-resume";
 export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];
-}
+};
 
 export const workflows: Record<string, WorkflowConfig> = {
 	default: {
