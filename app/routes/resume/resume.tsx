@@ -107,7 +107,7 @@ export default function JobResume({
 	const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
 	const hasEmptyContactInfo = Object.values(resumeData.contactInfo).some(
-		(value) => value === null || value === undefined || value === ""
+		(value) => value === null || value === undefined || value === "",
 	);
 
 	const hasEmptyEducation =

@@ -9,7 +9,7 @@ export const workflowSteps: WorkflowStep[] = [
 		provider: "openai",
 		options: {
 			model: "o1",
-			provider: "openai"
+			provider: "openai",
 		},
 		prompt: `Analyze the following {jobDescription} and provide a complete step-by-step guide for customizing a resume for this job. Your guide will be used by an AI to customize a resume, so it should be in a way that is easy for an AI to understand. Direct to Ai to use the same language as the job description requests, or if not specified use the same language as the job description.
 
@@ -34,7 +34,7 @@ export const workflowSteps: WorkflowStep[] = [
 		provider: "openai",
 		options: {
 			model: "o1",
-			provider: "openai"
+			provider: "openai",
 		},
 		prompt: `Consider the provided job description, then analyze your engineers most relevant skills.
 
@@ -61,7 +61,7 @@ Work experience:
 		provider: "openai",
 		options: {
 			model: "o1",
-			provider: "openai"
+			provider: "openai",
 		},
 		prompt: `
 	Rewrite the candidates work experience based on the instructions, carefully considering language and selecting the most relevant experience. Reduce the full work experience to approximately one page by focusing on the most relevant experience and track record. Prefer more recent experience.
@@ -90,7 +90,7 @@ Work experience:
 		provider: "openai",
 		options: {
 			model: "o1",
-			provider: "openai"
+			provider: "openai",
 		},
 		prompt: `Based on the job description and the candidate's work history, write a short (2-3 sentences) motivation statement. Focus on genuinely connecting the candidate's core experiences and aspirations with the key requirements and opportunities of the role. Avoid clichés and generic statements. The tone should be professional yet personal and authentic.
 
@@ -114,7 +114,7 @@ Provide only the motivation statement, no other text or commentary.`,
 		provider: "openai",
 		options: {
 			model: "o1",
-			provider: "openai"
+			provider: "openai",
 		},
 		prompt: `Using the provided job description and work history, draft a brief (1-2 sentences) personal background summary for the candidate's resume. Highlight 1-2 key personal attributes or experiences that align with the company culture or job requirements, inferred from the provided texts. Ensure the tone sounds natural and human, not AI-generated.
 
