@@ -30,17 +30,15 @@ jobs:
         with:
           node-version: 20.17.0
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Install browser for puppeteer
-        run: pnpm dlx puppeteer browsers install
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-modules
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-  
+      - name: Install dependencies
+        run: pnpm install
+
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -62,7 +60,7 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Run type checking
         run: pnpm typecheck
-  
+
   playwright:
     name: Playwright
     runs-on: ubuntu-latest
@@ -81,6 +79,13 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-puppeteer-
+      - name: Install browser for puppeteer
+        run: pnpm dlx puppeteer browsers install --yes
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
