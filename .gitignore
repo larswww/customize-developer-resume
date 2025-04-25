@@ -7,6 +7,7 @@
 # React Router
 /.react-router/
 /build/
+*.cpuprofile
 
 # Database files
 /db-data/
