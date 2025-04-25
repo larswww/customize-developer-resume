@@ -4,9 +4,11 @@
 	"type": "module",
 	"scripts": {
 		"build": "react-router build",
+		"build:dev": "react-router build --watch --profile --host 0.0.0.0 --sourcemapClient true --sourcemapServer true --minify false --logLevel info",
 		"dev": "cross-env NODE_ENV=development tsx server.ts",
 		"dev:msw": "cross-env MSW_ENABLED=true NODE_ENV=development PORT=4000 tsx server.ts",
 		"start": "tsx server.ts",
+		"start:prod:msw": "cross-env MSW_ENABLED=true NODE_ENV=production PORT=4000 tsx server.ts",
 		"typecheck": "react-router typegen && tsc -b",
 		"test:e2e": "playwright test --reporter=line",
 		"test:e2e:ui": "playwright test --ui",

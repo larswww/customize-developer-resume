@@ -5,7 +5,7 @@ export default defineConfig({
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: 2,
-	workers: 1, // TODO suite fails on ci with multiple workers
+	workers: 3,
 	reporter: "html",
 	use: {
 		baseURL: "http://localhost:4000",
@@ -32,8 +32,9 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "pnpm dev:msw",
+		stdout: "pipe",
+		command: process.env.CI ? "pnpm start:prod:msw" : "pnpm dev:msw",
 		url: "http://localhost:4000",
-		reuseExistingServer: true,
+		reuseExistingServer: !process.env.CI,
 	},
 });
