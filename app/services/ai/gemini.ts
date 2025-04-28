@@ -14,7 +14,7 @@ export class GeminiClient implements AIClient {
 
 	async generate(
 		prompt: string,
-		options: AIRequestOptions = {},
+		options: AIRequestOptions,
 	): Promise<AIResponse> {
 		serverLogger.log("[GeminiClient] Generating content with Gemini API");
 		const model = options.model || "gemini-1.5-flash";

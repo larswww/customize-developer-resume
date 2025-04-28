@@ -7,6 +7,7 @@ export const workflowSteps: WorkflowStep[] = [
 		description: "Extract structured data strictly from the job description.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 			response_format: { type: "json_object" },
 		},
@@ -27,6 +28,7 @@ Output strictly as JSON without extra information.`,
 			"Strictly parse provided candidate's work history without invention.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 			response_format: { type: "json_object" },
 		},
@@ -47,6 +49,7 @@ Output strictly as JSON without extra information.`,
 			"Ensure parsed candidate profile strictly matches original work history.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 			response_format: { type: "json_object" },
 		},
@@ -70,6 +73,7 @@ Output strictly corrected JSON.`,
 			"Rank experiences strictly based on verified facts for a senior developer role.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 			response_format: { type: "json_object" },
 		},
@@ -93,6 +97,7 @@ Output strictly as JSON with relevance scores.`,
 			"Strictly generate a senior developer Markdown resume without invention.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:
@@ -123,6 +128,7 @@ Output strictly Markdown without extra information.`,
 			"Strictly optimize senior developer resume for accuracy, impact, and conciseness.",
 		provider: "openai",
 		options: {
+			provider: "openai",
 			model: "gpt-3.5-turbo-0125",
 		},
 		systemPrompt:

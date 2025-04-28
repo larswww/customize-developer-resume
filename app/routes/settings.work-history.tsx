@@ -16,7 +16,6 @@ import { SaveBottomBar } from "~/components/SaveBottomBar";
 import dbService from "~/services/db/dbService.server";
 import text from "~/text";
 import { serverLogger } from "~/utils/logger.server";
-import { SETTINGS_KEYS } from "~/config/constants";
 
 export function meta() {
 	return [
@@ -48,7 +47,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 	try {
 		const success = dbService.saveWorkHistory(newWorkHistory);
-		
+
 		if (success) {
 			return { success: true, message: "Work history updated successfully!" };
 		}

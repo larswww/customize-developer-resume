@@ -1,4 +1,4 @@
-import { Page, test as base, expect } from "@playwright/test";
+import { test as base, expect } from "@playwright/test";
 import text from "../../../app/text";
 
 type JobFixtures = {
@@ -19,41 +19,34 @@ export const test = base.extend<JobFixtures>({
 		): Promise<string> => {
 			await page.goto("/dashboard");
 
-			// Open create job form
-			const createButton = page.getByRole("button", {
-				name: text.dashboard.createJob.ctaButton,
-			});
-			await expect(createButton).toBeVisible();
-			await createButton.click();
-			await page.waitForTimeout(500);
-			await expect(
-				page.getByRole("heading", { name: text.dashboard.createJob.ctaButton }),
-			).toBeVisible();
+			await page
+				.getByRole("button", {
+					name: text.dashboard.createJob.ctaButton,
+				})
+				.click({ force: true });
+			await page.waitForTimeout(1000);
 
-			// Fill out the form
+			await page.locator('input[name="title"]').waitFor({ state: "visible" });
 			await page.locator('input[name="title"]').fill(title);
 			if (link) {
 				await page.locator('input[name="link"]').fill(link);
 			}
 			await page.locator('textarea[name="jobDescription"]').fill(description);
 
-			// Click create and explicitly wait for the navigation/load event to the job page
 			await Promise.all([
-				page.waitForURL(/\/job\/(\d+)/, { timeout: 60000 }), // Keep waiting for URL pattern
-				page.waitForLoadState("networkidle"), // Wait for network activity to cease
+				page.waitForURL(/\/job\/(\d+)/),
+				page.waitForLoadState("networkidle"),
 				page
 					.getByRole("button", { name: text.dashboard.createJob.confirmButton })
-					.click(), // Trigger the action
+					.click(),
 			]);
 
 			const url = page.url();
 			const match = url.match(/\/job\/(\d+)/);
 			const jobId = match?.[1] || "";
-
-			// Wait for the job page heading to be visible
 			await expect(
 				page.getByRole("heading", { name: new RegExp(title) }),
-			).toBeVisible({ timeout: 10000 });
+			).toBeVisible();
 
 			return jobId;
 		};

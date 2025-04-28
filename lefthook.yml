@@ -1,0 +1,16 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: "biome format"
+      run: "pnpm lint:format"
+      stage_fixed: true
+    - name: "typecheck"
+      run: "pnpm typecheck"
+      stage_fixed: true
+
+pre-push:
+  jobs:
+    - name: "playwright e2e"
+      run: "pnpm test:e2e"
+    - name: "vitest unit"
+      run: "pnpm test"

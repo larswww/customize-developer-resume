@@ -4,11 +4,13 @@
 	"type": "module",
 	"scripts": {
 		"build": "react-router build",
+		"build:dev": "react-router build --watch --profile --host 0.0.0.0 --sourcemapClient true --sourcemapServer true --minify false --logLevel info",
 		"dev": "cross-env NODE_ENV=development tsx server.ts",
 		"dev:msw": "cross-env MSW_ENABLED=true NODE_ENV=development PORT=4000 tsx server.ts",
 		"start": "tsx server.ts",
+		"start:prod:msw": "cross-env MSW_ENABLED=true NODE_ENV=production PORT=4000 tsx server.ts",
 		"typecheck": "react-router typegen && tsc -b",
-		"test:e2e": "playwright test",
+		"test:e2e": "playwright test --reporter=line",
 		"test:e2e:ui": "playwright test --ui",
 		"test": "vitest run",
 		"test:watch": "vitest",
@@ -24,7 +26,6 @@
 		"@conform-to/zod": "^1.4.0",
 		"@emotion/styled": "^11.14.0",
 		"@mdxeditor/editor": "^3.29.1",
-		"@radix-ui/react-collapsible": "^1.1.3",
 		"@react-router/express": "^7.4.0",
 		"@react-router/node": "^7.4.0",
 		"@types/better-sqlite3": "^7.6.12",
@@ -37,7 +38,7 @@
 		"json-schema-faker": "^0.5.9",
 		"morgan": "^1.10.0",
 		"openai": "^4.91.1",
-		"puppeteer-core": "^24.5.0",
+		"puppeteer": "^24.7.1",
 		"react": "^19.0.0",
 		"react-dom": "^19.0.0",
 		"react-markdown": "^9.0.1",
@@ -60,6 +61,7 @@
 		"@types/react-dom": "^19.0.1",
 		"@vitest/ui": "^3.1.1",
 		"cross-env": "^7.0.3",
+		"lefthook": "^1.11.11",
 		"msw": "^2.7.3",
 		"playwright": "^1.51.1",
 		"tailwindcss": "^4.0.0",
@@ -74,19 +76,10 @@
 		"pnpm": "10.6.3"
 	},
 	"msw": {
-		"workerDirectory": [
-			"public"
-		]
+		"workerDirectory": ["public"]
 	},
 	"pnpm": {
-		"onlyBuiltDependencies": [
-			"better-sqlite3"
-		],
-		"ignoredBuiltDependencies": [
-			"@biomejs/biome",
-			"core-js",
-			"esbuild",
-			"msw"
-		]
+		"onlyBuiltDependencies": ["better-sqlite3"],
+		"ignoredBuiltDependencies": ["@biomejs/biome", "core-js", "esbuild", "msw"]
 	}
 }

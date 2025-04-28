@@ -68,6 +68,19 @@ pnpm test:e2e
 pnpm test:e2e:ui
 ```
 
+## Dependencies
+- Prompt engineering done thanks to the excellent [ChainForge](https://github.com/ianarawjo/ChainForge) project
+- SSR and React via [React Router 7 Framework](https://reactrouter.com/start/framework/routing) (formerly [Remix.run](https://remix.run))
+- [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)
+- [Zod](https://zod.dev/) wrapped SQLite DB Service as lightweight custom "ORM" -> providing end 2 end type safety and runtime type safety.
+- [Conform](https://conform.guide/integration/remix) to simplify React Router form usage -> continues Zod runtime/compiletime type benefits.
+- [MDX Editor](https://github.com/mdx-editor/editor) for markdown editing
+
 ## License
+
+## Templates
+1. All variables in the template must be present in inputs. If you're not using a variable passed to the component, render it in a hidden input field.
+2. If using the same variable twice in a template, make sure you give the second use a different name= property to TextWrap component, otherwise FormData will return an array for that field which will fail Zod. 
+
 
 MIT

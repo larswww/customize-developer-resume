@@ -1,4 +1,4 @@
-import type { PaperFormat } from "puppeteer-core";
+import type { PaperFormat } from "puppeteer";
 import type { ActionFunctionArgs } from "react-router";
 import { generatePdfFromHtml } from "~/services/pdf/serverPdfService";
 import { serverLogger } from "~/utils/logger.server";

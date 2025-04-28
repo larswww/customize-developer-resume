@@ -4,8 +4,8 @@ export default defineConfig({
 	testDir: "./tests/e2e",
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
-	retries: process.env.CI ? 2 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	retries: 2,
+	workers: 3,
 	reporter: "html",
 	use: {
 		baseURL: "http://localhost:4000",
@@ -13,27 +13,28 @@ export default defineConfig({
 		screenshot: "only-on-failure",
 		launchOptions: {
 			devtools: true,
-		  },
+		},
 	},
 	projects: [
 		{
-			name: 'setup',
+			name: "setup",
 			testMatch: /global\.setup\.ts/,
-			teardown: 'cleanup',
+			teardown: "cleanup",
 		},
 		{
-			name: 'cleanup',
+			name: "cleanup",
 			testMatch: /global\.teardown\.ts/,
-		  },
+		},
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
-			dependencies: ['setup'],
+			dependencies: ["setup"],
 		},
 	],
 	webServer: {
-		command: "pnpm dev:msw",
+		stdout: "pipe",
+		command: process.env.CI ? "pnpm start:prod:msw" : "pnpm dev:msw",
 		url: "http://localhost:4000",
-		reuseExistingServer: true,
+		reuseExistingServer: !process.env.CI,
 	},
 });

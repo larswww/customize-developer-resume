@@ -30,15 +30,42 @@ jobs:
         with:
           node-version: 20.17.0
           cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
       - name: Cache node_modules
         uses: actions/cache@v3
         id: cache-modules
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
-  
+      - name: Install dependencies
+        run: pnpm install
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.17.0
+          cache: 'pnpm'
+      - name: Restore node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - name: Build application
+        run: pnpm build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: build
+          retention-days: 1
+
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
@@ -60,11 +87,11 @@ jobs:
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Run type checking
         run: pnpm typecheck
-  
+
   playwright:
     name: Playwright
     runs-on: ubuntu-latest
-    needs: setup
+    needs: [setup, build]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -79,6 +106,18 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/puppeteer
+          key: ${{ runner.os }}-puppeteer-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: ${{ runner.os }}-puppeteer-
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: build
+      - name: Install browser for puppeteer
+        run: pnpm dlx puppeteer browsers install --yes
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
@@ -88,9 +127,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: playwright-report
+          path: |
+            playwright-report
+            test-results
           retention-days: 7
-          
+             
   vitest:
     name: Vitest
     runs-on: ubuntu-latest

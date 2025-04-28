@@ -47,11 +47,9 @@ export const DefaultResumeCoreDataSchema = z.object({
 	skills: z.array(SkillSchema),
 });
 
-export const DefaultResumeDataSchema = z.object({
+export const DefaultResumeDataSchema = DefaultResumeCoreDataSchema.extend({
 	contactInfo: ContactInfoSchema,
-	workExperience: z.array(WorkExperienceSchema),
 	education: z.array(EducationSchema),
-	skills: z.array(SkillSchema),
 	languages: z.optional(z.array(z.string())),
 	otherInfo: z.optional(
 		z.object({

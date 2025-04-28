@@ -4,11 +4,13 @@ import { workflowSteps as defaultWorkflowSteps } from "./default";
 import { workflowSteps as developerWorkflowSteps } from "./developer";
 import { workflowSteps as instructionsWorkflowSteps } from "./instructions";
 import { workflowSteps as testWorkflowSteps } from "./test";
-import { workflowSteps as simpleConsultantWorkflowSteps } from "./simple-consultant";
+import { workflowSteps as defaultAltWorkflowSteps } from "./default-alt";
+import { workflowSteps as onePagerWorkflowSteps } from "./one-pager";
+import { workflowSteps as simpleResumeWorkflowSteps } from "./simple-resume";
 export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];
-}
+};
 
 export const workflows: Record<string, WorkflowConfig> = {
 	default: {
@@ -31,9 +33,17 @@ export const workflows: Record<string, WorkflowConfig> = {
 		label: "Instructions Workflow",
 		steps: instructionsWorkflowSteps,
 	},
-	simpleConsultant: {
-		label: "Simple Consultant Workflow",
-		steps: simpleConsultantWorkflowSteps,
+	defaultAlt: {
+		label: "Default Workflow Alt",
+		steps: defaultAltWorkflowSteps,
+	},
+	onePager: {
+		label: "One Pager Workflow",
+		steps: onePagerWorkflowSteps,
+	},
+	simpleResume: {
+		label: "Simple Resume Workflow",
+		steps: simpleResumeWorkflowSteps,
 	},
 };
 

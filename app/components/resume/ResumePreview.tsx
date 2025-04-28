@@ -2,17 +2,20 @@ import React from "react";
 import type { ConsultantOnePagerData } from "~/config/schemas/consultantOnePager";
 import type { DefaultResumeData } from "~/config/schemas/default";
 import type { ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
-import type { SimpleConsultantData } from "~/config/schemas/simple";
+import type { SimpleConsultantComponentData } from "~/config/schemas/simple";
 
 interface ResumePreviewProps {
 	displayData:
 		| DefaultResumeData
-		| SimpleConsultantData
+		| SimpleConsultantComponentData
 		| ConsultantOnePagerData
 		| null;
 	resumeRef: React.RefObject<HTMLDivElement | null>;
 	TemplateComponent: React.ComponentType<{
-		data: DefaultResumeData | SimpleConsultantData | ConsultantOnePagerData;
+		data:
+			| DefaultResumeData
+			| SimpleConsultantComponentData
+			| ConsultantOnePagerData;
 	}> | null;
 	isGenerating: boolean;
 	templateConfig?: ResumeTemplateConfig | null;

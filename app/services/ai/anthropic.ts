@@ -25,7 +25,7 @@ export class AnthropicClient implements AIClient {
 
 	async generate(
 		prompt: string,
-		options: AIRequestOptions = {},
+		options: AIRequestOptions,
 	): Promise<AIResponse> {
 		serverLogger.log(
 			"[Anthropic Client] Making request to Anthropic API via SDK",

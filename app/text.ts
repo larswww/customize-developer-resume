@@ -5,6 +5,7 @@ export default {
 		info: "About Me",
 	},
 	ui: {
+		cancel: "Cancel",
 		delete: "Delete",
 		generating: "Generating...",
 		complete: "Complete",

@@ -23,14 +23,16 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 		expertise,
 		highlights,
 		profileText,
-		companyName = "McKinsey & Company",
+		companyName,
 		language = "English",
+		highlightHeadline = "Key Highlights",
+		expertiseHeadline = "Areas of Expertise",
 	} = data;
 
-	const whatsappLink = "https://wa.me/31612345678";
-	const calendarLink = "https://calendly.com/yourname/meeting";
+	const whatsappLink = "https://wa.me/message/RDGPSHJHCOZ6I1";
+	const calendarLink = "https://cal.com/productworks";
 	const emailAddress = "lars@productworks.nl";
-	const githubLink = "https://github.com/larsww";
+	const githubLink = "https://github.com/larswww/customize-developer-resume";
 
 	const textMap = {
 		scheduleIntro: {
@@ -50,48 +52,105 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 					" med min egen applikation. All information är verifierad av mig. ",
 				Dutch: " met eigen applicatie. Informatie is geverifieerd door mij. ",
 			},
-			end: {
-				English: " open source ",
-				Swedish: " open source ",
-				Dutch: " open source ",
-			},
+			end: "[Open Source]",
 		},
 	};
 
-	return (
-		<div className="font-sans text-gray-800 w-full h-full flex flex-col relative overflow-hidden">
-			{/* Blue background for header */}
-			<header className="relative z-10 bg-[#1e3a8a] text-white p-6 pb-8">
-				<div className="max-w-5xl mx-auto">
-					{/* Top row with company and name */}
-					<div className="flex justify-between items-center mb-8">
-						<div>
-							<h2 className="text-xl font-light"><TextWrap text={companyName} name="companyName" label="Company Name" /></h2>
-						</div>
-						<div className="text-right">
-							<h1 className="text-4xl font-semibold text-white">
-								<TextWrap text={contactInfo.name || "Lars Wöldern"} name="contactInfo.name" label="Name" />
-							</h1>
-						</div>
-					</div>
+	// Function to create a drop cap for the profile text
+	const renderProfileText = () => {
+		if (!profileText || typeof profileText !== "string") return null;
 
-					{/* Main content row */}
-					<div className="flex flex-col md:flex-row justify-between items-start gap-8">
-						<div className="flex-1 pr-6">
-							<p className="text-xl text-blue-100 mb-6 max-w-3xl leading-relaxed text-justify">
-								<TextWrap text={subtitle || "Consultant subtitle"} name="subtitle" label="Subtitle" />
+		return (
+			<p className="text-lg text-gray-700 leading-relaxed mb-6 mx-4">
+				<span className="float-left text-4xl font-semibold mr-2 mt-1">
+					{profileText.charAt(0)}
+				</span>
+				<TextWrap
+					text={profileText.substring(1)}
+					name="profileText"
+					label="Profile Text"
+				/>
+			</p>
+		);
+	};
+
+	return (
+		<div className="font-serif text-gray-800 w-full h-full flex flex-col relative overflow-hidden">
+			<input type="hidden" name="language" value={language} />
+			{/* Header with just company name and personal name */}
+			<header className="bg-[#1e3a8a] text-white py-5">
+				<div className="max-w-4xl mx-auto px-6 flex justify-between items-center">
+					<h2 className="text-xl font-light tracking-wide">
+						<TextWrap
+							text={companyName}
+							name="companyName"
+							label="Company Name"
+						/>
+					</h2>
+					<h1 className="text-2xl font-semibold tracking-wide">
+						<TextWrap
+							text={contactInfo.firstName}
+							name="contactInfo.firstName"
+							label="Name"
+						/>
+						<TextWrap
+							text={contactInfo.lastName}
+							name="contactInfo.lastName"
+							label="Name"
+						/>
+					</h1>
+				</div>
+			</header>
+
+			<main className="flex-1 bg-white">
+				{/* Content area */}
+				<div className="max-w-4xl mx-auto px-6 py-8">
+					{/* Profile section with image and subtitle */}
+					<div className="flex flex-row gap-8 mb-12">
+						<div className="flex-1">
+							<h2 className="text-3xl font-normal text-gray-700 mb-5">
+								<TextWrap
+									text={
+										title ||
+										"Senior Frontend Developer & Digital Product Consultant"
+									}
+									name="title"
+									label="Profile Title"
+								/>
+							</h2>
+							<p className="text-xl text-gray-600 mb-7 leading-relaxed">
+								<TextWrap
+									text={subtitle || "Consultant subtitle"}
+									name="subtitle"
+									label="Subtitle"
+								/>
 							</p>
 
+							{/* Highlight section headline */}
+							<h3 className="text-lg font-medium text-gray-700 mb-3">
+								<TextWrap
+									text={highlightHeadline}
+									name="highlightHeadline"
+									label="Highlight Headline"
+								/>
+							</h3>
+
 							{/* Key bullet points */}
-							<ul className="space-y-4 text-blue-50 max-w-3xl">
+							<ul className="space-y-4 mb-6">
 								<ArrayRenderer
 									items={highlights?.slice(0, 3) || []}
-									getKey={(highlight, index) => `top-highlight-${highlight.substring(0, 10)}-${index}`}
+									getKey={(highlight, index) =>
+										`top-highlight-${highlight.substring(0, 10)}-${index}`
+									}
 									renderItem={(highlight, index) => (
 										<li className="flex items-start">
-											<span className="text-blue-300 mr-3 text-lg ml-2">•</span>
-											<span className="font-light text-lg text-justify">
-												<TextWrap text={highlight} name={`highlights[${index}]`} label="Highlight" />
+											<span className="text-blue-700 mr-3 text-xl">•</span>
+											<span className="text-lg text-gray-700">
+												<TextWrap
+													text={highlight}
+													name={`highlights[${index}]`}
+													label="Highlight"
+												/>
 											</span>
 										</li>
 									)}
@@ -100,126 +159,144 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 						</div>
 
 						{/* Profile image */}
-						<div className="flex-shrink-0 mt-2">
+						<div className="flex-shrink-0">
 							<img
-								src={contactInfo.imageUrl || "/placeholder-profile.jpg"}
-								alt={contactInfo.name || "Profile"}
+								src={
+									contactInfo.imageUrl ||
+									"https://productworks.nl/image/lars_2.jpg?height=1096&width=625&format=webp&fit=cover"
+								}
+								alt={contactInfo.firstName || "Profile"}
 								className="w-48 h-auto rounded-lg border border-white shadow-sm object-cover"
 							/>
 						</div>
 					</div>
-				</div>
-			</header>
 
-			{/* Button section outside blue area */}
-			<div className="bg-white py-4 shadow-md print:py-2">
-				<div className="max-w-5xl mx-auto flex flex-wrap gap-2 px-4 justify-between print:flex-nowrap">
+					{/* Main content */}
+					<section className="mb-12">
+						{renderProfileText()}
+
+						{/* Expertise tags */}
+						{expertise && expertise.length > 0 && (
+							<div className="mx-4">
+								{/* Expertise headline */}
+								<h3 className="text-lg font-medium text-gray-700 mb-3">
+									<TextWrap
+										text={expertiseHeadline}
+										name="expertiseHeadline"
+										label="Expertise Headline"
+									/>
+								</h3>
+
+								<div className="flex flex-wrap gap-2 mb-10">
+									<ArrayRenderer
+										items={expertise}
+										getKey={(skill, index) => `expertise-${skill}-${index}`}
+										renderItem={(skill, index) => (
+											<span className="px-3 py-1 bg-blue-50 text-blue-700 rounded text-sm border border-blue-100">
+												<TextWrap
+													text={skill}
+													name={`expertise[${index}]`}
+													label="Expertise"
+												/>
+											</span>
+										)}
+									/>
+								</div>
+							</div>
+						)}
+					</section>
+
+					{/* Main content ends here - Additional highlights section removed */}
+				</div>
+			</main>
+
+			{/* Contact links - moved to be just above footer */}
+			<div className="bg-white pt-6 pb-4 border-t border-gray-200">
+				<div className="max-w-4xl mx-auto flex justify-center flex-wrap gap-6 px-6">
 					<a
 						href={whatsappLink}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center px-3 py-2 bg-[#25D366] text-white rounded-md hover:bg-opacity-90 transition-colors text-sm print:text-xs"
+						className="flex items-center text-gray-700 hover:text-blue-700 transition-colors text-sm"
 					>
-						<WhatsAppIcon size="sm" className="mr-1.5 print:w-4 print:h-4" />
-						<TextWrap text="WhatsApp" name="whatsappLabel" label="WhatsApp Button" />
+						<WhatsAppIcon size="sm" className="mr-1.5" />
+						<TextWrap
+							text="WhatsApp"
+							name="whatsappLabel"
+							label="WhatsApp Button"
+						/>
 					</a>
 					<a
 						href={calendarLink}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center px-3 py-2 bg-[#333333] text-white rounded-md hover:bg-opacity-90 transition-colors text-sm print:text-xs"
+						className="flex items-center text-gray-700 hover:text-blue-700 transition-colors text-sm"
 					>
-						<CalendarIcon size="sm" className="mr-1.5 print:w-4 print:h-4" />
-						<TextWrap text={textMap.scheduleIntro[language]} name="scheduleIntroLabel" label="Schedule Intro Button" />
+						<CalendarIcon size="sm" className="mr-1.5" />
+						<TextWrap
+							text={textMap.scheduleIntro[language]}
+							name="scheduleIntroLabel"
+							label="Schedule Intro Button"
+						/>
 					</a>
 					<a
 						href={`mailto:${emailAddress}`}
-						className="inline-flex items-center px-3 py-2 bg-[#0055AA] text-white rounded-md hover:bg-opacity-90 transition-colors text-sm print:text-xs"
+						className="flex items-center text-gray-700 hover:text-blue-700 transition-colors text-sm"
 					>
-						<EmailIcon size="sm" className="mr-1.5 print:w-4 print:h-4" />
-						<TextWrap text={emailAddress} name="emailAddress" label="Email Address" />
+						<EmailIcon size="sm" className="mr-1.5" />
+						<TextWrap
+							text={emailAddress}
+							name="emailAddress"
+							label="Email Address"
+						/>
 					</a>
 					<a
 						href={githubLink}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center px-3 py-2 bg-[#24292e] text-white rounded-md hover:bg-opacity-90 transition-colors text-sm print:text-xs"
+						className="flex items-center text-gray-700 hover:text-blue-700 transition-colors text-sm"
 					>
-						<GitHubIcon size="sm" className="mr-1.5 print:w-4 print:h-4" />
+						<GitHubIcon size="sm" className="mr-1.5" />
 						<TextWrap text="GitHub" name="githubLabel" label="GitHub Button" />
 					</a>
 				</div>
 			</div>
 
-			<main className="flex-1 bg-gray-50 p-4 relative z-10">
-				<div className="max-w-5xl mx-auto">
-					{/* Profile text */}
-					<section className="bg-white rounded-lg p-6 shadow-sm mb-6">
-						<h2 className="text-2xl font-light text-gray-800 mb-4">
-							<TextWrap text={title || "Consultant Profile"} name="title" label="Profile Title" />
-						</h2>
-						<p className="text-base text-gray-600 leading-relaxed text-justify">
-							<TextWrap text={profileText} name="profileText" label="Profile Text" />
-						</p>
-
-						{/* Expertise tags */}
-						{expertise && expertise.length > 0 && (
-							<div className="flex flex-wrap gap-2 mt-4">
-								<ArrayRenderer
-									items={expertise}
-									getKey={(skill, index) => `expertise-${skill}-${index}`}
-									renderItem={(skill, index) => (
-										<span className="px-3 py-1 bg-blue-50 text-blue-700 rounded text-sm">
-											<TextWrap text={skill} name={`expertise[${index}]`} label="Expertise" />
-										</span>
-									)}
-								/>
-							</div>
-						)}
-					</section>
-
-					{/* Additional highlights - if there are more than shown in the header */}
-					{highlights && highlights.length > 3 && (
-						<section className="bg-white rounded-lg p-6 shadow-sm mt-4">
-							<h2 className="text-2xl font-light text-gray-800 mb-4">
-								<TextWrap text="Additional Highlights" name="additionalHighlightsTitle" label="Additional Highlights Title" />
-							</h2>
-							<ul className="space-y-2">
-								<ArrayRenderer
-									items={highlights.slice(3)}
-									getKey={(highlight, index) => `additional-highlight-${highlight.substring(0, 10)}-${index}`}
-									renderItem={(highlight, index) => (
-										<li className="flex items-start">
-											<span className="text-blue-500 mr-2 text-lg">•</span>
-											<span className="text-gray-700">
-												<TextWrap text={highlight} name={`highlights[${index + 3}]`} label="Additional Highlight" />
-											</span>
-										</li>
-									)}
-								/>
-							</ul>
-						</section>
-					)}
-				</div>
-			</main>
-
 			{/* Disclaimer footer */}
-			<footer className="bg-gray-100 py-3 border-t border-gray-200">
-				<div className="max-w-5xl mx-auto px-6 flex items-center justify-center">
-					<TextWrap text={textMap.disclaimer.start[language]} name="disclaimerStart" label="Disclaimer Start" />
-					<span className="font-medium mx-1"><TextWrap text={companyName} name="companyName" label="Company Name" /></span>
-					<TextWrap text={textMap.disclaimer.middle[language]} name="disclaimerMiddle" label="Disclaimer Middle" />
+			<footer className="bg-gray-50 py-3 border-t border-gray-200">
+				<div className="max-w-4xl mx-auto px-6 text-center text-gray-600 text-sm">
+					<TextWrap
+						text={textMap.disclaimer.start[language]}
+						name="disclaimerStart"
+						label="Disclaimer Start"
+					/>
+					<span className="font-bold">
+						<TextWrap
+							text={companyName}
+							name="companyNameSecond"
+							label="Company Name"
+						/>
+					</span>
+					<TextWrap
+						text={textMap.disclaimer.middle[language]}
+						name="disclaimerMiddle"
+						label="Disclaimer Middle"
+					/>
 					<a
 						href={githubLink}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="ml-1 font-medium text-blue-600 hover:text-blue-800 transition-colors"
+						className="inline-block font-medium text-blue-600 hover:text-blue-800 transition-colors"
 						style={{
 							textDecoration: "underline",
 							textUnderlineOffset: "2px",
 						}}
 					>
-						<TextWrap text={textMap.disclaimer.end[language]} name="disclaimerEnd" label="Disclaimer End" />
+						<TextWrap
+							text={textMap.disclaimer.end}
+							name="disclaimerEnd"
+							label="Disclaimer End"
+						/>
 					</a>
 				</div>
 			</footer>
