@@ -9,16 +9,12 @@ export interface ResumeGenerationResult<T extends z.ZodTypeAny> {
 }
 export async function generateAndSaveResume<T extends z.ZodTypeAny>(
 	combinedSourceText: string,
-	jobDescription: string,
 	outputSchema: T,
-	feedback?: string,
 ): Promise<ResumeGenerationResult<T>> {
 	try {
 		const generatedCoreData = await generateStructuredResume(
 			combinedSourceText,
-			jobDescription,
 			outputSchema,
-			feedback,
 		);
 
 		return {

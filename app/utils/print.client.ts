@@ -54,7 +54,7 @@ export function printResumeElement(
           @page
 {
   size: A4 portrait;
-  margin: none;
+  margin: 0mm;
 }
             </style>
           </head>

@@ -51,10 +51,10 @@ test.describe("Global Setup", () => {
 		).toBeVisible();
 
 		const educationData = {
-			degree: `Test Degree ${Date.now()}`,
-			institution: `Test University ${Date.now()}`,
-			dates: "2020-2024",
-			location: "Test Campus, TS",
+			"educations[0].degree": `Test Degree ${Date.now()}`,
+			"educations[0].institution": `Test University ${Date.now()}`,
+			"educations[0].dates": "2020-2024",
+			"educations[0].location": "Test Campus, TS",
 		};
 
 		await fillForm(page, educationData);

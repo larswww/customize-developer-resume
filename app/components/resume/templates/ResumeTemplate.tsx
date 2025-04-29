@@ -10,11 +10,11 @@ interface ResumeTemplateProps {
 
 export function ResumeTemplate({ data }: ResumeTemplateProps) {
 	const contactInfo = data.contactInfo;
-	const education = data.education?.[0] ?? null;
+	const education = data.education.educations[0] ?? null;
 	const skills = data.skills || [];
 
-	const otherInfo = data.otherInfo;
-	const languages = data.languages;
+	// const otherInfo = data.otherInfo;
+	// const languages = data.languages;
 
 	return (
 		<div className="resume-container print:w-full print:h-auto flex flex-col bg-white shadow-lg print:shadow-none">
@@ -218,9 +218,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								</div>
 							)}
 						/>
-						{/* --- End Dynamic Skills Section --- */}
-
-						{/* --- Dynamic Other Info Section (Optional) --- */}
+						{/* 
 						{otherInfo?.items?.length ? (
 							<>
 								<h2 className="text-xl font-bold uppercase mt-5 mb-2">
@@ -245,9 +243,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 								/>
 							</>
 						) : null}
-						{/* --- End Dynamic Other Info Section --- */}
 
-						{/* --- Dynamic Languages Section (Optional) --- */}
 						{languages && languages.length > 0 && (
 							<div className="mt-3 flex items-center space-x-1">
 								<ArrayRenderer
@@ -264,8 +260,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 									)}
 								/>
 							</div>
-						)}
-						{/* --- End Dynamic Languages Section --- */}
+						)} */}
 					</div>
 				</div>
 

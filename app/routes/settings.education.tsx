@@ -32,6 +32,7 @@ export default function SettingsEducation() {
 		shouldRevalidate: "onInput",
 	});
 
+	const educations = fields.educations.getFieldList();
 	return (
 		<div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
 			<h1 className="text-2xl font-bold mb-6">
@@ -40,40 +41,59 @@ export default function SettingsEducation() {
 
 			<Form method="post" action="/settings" {...getFormProps(form)}>
 				<div className="space-y-8">
-					<FieldsetSection
-						title="Education Information"
-						description="Your academic background and qualifications"
+					{educations.map((education) => {
+						const eduFields = education.getFieldset();
+						return (
+							<FieldsetSection
+								key={education.key}
+								title="Education Information"
+								description="Your academic background and qualifications"
+							>
+								<FormGrid columns={2}>
+									<FormField
+										name={eduFields.degree.name}
+										defaultValue={eduFields.degree.value}
+										label="Degree"
+										error={eduFields.degree.errors}
+										errorId={eduFields.degree.errorId}
+									/>
+
+									<FormField
+										name={eduFields.institution.name}
+										defaultValue={eduFields.institution.value}
+										label="Institution"
+										error={eduFields.institution.errors}
+										errorId={eduFields.institution.errorId}
+									/>
+
+									<FormField
+										name={eduFields.dates.name}
+										defaultValue={eduFields.dates.value}
+										label="Dates"
+										error={eduFields.dates.errors}
+										errorId={eduFields.dates.errorId}
+									/>
+
+									<FormField
+										name={eduFields.location.name}
+										defaultValue={eduFields.location.value}
+										label="Location"
+										error={eduFields.location.errors}
+										errorId={eduFields.location.errorId}
+									/>
+								</FormGrid>
+							</FieldsetSection>
+						);
+					})}
+
+					<Button
+						{...form.insert.getButtonProps({
+							name: fields.educations.name,
+						})}
+						className="text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md"
 					>
-						<FormGrid columns={2}>
-							<FormField
-								{...getInputProps(fields.degree, { type: "text" })}
-								label="Degree"
-								error={fields.degree.errors}
-								errorId={fields.degree.errorId}
-							/>
-
-							<FormField
-								{...getInputProps(fields.institution, { type: "text" })}
-								label="Institution"
-								error={fields.institution.errors}
-								errorId={fields.institution.errorId}
-							/>
-
-							<FormField
-								{...getInputProps(fields.dates, { type: "text" })}
-								label="Dates"
-								error={fields.dates.errors}
-								errorId={fields.dates.errorId}
-							/>
-
-							<FormField
-								{...getInputProps(fields.location, { type: "text" })}
-								label="Location"
-								error={fields.location.errors}
-								errorId={fields.location.errorId}
-							/>
-						</FormGrid>
-					</FieldsetSection>
+						Add Education
+					</Button>
 
 					<div className="pt-4 pb-6 flex justify-end">
 						<Button

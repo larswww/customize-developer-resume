@@ -52,10 +52,14 @@ export const SETTINGS_SCHEMAS = {
 		hasStructuredData: true,
 		schema: EducationSchema.nullable(),
 		emptyValue: EducationSchema.parse({
-			degree: "",
-			institution: "",
-			dates: "",
-			location: "",
+			educations: [
+				{
+					degree: "",
+					institution: "",
+					dates: "",
+					location: "",
+				},
+			],
 		}),
 	},
 };

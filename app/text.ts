@@ -44,9 +44,10 @@ export default {
 		regenerateButton: "Regenerate Resume Text",
 	},
 	resume: {
+		feedbackPlaceholder: "Enter feedback for the resume",
 		saveChanges: "Save Changes",
-		generateButton: "Generate Resume",
-		regenerateButton: "Regenerate Resume",
+		generateButton: "Re-Generate",
+		regenerateButton: "Regenerate",
 		editButton: "Edit Resume",
 		downloadButton: "Download as PDF",
 		printButton: "Print",

@@ -242,14 +242,16 @@ describe("DbService", () => {
 							description: ["Developed features", "Fixed bugs"],
 						},
 					],
-					education: [
-						{
-							institution: "University of Code",
-							degree: "BS Computer Science",
-							location: "San Francisco, CA",
-							dates: "2016-2020",
-						},
-					],
+					education: {
+						educations: [
+							{
+								institution: "University of Code",
+								degree: "BS Computer Science",
+								location: "San Francisco, CA",
+								dates: "2016-2020",
+							},
+						],
+					},
 					skills: [
 						{
 							category: "Programming",
@@ -298,14 +300,16 @@ describe("DbService", () => {
 							description: ["Designed interfaces", "Created prototypes"],
 						},
 					],
-					education: [
-						{
-							institution: "Design Institute",
-							degree: "BA Design",
-							location: "New York, NY",
-							dates: "2015-2019",
-						},
-					],
+					education: {
+						educations: [
+							{
+								institution: "Design Institute",
+								degree: "BA Design",
+								location: "New York, NY",
+								dates: "2015-2019",
+							},
+						],
+					},
 					skills: [
 						{
 							category: "Design",
@@ -351,7 +355,9 @@ describe("DbService", () => {
 						linkedin: "linkedin.com/in/initial",
 					},
 					workExperience: [],
-					education: [],
+					education: {
+						educations: [],
+					},
 					skills: [],
 				} as DefaultResumeData,
 			};
@@ -372,7 +378,9 @@ describe("DbService", () => {
 						linkedin: "linkedin.com/in/updated",
 					},
 					workExperience: [],
-					education: [],
+					education: {
+						educations: [],
+					},
 					skills: [],
 				} as DefaultResumeData,
 			};
