@@ -94,8 +94,6 @@ async function _generateAndSaveResumeInternal<T extends z.ZodTypeAny>({
 	selectedWorkflow,
 	selectedTemplateId,
 	selectedTemplateConfig,
-	jobDescription,
-	feedback, // Optional feedback
 }: {
 	jobId: number;
 	selectedWorkflowId: string;
@@ -115,9 +113,7 @@ async function _generateAndSaveResumeInternal<T extends z.ZodTypeAny>({
 		const outputSchema = selectedTemplateConfig.outputSchema;
 		const result = await generateAndSaveResume(
 			combinedSourceText,
-			jobDescription,
 			outputSchema,
-			feedback, // Pass feedback here
 		);
 
 		if (!result.success) {

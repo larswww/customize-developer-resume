@@ -119,11 +119,8 @@ export default function JobResume({
 	const resumeRef = useRef<HTMLDivElement>(null);
 
 	const parentContext = useOutletContext<ResumeRouteContext>();
-	const { selectedWorkflowId, selectedTemplateId, isWorkflowComplete, job } =
-		parentContext;
+	const { selectedTemplateId, isWorkflowComplete } = parentContext;
 	const [error, setError] = useState<string | null>(null);
-	const parentRouteData = useRouteLoaderData(JOB_ROUTE_ID) as any;
-	const jobData = job || parentRouteData?.job;
 
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state === "submitting";
@@ -146,21 +143,19 @@ export default function JobResume({
 	const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
 	const hasEmptyContactInfo = Object.values(resumeData.contactInfo).some(
-		(value) => value === null || value === undefined || value === "",
+		(value) => !value,
 	);
 
-	const hasEmptyEducation =
-		!resumeData.education ||
-		(Array.isArray(resumeData.education) && resumeData.education.length === 0);
+	const hasEducation = resumeData.education.educations.length;
 
 	const formId = "resume-form";
-	const formActionUrl = `/job/${jobData.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
+	// const formActionUrl = `/job/${jobData.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
 
 	return (
-		<Form method="post" id={formId} action={formActionUrl} className="py-4">
+		<Form method="post" id={formId} className="py-4" preventScrollReset>
 			<div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
 				<div className="col-span-12 md:col-span-6 px-0">
-					{hasEmptyContactInfo && (
+					{hasEmptyContactInfo ? (
 						<FeedbackMessage type="info">
 							Your contact information is incomplete. Please add your details in
 							the{" "}
@@ -169,9 +164,9 @@ export default function JobResume({
 							</Link>
 							.
 						</FeedbackMessage>
-					)}
+					) : null}
 
-					{hasEmptyEducation && (
+					{!hasEducation ? (
 						<FeedbackMessage type="info">
 							Your education information is incomplete. Please add your
 							education details in the{" "}
@@ -180,7 +175,7 @@ export default function JobResume({
 							</Link>
 							.
 						</FeedbackMessage>
-					)}
+					) : null}
 
 					{hasResume ? (
 						<ResumePreview
