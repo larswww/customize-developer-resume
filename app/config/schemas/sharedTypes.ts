@@ -19,7 +19,7 @@ export const ContactInfoSchema = z
 	})
 	.partial();
 
-export const EducationSchema = z.object({
+export const EduSchema = z.object({
 	degree: z.string().describe("The name of the degree or qualification."),
 	institution: z.string().describe("The name of the educational institution."),
 	dates: z
@@ -30,9 +30,18 @@ export const EducationSchema = z.object({
 		.describe("The location of the institution (e.g., City, Country)."),
 });
 
+export const EducationSchema = z.object({
+	educations: z.array(EduSchema),
+});
+
+export const CoreSchema = z.object({
+	contactInfo: ContactInfoSchema,
+	education: EducationSchema,
+});
+
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;
 export type Education = z.infer<typeof EducationSchema>;
-
+export type Core = z.infer<typeof CoreSchema>;
 export const defaultContactInfo: ContactInfo = {
 	firstName: "",
 	lastName: "",
@@ -43,20 +52,6 @@ export const defaultContactInfo: ContactInfo = {
 	linkedin: "",
 	portfolio: "",
 	github: "",
-};
-
-const globalEducation: Education[] = [
-	{
-		degree: "BSc Computer Science",
-		institution: "Mid Sweden University",
-		dates: "2017",
-		location: "Sweden",
-	},
-];
-
-export const globalResumeConstants = {
-	contactInfo: defaultContactInfo,
-	education: globalEducation,
 };
 
 export type ResumeCoreData =

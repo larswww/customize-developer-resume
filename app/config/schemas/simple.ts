@@ -3,6 +3,7 @@ import { z } from "zod";
 import SimpleTemplate from "~/components/resume/templates/SimpleTemplate";
 import {
 	ContactInfoSchema,
+	CoreSchema,
 	EducationSchema,
 	type ResumeTemplateConfig,
 } from "./sharedTypes";
@@ -13,6 +14,7 @@ export const ConsultantProjectSchema = z.object({
 		.describe("The name of the client company for this specific project."),
 	dates: z
 		.string()
+		.optional()
 		.describe(
 			"The start and end dates of the project/engagement (if different from employment).",
 		),
@@ -52,10 +54,7 @@ export const SimpleConsultantCoreDataSchema = z.object({
 });
 
 export const SimpleConsultantComponentSchema =
-	SimpleConsultantCoreDataSchema.extend({
-		education: z.array(EducationSchema),
-		contactInfo: ContactInfoSchema,
-	});
+	SimpleConsultantCoreDataSchema.merge(CoreSchema);
 
 export const templateConfig: ResumeTemplateConfig = {
 	id: "simpleConsultant",

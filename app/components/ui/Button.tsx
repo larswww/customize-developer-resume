@@ -15,14 +15,7 @@ export interface ButtonProps
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 	(
-		{
-			className,
-			variant = "default",
-			size = "md",
-			children,
-			type = "button",
-			...props
-		},
+		{ className, variant = "default", size = "md", children, type, ...props },
 		ref,
 	) => {
 		return (

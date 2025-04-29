@@ -1,13 +1,7 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
 import { ResumeTemplate } from "~/components/resume/templates/ResumeTemplate";
-import {
-	type ContactInfo,
-	ContactInfoSchema,
-	EducationSchema,
-	type ResumeTemplateConfig,
-	globalResumeConstants,
-} from "./sharedTypes";
+import { CoreSchema, type ResumeTemplateConfig } from "./sharedTypes";
 
 export const WorkExperienceSchema = z.object({
 	title: z.string().describe("The job title."),
@@ -47,17 +41,8 @@ export const DefaultResumeCoreDataSchema = z.object({
 	skills: z.array(SkillSchema),
 });
 
-export const DefaultResumeDataSchema = DefaultResumeCoreDataSchema.extend({
-	contactInfo: ContactInfoSchema,
-	education: z.array(EducationSchema),
-	languages: z.optional(z.array(z.string())),
-	otherInfo: z.optional(
-		z.object({
-			title: z.string(),
-			items: z.array(z.string()),
-		}),
-	),
-});
+export const DefaultResumeDataSchema =
+	DefaultResumeCoreDataSchema.merge(CoreSchema);
 
 export const templateConfig: ResumeTemplateConfig = {
 	id: "default",

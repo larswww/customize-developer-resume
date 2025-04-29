@@ -176,7 +176,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 															<span className="text-gray-700 font-medium mr-1.5">
 																<TextWrap
 																	text={project.client}
-																	name={`employment[${empIndex}].projects[${projectIndex}].client`}
+																	name={`employmentHistory[${empIndex}].projects[${projectIndex}].client`}
 																	label="Client"
 																/>
 															</span>
@@ -197,7 +197,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 																			>
 																				<TextWrap
 																					text={skill}
-																					name={`employment[${empIndex}].projects[${projectIndex}].skillsUsed[${skillIndex}]`}
+																					name={`employmentHistory[${empIndex}].projects[${projectIndex}].skillsUsed[${skillIndex}]`}
 																					label="Skill"
 																				/>
 																			</li>
@@ -209,7 +209,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 
 													{project.description &&
 														project.description.length > 0 && (
-															<ul className="list-disc list-inside text-sm mt-1 ml-4 space-y-1 text-gray-700">
+															<ul className="list-disc list-outside text-sm mt-1 ml-8 space-y-1 text-gray-700">
 																<ArrayRenderer
 																	items={project.description}
 																	getKey={(desc, descIndex) =>
@@ -221,10 +221,11 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 																				0,
 																				10,
 																			)}`}
+																			className="pl-1"
 																		>
 																			<TextWrap
 																				text={desc}
-																				name={`employment[${empIndex}].projects[${projectIndex}].description[${descIndex}]`}
+																				name={`employmentHistory[${empIndex}].projects[${projectIndex}].description[${descIndex}]`}
 																				label="Project Description"
 																			/>
 																		</li>
@@ -243,7 +244,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 				</section>
 			)}
 
-			{education && education.length > 0 && (
+			{education ? (
 				<section className="mb-4">
 					<h2 className="text-xl font-semibold border-b pb-1 mb-3 text-gray-800">
 						<TextWrap
@@ -253,7 +254,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 						/>
 					</h2>
 					<ArrayRenderer
-						items={education}
+						items={education.educations}
 						getKey={(edu, eduIndex) =>
 							`${edu.institution}-${edu.degree}-${eduIndex}`
 						}
@@ -265,26 +266,26 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 								<h3 className="font-semibold text-base text-gray-800">
 									<TextWrap
 										text={edu.degree}
-										name={`education[${eduIndex}].degree`}
+										name={`education.educations[${eduIndex}].degree`}
 										label="Degree"
 									/>
 								</h3>
 								<p className="text-xs text-gray-500">
 									<TextWrap
 										text={edu.institution}
-										name={`education[${eduIndex}].institution`}
+										name={`education.educations[${eduIndex}].institution`}
 										label="Institution"
 									/>{" "}
 									|{" "}
 									<TextWrap
 										text={edu.dates}
-										name={`education[${eduIndex}].dates`}
+										name={`education.educations[${eduIndex}].dates`}
 										label="Dates"
 									/>{" "}
 									|{" "}
 									<TextWrap
 										text={edu.location}
-										name={`education[${eduIndex}].location`}
+										name={`education.educations[${eduIndex}].location`}
 										label="Location"
 									/>
 								</p>
@@ -292,7 +293,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 						)}
 					/>
 				</section>
-			)}
+			) : null}
 		</div>
 	);
 };

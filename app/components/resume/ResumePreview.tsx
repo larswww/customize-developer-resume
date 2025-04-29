@@ -28,30 +28,47 @@ export function ResumePreview({
 	isGenerating,
 	templateConfig,
 }: ResumePreviewProps) {
-	// Determine if we're using a landscape template
 	const isLandscape = templateConfig?.orientation === "landscape";
 
+	// Calculate how many page markers to show based on A4 dimensions
+	// Standard A4 is 297mm tall (210mm wide) in portrait mode
+	const pageHeight = isLandscape ? 210 : 297; // mm
+	const containerHeight = isLandscape ? 210 : 297; // mm
+	const pageCount = 3; // Show markers for multiple pages
+
 	return (
-		<div className="flex bg-gray-100 overflow-auto">
+		<div className="flex bg-gray-100 justify-center items-start min-h-screen pt-4">
 			<div
-				className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg origin-top-left relative"
+				className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0"
 				style={{
-					width: isLandscape ? "210mm" : "148mm", // Scaled down A4 width (70% of actual size)
-					height: isLandscape ? "148mm" : "210mm", // Scaled down A4 height (70% of actual size)
-					// scale: 0.6,
-					padding: 0,
-					margin: 0,
-					// aspectRatio: isLandscape ? '1.414' : '0.707', // A4 aspect ratio
+					transformOrigin: "top center",
 				}}
 			>
+				{/* Page markers overlay - won't be printed */}
+				<div
+					className="absolute inset-0 pointer-events-none print:hidden"
+					aria-hidden="true"
+				>
+					{Array.from({ length: pageCount - 1 }).map((_, index) => (
+						<div
+							key={`page-marker-${(index + 1) * pageHeight}`}
+							className="absolute w-full border-b border-dashed border-red-400 z-10"
+							style={{
+								top: `${(index + 1) * pageHeight}mm`,
+							}}
+						/>
+					))}
+				</div>
+
+				{/* This is what is actually printend */}
 				<div
 					ref={resumeRef}
 					id="printable-resume"
-					className="absolute top-0 left-0"
+					className="overflow-visible"
 					style={{
-						transformOrigin: "top left",
 						height: isLandscape ? "210mm" : "297mm", // Full A4 height
 						width: isLandscape ? "297mm" : "210mm", // Full A4 width
+						margin: "none",
 					}}
 				>
 					{TemplateComponent && displayData ? (
