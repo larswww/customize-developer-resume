@@ -282,34 +282,3 @@ export const getResumeText = (
 
 	return combinedSourceText;
 };
-
-export async function handleResumeAction(args: ActionFunctionArgs) {
-	const { params } = args;
-	const jobId = Number(params.jobId);
-
-	const {
-		job,
-		selectedWorkflow,
-		selectedTemplateConfig,
-		selectedWorkflowId,
-		selectedTemplateId,
-	} = await extractRouteParams(args);
-
-	// TODO: Potentially get feedback from formData if UI is updated
-	// const formData = await args.request.formData();
-	// const feedback = formData.get("feedback") as string | undefined;
-
-	// Call the internal utility function
-	const result = await _generateAndSaveResumeInternal({
-		jobId,
-		selectedWorkflowId,
-		selectedWorkflow,
-		selectedTemplateId,
-		selectedTemplateConfig,
-		jobDescription: job.jobDescription,
-		// feedback, // Pass feedback if available
-	});
-
-	// Return the result from the internal function
-	return result;
-}

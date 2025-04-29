@@ -14,6 +14,9 @@ export function ResumePreviewActions({
 }: ResumePreviewActionsProps) {
 	return (
 		<div className="flex gap-3">
+			<Button type="submit" name="actionType" value="save">
+				{text.resume.saveChanges}
+			</Button>
 			<Button
 				type="button"
 				onClick={onPrint}

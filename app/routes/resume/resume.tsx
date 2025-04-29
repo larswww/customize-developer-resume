@@ -12,7 +12,7 @@ import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { Button } from "~/components/ui/Button";
 import type { ResumeRouteContext } from "~/routes/resume/types";
-import { extractRouteParams, handleResumeAction } from "~/routes/resume/utils";
+import { extractRouteParams } from "~/routes/resume/utils";
 import text from "~/text";
 import { availableTemplates } from "../../config/schemas";
 import dbService from "../../services/db/dbService.server";
@@ -22,6 +22,9 @@ import { downloadResumeAsPdf } from "~/utils/pdf.client";
 import { useCallback, useRef, useState } from "react";
 import { printResumeElement } from "~/utils/print.client";
 import { FeedbackMessage } from "~/components/FeedbackMessage";
+import { InputGroup } from "~/components/ui/InputGroup";
+import { Input } from "~/components/ui/Input";
+import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
@@ -68,7 +71,43 @@ export async function action(args: ActionFunctionArgs) {
 	}
 
 	if (actionType === "generate") {
-		return handleResumeAction(args);
+		const savedResume = dbService.getResume(jobId, selectedTemplateId);
+		if (!savedResume || !savedResume.structuredData) {
+			return {
+				success: false,
+				message: "Resume not found",
+			};
+		}
+
+		const { outputSchema } = selectedTemplateConfig;
+		const { structuredData } = savedResume;
+		const feedback = formData.get("feedback") as string | undefined;
+
+		if (!feedback) {
+			return {
+				success: false,
+				message: "Feedback is required",
+			};
+		}
+
+		const currentData = outputSchema.safeParse(structuredData);
+		if (!currentData.success) {
+			return {
+				success: false,
+				message: "Invalid resume data",
+			};
+		}
+
+		const result = await reGenerateWithFeedback(
+			currentData.data,
+			outputSchema,
+			feedback,
+		);
+		dbService.saveResume({
+			jobId,
+			templateId: selectedTemplateId,
+			structuredData: result as any,
+		});
 	}
 }
 
@@ -180,19 +219,24 @@ export default function JobResume({
 							onDownloadPdf={handleDownloadPdfClick}
 						/>
 					)}
-					<div className="mt-auto pt-4 flex flex-row gap-2">
-						<Button type="submit" name="actionType" value="save">
-							{text.resume.saveChanges}
-						</Button>
-						<Button
-							type="submit"
-							name="actionType"
-							value="generate"
-							className="w-full px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-blue-400"
-							disabled={isSubmitting || !isWorkflowComplete}
-						>
-							{isGenerating ? text.ui.generating : text.resume.generateButton}
-						</Button>
+					<div className="mt-auto pt-4 flex flex-col gap-2">
+						<InputGroup>
+							<Input
+								type="text"
+								placeholder={text.resume.feedbackPlaceholder}
+								name="feedback"
+								disabled={isSubmitting || !isWorkflowComplete}
+							/>
+							<Button
+								type="submit"
+								name="actionType"
+								value="generate"
+								className="px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-blue-400"
+								disabled={isSubmitting || !isWorkflowComplete}
+							>
+								{isGenerating ? text.ui.generating : text.resume.generateButton}
+							</Button>
+						</InputGroup>
 
 						{!isWorkflowComplete && (
 							<p className="text-sm text-gray-500">
@@ -203,11 +247,13 @@ export default function JobResume({
 					</div>
 					{actionData?.success === false && (
 						<FeedbackMessage type="error">
-							{"error" in actionData
-								? actionData.error
-								: "message" in actionData
-									? actionData.message
-									: "An error occurred."}
+							{
+								("error" in actionData
+									? actionData.error
+									: "message" in actionData
+										? actionData.message
+										: "An error occurred.") as React.ReactNode
+							}
 						</FeedbackMessage>
 					)}
 				</div>

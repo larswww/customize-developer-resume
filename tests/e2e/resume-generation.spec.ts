@@ -37,7 +37,9 @@ test.describe("Resume Generation E2E Flow", () => {
 		});
 
 		await test.step("Generate and Verify Structured Resume Content", async () => {
-			await page.getByText(text.resume.emptyState);
+			await page
+				.getByPlaceholder(text.resume.feedbackPlaceholder)
+				.fill("This is a test feedback");
 			await page
 				.getByRole("button", { name: text.resume.generateButton, exact: true })
 				.click();

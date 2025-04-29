@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import type { z } from "zod";
+import type { ResumeCoreData } from "~/config/schemas/sharedTypes";
 import { serverLogger } from "~/utils/logger.server";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -47,6 +48,35 @@ Please refine the structured output based on this feedback.
 	}
 
 	return prompt;
+}
+
+export async function reGenerateWithFeedback<T extends z.ZodTypeAny>(
+	structuredData: ResumeCoreData,
+	outputSchema: T,
+	feedback: string,
+): Promise<T> {
+	serverLogger.log("Starting re-generation with feedback...");
+	if (feedback) {
+		serverLogger.log("Incorporating feedback into generation.");
+	}
+
+	const systemPrompt = `Your role is to action the feedback provided by the user to the resume data. The original data which user is giving you feedback on is: 
+	
+	${JSON.stringify(structuredData, null, 2)}
+	`;
+
+	const completion = await openai.beta.chat.completions.parse({
+		model: "gpt-4.1", // Or another suitable model
+		messages: [
+			{ role: "system", content: systemPrompt },
+			{ role: "user", content: feedback },
+		],
+		// Use the provided single output schema
+		response_format: zodResponseFormat(outputSchema, "feedback-resume"),
+		temperature: 0.1, // Low temperature for structured output
+	});
+
+	return completion.choices[0].message.parsed as T;
 }
 
 export async function generateStructuredResume<T extends z.ZodTypeAny>(
@@ -111,7 +141,9 @@ export async function generateStructuredResume<T extends z.ZodTypeAny>(
 	} catch (error) {
 		serverLogger.error("Error in single-call resume generation:", error);
 		throw new Error(
-			`Failed to generate structured resume: ${error instanceof Error ? error.message : String(error)}`,
+			`Failed to generate structured resume: ${
+				error instanceof Error ? error.message : String(error)
+			}`,
 		);
 	}
 }
