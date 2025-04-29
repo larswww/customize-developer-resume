@@ -14,22 +14,13 @@ const openai = new OpenAI({
 	apiKey: OPENAI_API_KEY,
 });
 
-export async function generateStructuredResume<T extends z.ZodTypeAny>(
+// Helper to construct the user prompt, incorporating optional feedback
+function constructUserPrompt(
+	jobDescription: string,
 	combinedSourceText: string,
-	jobDescription: string, // Keep job description for context
-	outputSchema: T, // Accept the single schema
-): Promise<T> {
-	// Return type is still ResumeCoreData
-
-	serverLogger.log("Starting single-call structured resume generation...");
-
-	if (!openai.apiKey) throw new Error("OpenAI API key missing.");
-
-	// Use a regular string for the system prompt (Fixes linter warning)
-	const systemPrompt =
-		"You are an AI assistant specialized in extracting and structuring resume information (work experience, education, skills) from provided text based on a job description. Structure the output according to the provided JSON schema. Focus on extracting accurately, maintaining original phrasing where appropriate, and organizing the information logically (e.g., work experience newest first). For skills, if context like years of experience is mentioned alongside a skill, include it in the 'context' field for that skill item.";
-
-	const userPrompt = `
+	feedback?: string,
+): string {
+	let prompt = `
 Job Description Context:
 --- START JOB DESCRIPTION ---
 ${jobDescription}
@@ -42,6 +33,43 @@ ${combinedSourceText}
 
 Please extract the relevant information and structure it as JSON matching the required format.
 `;
+
+	if (feedback) {
+		prompt += `
+
+Refinement Feedback:
+--- START FEEDBACK ---
+${feedback}
+--- END FEEDBACK ---
+
+Please refine the structured output based on this feedback.
+`;
+	}
+
+	return prompt;
+}
+
+export async function generateStructuredResume<T extends z.ZodTypeAny>(
+	combinedSourceText: string,
+	jobDescription: string, // Keep job description for context
+	outputSchema: T, // Accept the single schema
+	feedback?: string, // Optional feedback parameter
+): Promise<T> {
+	serverLogger.log("Starting single-call structured resume generation...");
+	if (feedback) {
+		serverLogger.log("Incorporating feedback into generation.");
+	}
+
+	if (!openai.apiKey) throw new Error("OpenAI API key missing.");
+
+	const systemPrompt =
+		"You are an AI assistant specialized in extracting and structuring resume information (work experience, education, skills) from provided text based on a job description. Structure the output according to the provided JSON schema. Focus on extracting accurately, maintaining original phrasing where appropriate, and organizing the information logically (e.g., work experience newest first). For skills, if context like years of experience is mentioned alongside a skill, include it in the 'context' field for that skill item. If refinement feedback is provided, adjust the output accordingly.";
+
+	const userPrompt = constructUserPrompt(
+		jobDescription,
+		combinedSourceText,
+		feedback,
+	);
 
 	try {
 		// Make a single call to the AI

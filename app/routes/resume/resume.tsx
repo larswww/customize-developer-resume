@@ -202,7 +202,13 @@ export default function JobResume({
 						)}
 					</div>
 					{actionData?.success === false && (
-						<FeedbackMessage type="error">{actionData.message}</FeedbackMessage>
+						<FeedbackMessage type="error">
+							{"error" in actionData
+								? actionData.error
+								: "message" in actionData
+									? actionData.message
+									: "An error occurred."}
+						</FeedbackMessage>
 					)}
 				</div>
 			</div>
