@@ -2,13 +2,13 @@ import { serverLogger } from "~/utils/logger.server";
 import { defaultWorkflowId, workflows } from "../../config/workflows";
 import type { WorkflowContext, WorkflowStep } from "../../services/ai/types";
 import dbService from "../db/dbService.server";
-import { SETTINGS_KEYS } from "~/config/constants";
+
 import {
 	type DBService,
 	WorkflowEngine,
 	type WorkflowStepUpdate,
 } from "./workflow-engine";
-// DB adapter that implements the WorkflowDBService interface
+
 class DBAdapter implements DBService {
 	private jobId: number;
 	private workflowId: string;

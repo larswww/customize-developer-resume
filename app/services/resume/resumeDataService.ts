@@ -1,8 +1,7 @@
 import type { z } from "zod";
 import { serverLogger } from "~/utils/logger.server";
-import type { ContactInfo } from "../../config/schemas";
 import { generateStructuredResume } from "../ai/resumeStructuredDataService";
-import dbService from "../db/dbService.server";
+
 export interface ResumeGenerationResult<T extends z.ZodTypeAny> {
 	success: boolean;
 	structuredData?: T;
@@ -12,12 +11,14 @@ export async function generateAndSaveResume<T extends z.ZodTypeAny>(
 	combinedSourceText: string,
 	jobDescription: string,
 	outputSchema: T,
+	feedback?: string,
 ): Promise<ResumeGenerationResult<T>> {
 	try {
 		const generatedCoreData = await generateStructuredResume(
 			combinedSourceText,
 			jobDescription,
 			outputSchema,
+			feedback,
 		);
 
 		return {

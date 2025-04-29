@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { availableTemplates, defaultTemplateId } from "~/config/schemas";
-import { type ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
+import type { ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
 import {
 	defaultWorkflowId,
 	workflows,
@@ -10,6 +10,7 @@ import dbService, { type Job } from "~/services/db/dbService.server";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
 import { serverLogger } from "~/utils/logger.server";
+import type * as z from "zod";
 
 export interface RouteParams {
 	jobId: number;
@@ -86,6 +87,73 @@ export function getWorkflow(jobId: number, selectedWorkflowId: string) {
 	};
 }
 
+// Internal utility function to handle resume generation and saving
+async function _generateAndSaveResumeInternal<T extends z.ZodTypeAny>({
+	jobId,
+	selectedWorkflowId,
+	selectedWorkflow,
+	selectedTemplateId,
+	selectedTemplateConfig,
+	jobDescription,
+	feedback, // Optional feedback
+}: {
+	jobId: number;
+	selectedWorkflowId: string;
+	selectedWorkflow: WorkflowConfig;
+	selectedTemplateId: string;
+	selectedTemplateConfig: ResumeTemplateConfig;
+	jobDescription: string;
+	feedback?: string;
+}) {
+	try {
+		const combinedSourceText = getResumeText(
+			jobId,
+			selectedWorkflowId,
+			selectedWorkflow,
+		);
+
+		const outputSchema = selectedTemplateConfig.outputSchema;
+		const result = await generateAndSaveResume(
+			combinedSourceText,
+			jobDescription,
+			outputSchema,
+			feedback, // Pass feedback here
+		);
+
+		if (!result.success) {
+			serverLogger.error("Resume generation failed:", result.error);
+			return {
+				success: false,
+				error: result.error || "Resume generation failed.",
+			};
+		}
+
+		dbService.saveResume({
+			jobId,
+			templateId: selectedTemplateId,
+			structuredData: result.structuredData as any,
+			resumeText: combinedSourceText,
+		});
+
+		serverLogger.log(
+			`Resume generated and saved successfully for job ${jobId}, template ${selectedTemplateId}`,
+		);
+		return { success: true };
+	} catch (error) {
+		serverLogger.error(
+			`Error during internal resume generation/saving for job ${jobId}:`,
+			error,
+		);
+		return {
+			success: false,
+			error:
+				error instanceof Error
+					? error.message
+					: "An unknown error occurred during resume generation/saving",
+		};
+	}
+}
+
 export async function handleContentAction(args: ActionFunctionArgs) {
 	const { request, params } = args;
 	const formData = await request.formData();
@@ -95,7 +163,8 @@ export async function handleContentAction(args: ActionFunctionArgs) {
 		(formData.get("workflowId") as string) || defaultWorkflowId;
 	const jobId = Number(params.jobId);
 
-	const { job, selectedTemplateConfig } = await extractRouteParams(args);
+	const { job, selectedTemplateConfig, selectedTemplateId, selectedWorkflow } =
+		await extractRouteParams(args);
 	const templateDescription = selectedTemplateConfig.description;
 
 	if (!jobDescription) {
@@ -114,17 +183,51 @@ export async function handleContentAction(args: ActionFunctionArgs) {
 	try {
 		serverLogger.log(`Starting workflow execution (${workflowId})...`);
 
-		const { success } = await executeWorkflow(
+		const workflowResult = await executeWorkflow(
 			jobDescription,
 			jobId,
 			workflowId,
 			templateDescription,
 		);
 
-		return {
-			success: success,
+		if (!workflowResult.success) {
+			return {
+				success: false,
+				selectedWorkflowId: workflowId,
+				error: "Workflow execution failed.",
+			};
+		}
+
+		// If workflow succeeded, proceed to generate and save resume
+		serverLogger.log(
+			`Workflow (${workflowId}) successful, proceeding to generate resume...`,
+		);
+
+		// Call the internal utility function
+		const generationSaveResult = await _generateAndSaveResumeInternal({
+			jobId,
 			selectedWorkflowId: workflowId,
-			error: success ? undefined : "Workflow execution failed.",
+			selectedWorkflow,
+			selectedTemplateId,
+			selectedTemplateConfig,
+			jobDescription: job.jobDescription,
+			// feedback: undefined, // No feedback source in this action yet
+		});
+
+		if (!generationSaveResult.success) {
+			return {
+				success: false,
+				selectedWorkflowId: workflowId,
+				error:
+					generationSaveResult.error ||
+					"Resume generation/saving failed after successful workflow.",
+			};
+		}
+
+		// If generation and saving succeeded
+		return {
+			success: true,
+			selectedWorkflowId: workflowId,
 		};
 	} catch (error) {
 		serverLogger.error(
@@ -192,25 +295,21 @@ export async function handleResumeAction(args: ActionFunctionArgs) {
 		selectedTemplateId,
 	} = await extractRouteParams(args);
 
-	const combinedSourceText = getResumeText(
+	// TODO: Potentially get feedback from formData if UI is updated
+	// const formData = await args.request.formData();
+	// const feedback = formData.get("feedback") as string | undefined;
+
+	// Call the internal utility function
+	const result = await _generateAndSaveResumeInternal({
 		jobId,
 		selectedWorkflowId,
 		selectedWorkflow,
-	);
+		selectedTemplateId,
+		selectedTemplateConfig,
+		jobDescription: job.jobDescription,
+		// feedback, // Pass feedback if available
+	});
 
-	const outputSchema = selectedTemplateConfig.outputSchema;
-	const result = await generateAndSaveResume(
-		combinedSourceText,
-		job.jobDescription,
-		outputSchema,
-	);
-
-	if (result.success) {
-		dbService.saveResume({
-			jobId,
-			templateId: selectedTemplateId,
-			structuredData: result.structuredData as any,
-			resumeText: combinedSourceText,
-		});
-	}
+	// Return the result from the internal function
+	return result;
 }
