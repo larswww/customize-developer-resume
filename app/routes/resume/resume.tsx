@@ -118,7 +118,10 @@ export default function JobResume({
 	const { resumeData, hasResume } = loaderData;
 	const resumeRef = useRef<HTMLDivElement>(null);
 
-	const parentContext = useOutletContext<ResumeRouteContext>();
+	const parentContext = useOutletContext<{
+		selectedTemplateId: string;
+		isWorkflowComplete: boolean;
+	}>();
 	const { selectedTemplateId, isWorkflowComplete } = parentContext;
 	const [error, setError] = useState<string | null>(null);
 
@@ -154,7 +157,7 @@ export default function JobResume({
 	return (
 		<Form method="post" id={formId} className="py-4" preventScrollReset>
 			<div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
-				<div className="col-span-12 md:col-span-6 px-0">
+				<div className="col-span-12 md:col-span-12 px-0">
 					{hasEmptyContactInfo ? (
 						<FeedbackMessage type="info">
 							Your contact information is incomplete. Please add your details in

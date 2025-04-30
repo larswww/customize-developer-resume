@@ -11,6 +11,7 @@ export interface RouteOutletContext {
 		jobDescription: string;
 		relevantDescription?: string;
 	};
+	error?: string;
 }
 
 export interface ResumeRouteContext extends RouteOutletContext {

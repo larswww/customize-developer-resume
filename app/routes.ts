@@ -10,10 +10,8 @@ export default [
 	layout("components/AppLayout.tsx", [
 		route("dashboard", "routes/dashboard.tsx"),
 
-		layout("routes/resume/job.tsx", [
-			route("job/:jobId", "routes/resume/content.tsx", [
-				route("resume", "routes/resume/resume.tsx"),
-			]),
+		route("job/:jobId", "routes/resume/job.tsx", [
+			route("resume", "routes/resume/resume.tsx"),
 		]),
 
 		route("settings", "routes/settings.tsx", [
