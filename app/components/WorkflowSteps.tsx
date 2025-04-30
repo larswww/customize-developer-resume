@@ -27,11 +27,9 @@ function WorkflowStepItem({ step, stepData, index }: WorkflowStepItemProps) {
 		) {
 			return (
 				<div className="p-2 rounded bg-green-50">
-					<div className="markdown-content overflow-auto max-h-[500px]">
+					<div className="markdown-content overflow-auto max-h-[500px] prose max-w-none">
 						{isResultString ? (
-							<ReactMarkdown className="prose max-w-none">
-								{result as string}
-							</ReactMarkdown>
+							<ReactMarkdown>{result as string}</ReactMarkdown>
 						) : (
 							<pre className="text-sm text-gray-600 whitespace-pre-wrap">
 								{JSON.stringify(result, null, 2)}
