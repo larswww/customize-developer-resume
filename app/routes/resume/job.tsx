@@ -7,7 +7,6 @@ import {
 	Form,
 } from "react-router";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { Link } from "~/components/ui/Link";
 import type { RouteOutletContext } from "~/routes/resume/types";
 import {
 	extractRouteParams,
@@ -73,7 +72,6 @@ export async function loader(args: LoaderFunctionArgs) {
 		);
 	}
 
-	// Additional job-specific data processing
 	const availableWorkflows = Object.entries(workflows).map(
 		([id, config]: [string, { label: string }]) => ({
 			id,
@@ -116,7 +114,6 @@ export default function JobLayout({
 		availableWorkflows,
 		selectedTemplateId,
 		templatesList,
-		templateDescription,
 		isWorkflowComplete,
 		workflowStepsData,
 	} = loaderData;
@@ -129,47 +126,32 @@ export default function JobLayout({
 	};
 
 	return (
-		<div className="grid grid-cols-12">
-			<div className="col-span-12 md:col-span-6">
-				<div className="bg-white border-b border-gray-200 shadow-sm mb-6">
-					<div className="max-w-6xl mx-auto px-6 py-4">
-						<div className="flex justify-between items-center">
-							<h1 className="text-2xl font-bold text-gray-800">{`${job.title}`}</h1>
-							<div className="flex gap-3">
-								<Link to="/dashboard" variant="secondary" size="md">
-									Back to Dashboard
-								</Link>
-							</div>
-						</div>
-						<div className="mt-4">
-							<JobControlsHeader
-								availableWorkflows={availableWorkflows}
-								currentWorkflowId={selectedWorkflowId}
-								onWorkflowChange={handleChange}
-								workflowLabel="Select Content Generation Workflow"
-								availableTemplates={templatesList}
-								currentTemplateId={selectedTemplateId}
-								onTemplateChange={handleChange}
-								templateLabel="Target Resume Template"
-								compact={false}
-							/>
-						</div>
-					</div>
-				</div>
+		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
+			<div className="w-full lg:w-1/2 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
+				<JobControlsHeader
+					availableWorkflows={availableWorkflows}
+					currentWorkflowId={selectedWorkflowId}
+					onWorkflowChange={handleChange}
+					workflowLabel="Select Content Generation Workflow"
+					availableTemplates={templatesList}
+					currentTemplateId={selectedTemplateId}
+					onTemplateChange={handleChange}
+					templateLabel="Target Resume Template"
+					compact={false}
+				/>
 
-				<div className="max-w-6xl mx-auto px-6">
-					<JobContent
-						selectedTemplateId={selectedTemplateId}
-						selectedWorkflowId={selectedWorkflowId}
-						isWorkflowComplete={isWorkflowComplete}
-						job={job}
-						currentWorkflowSteps={currentWorkflowSteps}
-						workflowStepsData={workflowStepsData}
-						error={actionData?.error}
-					/>
-				</div>
+				<JobContent
+					selectedTemplateId={selectedTemplateId}
+					selectedWorkflowId={selectedWorkflowId}
+					isWorkflowComplete={isWorkflowComplete}
+					job={job}
+					currentWorkflowSteps={currentWorkflowSteps}
+					workflowStepsData={workflowStepsData}
+					error={actionData?.error}
+				/>
 			</div>
-			<div className="col-span-12 md:col-span-6">
+
+			<div className="w-full lg:w-1/2 h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
 				<Outlet
 					context={{
 						selectedTemplateId,

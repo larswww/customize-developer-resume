@@ -37,11 +37,12 @@ export function ResumePreview({
 	const pageCount = 3; // Show markers for multiple pages
 
 	return (
-		<div className="flex bg-gray-100 justify-center items-start min-h-screen pt-4">
+		<div className="bg-gray-100 pt-6 flex justify-center items-start h-full overflow-y-auto">
 			<div
-				className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0"
+				className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0 transform-gpu"
 				style={{
 					transformOrigin: "top center",
+					margin: "0 auto",
 				}}
 			>
 				{/* Page markers overlay - won't be printed */}
