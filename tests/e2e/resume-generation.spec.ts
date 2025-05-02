@@ -83,13 +83,13 @@ test.describe("Resume Generation E2E Flow", () => {
 			console.log(`Downloaded file: ${suggestedFilename}`);
 		});
 
-		await test.step("Changing workflow", async () => {
-			await expect(page.locator('select[name="workflow"]')).toHaveValue(
+		await test.step("Changing template", async () => {
+			await expect(page.locator('select[name="template"]')).toHaveValue(
 				"default",
 				{ timeout: 10000 },
 			);
-			await page.selectOption('select[name="workflow"]', "alternative");
-			await expect(page).toHaveURL(/\?workflow=alternative(&template=[^&]+)?$/);
+			await page.selectOption('select[name="template"]', "simpleConsultant");
+			await expect(page).toHaveURL(/\?template=alternative(&template=[^&]+)?$/);
 			await expect(page.getByText(text.content.generateButton)).toBeVisible();
 			await expect(page.getByText(text.ui.complete)).not.toBeVisible();
 		});

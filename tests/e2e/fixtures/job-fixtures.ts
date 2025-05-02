@@ -24,7 +24,8 @@ export const test = base.extend<JobFixtures>({
 					name: text.dashboard.createJob.ctaButton,
 				})
 				.click({ force: true });
-			await page.waitForTimeout(1000);
+
+			await page.waitForURL(/createJob=yes/);
 
 			await page.locator('input[name="title"]').waitFor({ state: "visible" });
 			await page.locator('input[name="title"]').fill(title);
