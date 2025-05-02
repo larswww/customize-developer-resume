@@ -88,8 +88,10 @@ test.describe("Resume Generation E2E Flow", () => {
 				"default",
 				{ timeout: 10000 },
 			);
-			await page.selectOption('select[name="template"]', "simpleConsultant");
-			await expect(page).toHaveURL(/\?template=alternative(&template=[^&]+)?$/);
+			await page.selectOption('select[name="template"]', "consultantOnePager");
+			await expect(page).toHaveURL(
+				/\?template=consultantOnePager(&template=[^&]+)?$/,
+			);
 			await expect(page.getByText(text.content.generateButton)).toBeVisible();
 			await expect(page.getByText(text.ui.complete)).not.toBeVisible();
 		});
