@@ -118,7 +118,10 @@ export default function JobResume({
 	const { resumeData, hasResume } = loaderData;
 	const resumeRef = useRef<HTMLDivElement>(null);
 
-	const parentContext = useOutletContext<ResumeRouteContext>();
+	const parentContext = useOutletContext<{
+		selectedTemplateId: string;
+		isWorkflowComplete: boolean;
+	}>();
 	const { selectedTemplateId, isWorkflowComplete } = parentContext;
 	const [error, setError] = useState<string | null>(null);
 
@@ -149,12 +152,16 @@ export default function JobResume({
 	const hasEducation = resumeData.education.educations.length;
 
 	const formId = "resume-form";
-	// const formActionUrl = `/job/${jobData.id}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`;
 
 	return (
-		<Form method="post" id={formId} className="py-4" preventScrollReset>
-			<div className="grid grid-cols-12 md:grid-cols-[1fr,300px] gap-6">
-				<div className="col-span-12 md:col-span-6 px-0">
+		<Form
+			method="post"
+			id={formId}
+			className="h-full flex flex-col"
+			preventScrollReset
+		>
+			<div className="flex-1 flex flex-col overflow-hidden bg-transparent">
+				<div className="space-y-4 bg-transparent">
 					{hasEmptyContactInfo ? (
 						<FeedbackMessage type="info">
 							Your contact information is incomplete. Please add your details in
@@ -176,16 +183,19 @@ export default function JobResume({
 							.
 						</FeedbackMessage>
 					) : null}
+				</div>
 
+				<div className="flex-1 w-full">
 					{hasResume ? (
 						<ResumePreview
 							displayData={resumeData as any}
 							resumeRef={resumeRef}
 							TemplateComponent={CurrentTemplateComponent}
 							isGenerating={isGenerating}
+							templateConfig={CurrentTemplateConfig}
 						/>
 					) : (
-						<div className="text-center text-gray-500 py-10 flex items-center justify-center h-[400px] border rounded bg-gray-50">
+						<div className="text-center text-gray-500 py-10 flex items-center justify-center h-[400px] border rounded bg-gray-50 mx-4">
 							{(navigation.state === "submitting" ||
 								navigation.state === "loading") &&
 							!actionData?.success ? (
@@ -195,63 +205,67 @@ export default function JobResume({
 							)}
 						</div>
 					)}
-
-					{navigation.state === "loading" && actionData === undefined && (
-						<div className="my-4 p-4 border rounded bg-blue-50">
-							<p>Loading previous results...</p>
-						</div>
-					)}
-					{error && (
-						<div className="text-red-500 p-4 border border-red-200 rounded bg-red-50">
-							{error}
-						</div>
-					)}
 				</div>
-				<div className="col-span-6 space-y-6">
-					{hasResume && (
-						<ResumePreviewActions
-							onPrint={handlePrintClick}
-							onDownloadPdf={handleDownloadPdfClick}
-						/>
-					)}
-					<div className="mt-auto pt-4 flex flex-col gap-2">
-						<InputGroup>
-							<Input
-								type="text"
-								placeholder={text.resume.feedbackPlaceholder}
-								name="feedback"
-								disabled={isSubmitting || !isWorkflowComplete}
-							/>
-							<Button
-								type="submit"
-								name="actionType"
-								value="generate"
-								className="px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-blue-400"
-								disabled={isSubmitting || !isWorkflowComplete}
-							>
-								{isGenerating ? text.ui.generating : text.resume.generateButton}
-							</Button>
-						</InputGroup>
 
-						{!isWorkflowComplete && (
-							<p className="text-sm text-gray-500">
-								This workflow is not complete. Please complete the workflow
-								before generating the resume.
-							</p>
-						)}
+				{/* <div className="p-4 space-y-4"> */}
+				{navigation.state === "loading" && actionData === undefined && (
+					<div className="p-4 border rounded bg-blue-50">
+						<p>Loading previous results...</p>
 					</div>
-					{actionData?.success === false && (
-						<FeedbackMessage type="error">
-							{
-								("error" in actionData
-									? actionData.error
-									: "message" in actionData
-										? actionData.message
-										: "An error occurred.") as React.ReactNode
-							}
-						</FeedbackMessage>
-					)}
-				</div>
+				)}
+
+				{error && (
+					<div className="text-red-500 p-4 border border-red-200 rounded bg-red-50">
+						{error}
+					</div>
+				)}
+
+				{/* </div> */}
+			</div>
+
+			<div className="p-4 bg-white border-t">
+				{hasResume && (
+					<ResumePreviewActions
+						onPrint={handlePrintClick}
+						onDownloadPdf={handleDownloadPdfClick}
+					/>
+				)}
+				<InputGroup>
+					<Input
+						type="text"
+						placeholder={text.resume.feedbackPlaceholder}
+						name="feedback"
+						disabled={isSubmitting || !isWorkflowComplete}
+					/>
+					<Button
+						type="submit"
+						name="actionType"
+						value="generate"
+						className="px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 font-semibold disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-blue-400"
+						disabled={isSubmitting || !isWorkflowComplete}
+					>
+						{isGenerating ? text.ui.generating : text.resume.generateButton}
+					</Button>
+				</InputGroup>
+
+				{!isWorkflowComplete && (
+					<p className="text-sm text-gray-500 mt-2">
+						This workflow is not complete. Please complete the workflow before
+						generating the resume.
+					</p>
+				)}
+
+				{actionData?.success === false && (
+					<FeedbackMessage type="error">
+						{
+							("error" in actionData
+								? actionData.error
+								: "message" in actionData
+									? actionData.message
+									: "An error occurred.") as React.ReactNode
+						}
+					</FeedbackMessage>
+				)}
 			</div>
 		</Form>
 	);
