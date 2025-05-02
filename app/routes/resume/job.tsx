@@ -33,6 +33,7 @@ import {
 } from "~/components/Icons";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
+import { FormSectionHeader } from "~/components/ui";
 
 export function meta() {
 	return [
@@ -128,6 +129,7 @@ export default function JobLayout({
 	return (
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
 			<div className="w-full lg:w-1/2 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
+				<h1 className="text-xl font-bold mb-6">{job.title}</h1>
 				<JobControlsHeader
 					availableWorkflows={availableWorkflows}
 					currentWorkflowId={selectedWorkflowId}
