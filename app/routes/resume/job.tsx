@@ -5,6 +5,7 @@ import {
 	useRouteError,
 	useNavigation,
 	Form,
+	isRouteErrorResponse,
 } from "react-router";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 import type { RouteOutletContext } from "~/routes/resume/types";
@@ -33,7 +34,6 @@ import {
 } from "~/components/Icons";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
-import { FormSectionHeader } from "~/components/ui";
 
 export function meta() {
 	return [
@@ -244,9 +244,16 @@ function JobContent({
 	);
 }
 
-export function ErrorBoundary() {
-	const error = useRouteError();
-	console.error(error);
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	if (isRouteErrorResponse(error)) {
+		return (
+			<div>
+				<h1>{error.status}</h1>
+				<p>{error.data}</p>
+			</div>
+		);
+	}
+
 	return (
 		<div>
 			Error:{" "}

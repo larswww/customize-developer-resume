@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { data } from "react-router";
 import { availableTemplates, defaultTemplateId } from "~/config/schemas";
 import type { ResumeTemplateConfig } from "~/config/schemas/sharedTypes";
 import {
@@ -38,7 +39,7 @@ export function extractRouteParams({
 
 	const job = dbService.getJob(jobId);
 	if (!job) {
-		throw new Response("Job not found", { status: 404 });
+		throw data("Could not find this job. Did you delete it?", { status: 404 });
 	}
 
 	const selectedWorkflow =
