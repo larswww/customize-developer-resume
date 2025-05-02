@@ -1,11 +1,17 @@
-import { useState } from "react";
-import { Form, redirect, useActionData, useLoaderData } from "react-router";
+import {
+	Form,
+	redirect,
+	useActionData,
+	useLoaderData,
+	useSearchParams,
+} from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { DocumentIcon, ExternalLinkIcon, TrashIcon } from "~/components/Icons";
 import { Button } from "~/components/ui/Button";
 import { Link } from "~/components/ui/Link";
 import text from "~/text";
 import dbService, { type Job } from "../services/db/dbService.server";
+import type { Route } from "./+types/dashboard";
 
 export function meta() {
 	return [
@@ -200,16 +206,19 @@ function JobCard({ job }: { job: Job }) {
 	);
 }
 
-export default function Dashboard() {
-	const { jobs } = useLoaderData<{ jobs: Job[] }>();
-	const actionData = useActionData<{
-		success?: boolean;
-		error?: string;
-		message?: string;
-		jobId?: number;
-	}>();
-
-	const [showCreateForm, setShowCreateForm] = useState(false);
+export default function Dashboard({
+	loaderData,
+	actionData,
+}: Route.ComponentProps) {
+	const { jobs } = loaderData;
+	const [searchParams, setSearchParams] = useSearchParams();
+	const showCreateForm = searchParams.get("createJob") === "yes";
+	const toggleCreateForm = () => {
+		showCreateForm
+			? searchParams.delete("createJob")
+			: searchParams.set("createJob", "yes");
+		setSearchParams(searchParams);
+	};
 
 	return (
 		<div className="max-w-6xl mx-auto p-6">
@@ -224,7 +233,7 @@ export default function Dashboard() {
 						variant="primary"
 						size="md"
 						className="bg-blue-600 text-white hover:bg-blue-700"
-						onClick={() => setShowCreateForm(!showCreateForm)}
+						onClick={toggleCreateForm}
 					>
 						{showCreateForm
 							? text.ui.cancel
@@ -245,9 +254,7 @@ export default function Dashboard() {
 				</div>
 			)}
 
-			{showCreateForm && (
-				<CreateJobForm onCancel={() => setShowCreateForm(false)} />
-			)}
+			{showCreateForm && <CreateJobForm onCancel={toggleCreateForm} />}
 
 			<div>
 				<h2 className="text-xl font-semibold mb-4">Your Resume Jobs</h2>
@@ -262,7 +269,7 @@ export default function Dashboard() {
 							variant="primary"
 							size="md"
 							className="bg-blue-600 hover:bg-blue-700 text-white"
-							onClick={() => setShowCreateForm(true)}
+							onClick={toggleCreateForm}
 						>
 							Create Your First Job
 						</Button>
