@@ -14,28 +14,15 @@ interface TemplateOption {
 }
 
 interface JobControlsHeaderProps {
-	// Workflow Props
-	availableWorkflows: WorkflowOption[];
-	currentWorkflowId: string;
-	onWorkflowChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-	workflowLabel?: string;
-
-	// Template Props
 	availableTemplates: TemplateOption[];
 	currentTemplateId: string;
 	onTemplateChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 	templateLabel?: string;
-
-	// Optional additional content or styling
 	className?: string;
-	compact?: boolean; // Add option for compact layout vs boxed layout
+	compact?: boolean;
 }
 
 export function JobControlsHeader({
-	availableWorkflows,
-	currentWorkflowId,
-	onWorkflowChange,
-	workflowLabel = "Select Workflow",
 	availableTemplates,
 	currentTemplateId,
 	onTemplateChange,
@@ -43,13 +30,6 @@ export function JobControlsHeader({
 	className = "",
 	compact = false,
 }: JobControlsHeaderProps) {
-	// Convert workflow options to format expected by Select component
-	const workflowOptions: SelectOption[] = availableWorkflows.map((wf) => ({
-		value: wf.id,
-		label: wf.label,
-	}));
-
-	// Convert template options to format expected by Select component
 	const templateOptions: SelectOption[] = availableTemplates.map(
 		(template) => ({
 			value: template.id,
@@ -57,7 +37,6 @@ export function JobControlsHeader({
 		}),
 	);
 
-	// Use the nice styled container with background if not in compact mode
 	const containerClasses = compact
 		? `grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 ${className}`
 		: `bg-gray-50 rounded-lg border border-gray-200 p-5 mb-6 ${className}`;
@@ -65,15 +44,6 @@ export function JobControlsHeader({
 	return (
 		<div className={containerClasses}>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<Select
-					id="workflowId"
-					name="workflow"
-					options={workflowOptions}
-					value={currentWorkflowId}
-					onChange={onWorkflowChange}
-					label={workflowLabel}
-					fullWidth
-				/>
 				<Select
 					id="templateId"
 					name="template"

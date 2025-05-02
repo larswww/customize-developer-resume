@@ -3,6 +3,7 @@ import { z } from "zod";
 import type { ConsultantOnePagerCoreData } from "./consultantOnePager";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
+import type { WorkFlowId } from "../workflows";
 
 export const ContactInfoSchema = z
 	.object({
@@ -61,6 +62,7 @@ export type ResumeCoreData =
 
 export interface ResumeTemplateConfig {
 	id: string;
+	defaultWorkflowId: WorkFlowId;
 	name: string;
 	description: string;
 	component: ComponentType<{ data: any }>;

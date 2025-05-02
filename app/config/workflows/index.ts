@@ -12,7 +12,17 @@ export type WorkflowConfig = {
 	steps: WorkflowStep[];
 };
 
-export const workflows: Record<string, WorkflowConfig> = {
+export type WorkFlowId =
+	| "default"
+	| "alternative"
+	| "developer"
+	| "test"
+	| "instructions"
+	| "defaultAlt"
+	| "onePager"
+	| "simpleResume";
+
+export const workflows: Record<WorkFlowId, WorkflowConfig> = {
 	default: {
 		label: "Default Workflow",
 		steps: defaultWorkflowSteps,

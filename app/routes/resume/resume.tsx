@@ -4,19 +4,16 @@ import {
 	useNavigation,
 	useOutletContext,
 	useRouteError,
-	useRouteLoaderData,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { parseWithZod } from "@conform-to/zod";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { Button } from "~/components/ui/Button";
-import type { ResumeRouteContext } from "~/routes/resume/types";
 import { extractRouteParams } from "~/routes/resume/utils";
 import text from "~/text";
 import { availableTemplates } from "../../config/schemas";
 import dbService from "../../services/db/dbService.server";
-import { JOB_ROUTE_ID } from "./job";
 import type { Route } from "./+types/resume";
 import { downloadResumeAsPdf } from "~/utils/pdf.client";
 import { useCallback, useRef, useState } from "react";
