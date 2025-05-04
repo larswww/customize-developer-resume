@@ -40,6 +40,7 @@ export const ConsultantOnePagerDataSchema =
 
 export const templateConfig: ResumeTemplateConfig = {
 	id: "consultantOnePager",
+	defaultWorkflowId: "onePager",
 	name: "Consultant One-Pager",
 	description:
 		"A one-page template designed specifically for introducing consultants, featuring a profile image, title, subtitle, expertise areas, and key highlights.",

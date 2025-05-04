@@ -1,5 +1,4 @@
 export interface RouteOutletContext {
-	selectedWorkflowId: string;
 	selectedTemplateId: string;
 	isWorkflowComplete: boolean;
 	currentWorkflowSteps?: any[];

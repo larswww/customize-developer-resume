@@ -6,6 +6,7 @@ import {
 	defaultWorkflowId,
 	workflows,
 	type WorkflowConfig,
+	type WorkFlowId,
 } from "~/config/workflows";
 import dbService, { type Job } from "~/services/db/dbService.server";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
@@ -15,10 +16,8 @@ import type * as z from "zod";
 
 export interface RouteParams {
 	jobId: number;
-	selectedWorkflowId: string;
 	selectedTemplateId: string;
 	job: Job;
-	selectedWorkflow: WorkflowConfig;
 	selectedTemplateConfig: ResumeTemplateConfig;
 }
 
@@ -27,45 +26,39 @@ export function extractRouteParams({
 	request,
 }: LoaderFunctionArgs): RouteParams {
 	const jobId = Number(params.jobId);
-	const url = new URL(request.url);
-	const selectedWorkflowId =
-		url.searchParams.get("workflow") || defaultWorkflowId;
-	const selectedTemplateId =
-		url.searchParams.get("template") || defaultTemplateId;
-
 	if (Number.isNaN(jobId)) {
-		throw new Response("Invalid job ID", { status: 400 });
+		throw data(
+			"Invalid job ID, did you edit it yourself there buddy? Don't :)",
+			{ status: 400 },
+		);
 	}
-
 	const job = dbService.getJob(jobId);
 	if (!job) {
 		throw data("Could not find this job. Did you delete it?", { status: 404 });
 	}
 
-	const selectedWorkflow =
-		workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
-	if (!selectedWorkflow) {
-		throw new Error(`Workflow '${selectedWorkflowId}' not found.`);
-	}
+	const url = new URL(request.url);
+	const selectedTemplateId =
+		url.searchParams.get("template") || defaultTemplateId;
 
 	const selectedTemplateConfig =
 		availableTemplates[selectedTemplateId] ??
 		availableTemplates[defaultTemplateId];
 	if (!selectedTemplateConfig) {
-		throw new Error("Template config not found.");
+		throw data("Couldn't find this template, did you use an old link?", {
+			status: 422,
+		});
 	}
 
 	return {
 		jobId,
-		selectedWorkflowId,
 		selectedTemplateId,
 		job,
-		selectedWorkflow,
 		selectedTemplateConfig,
 	};
 }
 
-export function getWorkflow(jobId: number, selectedWorkflowId: string) {
+export function getWorkflow(jobId: number, selectedWorkflowId: WorkFlowId) {
 	const selectedWorkflow =
 		workflows[selectedWorkflowId] ?? workflows[defaultWorkflowId];
 	const workflowStepsData = dbService.getWorkflowSteps(
@@ -156,13 +149,13 @@ export async function handleContentAction(args: ActionFunctionArgs) {
 	const formData = await request.formData();
 	const jobDescription = formData.get("jobDescription") as string;
 	const relevant = formData.get("relevant") as string;
-	const workflowId =
-		(formData.get("workflowId") as string) || defaultWorkflowId;
 	const jobId = Number(params.jobId);
 
-	const { job, selectedTemplateConfig, selectedTemplateId, selectedWorkflow } =
+	const { job, selectedTemplateConfig, selectedTemplateId } =
 		await extractRouteParams(args);
 	const templateDescription = selectedTemplateConfig.description;
+	const workflowId = selectedTemplateConfig.defaultWorkflowId;
+	const selectedWorkflow = workflows[workflowId];
 
 	if (!jobDescription) {
 		return {
@@ -195,12 +188,10 @@ export async function handleContentAction(args: ActionFunctionArgs) {
 			};
 		}
 
-		// If workflow succeeded, proceed to generate and save resume
 		serverLogger.log(
 			`Workflow (${workflowId}) successful, proceeding to generate resume...`,
 		);
 
-		// Call the internal utility function
 		const generationSaveResult = await _generateAndSaveResumeInternal({
 			jobId,
 			selectedWorkflowId: workflowId,

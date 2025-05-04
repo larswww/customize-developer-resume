@@ -2,7 +2,6 @@ import {
 	Outlet,
 	redirect,
 	useSearchParams,
-	useRouteError,
 	useNavigation,
 	Form,
 	isRouteErrorResponse,
@@ -48,37 +47,21 @@ export function meta() {
 export const JOB_ROUTE_ID = "routes/job";
 
 export async function loader(args: LoaderFunctionArgs) {
-	const {
-		job,
-		jobId,
-		selectedWorkflowId,
-		selectedTemplateId,
-		selectedTemplateConfig,
-	} = await extractRouteParams(args);
+	const { job, jobId, selectedTemplateId, selectedTemplateConfig } =
+		await extractRouteParams(args);
 
 	const { selectedWorkflow, isWorkflowComplete, workflowStepsData } =
-		getWorkflow(job.id, selectedWorkflowId);
+		getWorkflow(job.id, selectedTemplateConfig.defaultWorkflowId);
 
 	const url = new URL(args.request.url);
 	const isOnResume = url.pathname.includes("/resume");
 	if (isWorkflowComplete && !isOnResume) {
-		return redirect(
-			`/job/${jobId}/resume?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`,
-		);
+		return redirect(`/job/${jobId}/resume?template=${selectedTemplateId}`);
 	}
 
 	if (!isWorkflowComplete && isOnResume) {
-		return redirect(
-			`/job/${jobId}/?workflow=${selectedWorkflowId}&template=${selectedTemplateId}`,
-		);
+		return redirect(`/job/${jobId}/?template=${selectedTemplateId}`);
 	}
-
-	const availableWorkflows = Object.entries(workflows).map(
-		([id, config]: [string, { label: string }]) => ({
-			id,
-			label: config.label,
-		}),
-	);
 
 	const templatesList = Object.values(availableTemplates).map(
 		(config: ResumeTemplateConfig) => ({
@@ -89,9 +72,7 @@ export async function loader(args: LoaderFunctionArgs) {
 
 	return {
 		job,
-		selectedWorkflowId,
 		currentWorkflowSteps: selectedWorkflow.steps,
-		availableWorkflows,
 		selectedTemplateId,
 		templatesList,
 		templateDescription: selectedTemplateConfig.description,
@@ -110,9 +91,7 @@ export default function JobLayout({
 }: Route.ComponentProps) {
 	const {
 		job,
-		selectedWorkflowId,
 		currentWorkflowSteps,
-		availableWorkflows,
 		selectedTemplateId,
 		templatesList,
 		isWorkflowComplete,
@@ -131,10 +110,6 @@ export default function JobLayout({
 			<div className="w-full lg:w-1/2 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
 				<h1 className="text-xl font-bold mb-6">{job.title}</h1>
 				<JobControlsHeader
-					availableWorkflows={availableWorkflows}
-					currentWorkflowId={selectedWorkflowId}
-					onWorkflowChange={handleChange}
-					workflowLabel="Select Content Generation Workflow"
 					availableTemplates={templatesList}
 					currentTemplateId={selectedTemplateId}
 					onTemplateChange={handleChange}
@@ -144,7 +119,6 @@ export default function JobLayout({
 
 				<JobContent
 					selectedTemplateId={selectedTemplateId}
-					selectedWorkflowId={selectedWorkflowId}
 					isWorkflowComplete={isWorkflowComplete}
 					job={job}
 					currentWorkflowSteps={currentWorkflowSteps}
@@ -166,7 +140,6 @@ export default function JobLayout({
 }
 
 function JobContent({
-	selectedWorkflowId,
 	isWorkflowComplete,
 	job,
 	currentWorkflowSteps,
@@ -184,7 +157,6 @@ function JobContent({
 	return (
 		<>
 			<Form method="post" className="py-4">
-				<input type="hidden" name="workflowId" value={selectedWorkflowId} />
 				<Collapsible
 					title="Job Description"
 					className="mb-6"

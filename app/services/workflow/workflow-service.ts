@@ -1,5 +1,9 @@
 import { serverLogger } from "~/utils/logger.server";
-import { defaultWorkflowId, workflows } from "../../config/workflows";
+import {
+	defaultWorkflowId,
+	workflows,
+	type WorkFlowId,
+} from "../../config/workflows";
 import type { WorkflowContext, WorkflowStep } from "../../services/ai/types";
 import dbService from "../db/dbService.server";
 
@@ -49,7 +53,7 @@ class DBAdapter implements DBService {
 export async function executeWorkflow(
 	jobDescription: string,
 	jobId: number,
-	workflowId: string = defaultWorkflowId,
+	workflowId: WorkFlowId = defaultWorkflowId,
 	templateDescription = "",
 ): Promise<{
 	workflowResults: Record<string, string>;
