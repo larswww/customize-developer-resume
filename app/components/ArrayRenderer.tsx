@@ -1,6 +1,6 @@
 import { useState, useEffect, memo, useCallback } from "react";
-import { Button } from "./ui/Button";
-import { TrashIcon, PlusIcon } from "./Icons";
+import { Button } from "~/components/ui/button";
+import { TrashIcon, PlusIcon } from "~/components/icons";
 
 interface ArrayRendererProps<T> {
 	items: T[];
@@ -61,14 +61,11 @@ function ArrayRendererBase<T>({
 		setHoveredIndex(index);
 	}, []);
 
-	const handleMouseLeave = useCallback(
-		(e: React.MouseEvent) => {
-			if (!buttonHover) {
-				setHoveredIndex(null);
-			}
-		},
-		[buttonHover],
-	);
+	const handleMouseLeave = useCallback(() => {
+		if (!buttonHover) {
+			setHoveredIndex(null);
+		}
+	}, [buttonHover]);
 
 	const handleButtonMouseEnter = useCallback(() => {
 		setButtonHover(true);
@@ -100,7 +97,7 @@ function ArrayRendererBase<T>({
 								type="button"
 								onClick={() => handleAdd(index)}
 								size="sm"
-								variant="primary"
+								variant="default"
 								className="rounded-full !p-1"
 								aria-label="Add item"
 							>

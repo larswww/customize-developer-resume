@@ -9,7 +9,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { parseWithZod } from "@conform-to/zod";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import { extractRouteParams } from "~/routes/resume/utils";
 import text from "~/text";
 import { availableTemplates } from "../../config/schemas";
@@ -20,7 +20,7 @@ import { useCallback, useRef, useState } from "react";
 import { printResumeElement } from "~/utils/print.client";
 import { FeedbackMessage } from "~/components/FeedbackMessage";
 import { InputGroup } from "~/components/ui/InputGroup";
-import { Input } from "~/components/ui/Input";
+import { Input } from "~/components/ui/input";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 
 export async function loader(args: LoaderFunctionArgs) {

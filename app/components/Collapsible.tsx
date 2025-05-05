@@ -1,6 +1,6 @@
 import { type ReactNode, useState } from "react";
 import { cn } from "~/utils/cn";
-import { ChevronDownIcon, ChevronUpIcon } from "./Icons";
+import { ChevronDownIcon, ChevronUpIcon } from "./icons";
 
 interface CollapsibleProps {
 	title: ReactNode;

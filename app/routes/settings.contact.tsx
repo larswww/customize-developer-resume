@@ -15,7 +15,7 @@ import type { action as settingsAction } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";
 import { FormField } from "~/components/ui/FormField";
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import { FormGrid } from "~/components/ui/FormGrid";
 
@@ -139,7 +139,6 @@ export default function SettingsContact() {
 							name="intent"
 							value={SETTINGS_KEYS.CONTACT_INFO}
 							type="submit"
-							variant="primary"
 							disabled={navigation.state !== "idle"}
 							className="w-full sm:w-auto"
 						>

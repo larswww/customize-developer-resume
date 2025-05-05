@@ -1,4 +1,4 @@
-import { useForm, getFormProps, getInputProps } from "@conform-to/react";
+import { useForm, getFormProps } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
 	Form,
@@ -11,7 +11,7 @@ import type { SettingsOutletContext } from "./settings";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";
 import { FormField } from "~/components/ui/FormField";
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import { FormGrid } from "~/components/ui/FormGrid";
 
@@ -100,7 +100,7 @@ export default function SettingsEducation() {
 							name="intent"
 							value={SETTINGS_KEYS.EDUCATION}
 							type="submit"
-							variant="primary"
+							variant="default"
 							disabled={navigation.state !== "idle"}
 							className="w-full sm:w-auto"
 						>

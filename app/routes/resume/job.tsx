@@ -25,12 +25,12 @@ import { WorkflowSteps } from "~/components/WorkflowSteps";
 import text from "~/text";
 import { useRef } from "react";
 import { Collapsible } from "~/components/Collapsible";
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import {
 	LoadingSpinnerIcon,
 	RetryIcon,
 	MagicWandIcon,
-} from "~/components/Icons";
+} from "~/components/icons";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 
@@ -176,7 +176,6 @@ function JobContent({
 					<Button
 						type="submit"
 						disabled={isSubmitting}
-						variant="primary"
 						size="lg"
 						className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
 					>

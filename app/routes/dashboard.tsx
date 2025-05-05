@@ -6,8 +6,8 @@ import {
 	useSearchParams,
 } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { DocumentIcon, ExternalLinkIcon, TrashIcon } from "~/components/Icons";
-import { Button } from "~/components/ui/Button";
+import { DocumentIcon, ExternalLinkIcon, TrashIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
 import { Link } from "~/components/ui/Link";
 import text from "~/text";
 import dbService, { type Job } from "../services/db/dbService.server";
@@ -124,8 +124,6 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
 				<div className="flex gap-2">
 					<Button
 						type="submit"
-						variant="primary"
-						size="md"
 						className="bg-green-600 hover:bg-green-700 text-white"
 					>
 						{text.dashboard.createJob.confirmButton}
@@ -133,7 +131,6 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
 					<Button
 						type="button"
 						variant="secondary"
-						size="md"
 						className="bg-gray-500 hover:bg-gray-600 text-white"
 						onClick={onCancel}
 					>
@@ -230,8 +227,6 @@ export default function Dashboard({
 					</Link>
 					<Button
 						type="button"
-						variant="primary"
-						size="md"
 						className="bg-blue-600 text-white hover:bg-blue-700"
 						onClick={toggleCreateForm}
 					>
@@ -266,8 +261,6 @@ export default function Dashboard({
 						</p>
 						<Button
 							type="button"
-							variant="primary"
-							size="md"
 							className="bg-blue-600 hover:bg-blue-700 text-white"
 							onClick={toggleCreateForm}
 						>

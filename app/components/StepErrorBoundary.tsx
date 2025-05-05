@@ -1,5 +1,5 @@
 import React from "react";
-import { WarningIcon } from "./Icons";
+import { WarningIcon } from "./icons";
 
 interface StepErrorBoundaryProps {
 	stepId: string;

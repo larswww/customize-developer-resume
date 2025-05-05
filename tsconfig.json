@@ -18,6 +18,7 @@
 			"~/*": ["./app/*"]
 		},
 		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
 		"verbatimModuleSyntax": true,
 		"noEmit": true,
 		"resolveJsonModule": true,

@@ -15,7 +15,7 @@ test.describe("Resume Generation E2E Flow", () => {
 		deleteJob,
 	}) => {
 		const jobDescription = "This is a test job description for the E2E flow.";
-		const jobId = await createJob(jobTitle, jobDescription);
+		await createJob(jobTitle, jobDescription);
 
 		await test.step("Navigate to Generate Content", async () => {
 			await expect(

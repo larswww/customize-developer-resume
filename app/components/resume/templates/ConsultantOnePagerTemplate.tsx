@@ -1,10 +1,5 @@
 import type React from "react";
-import {
-	CalendarIcon,
-	EmailIcon,
-	GitHubIcon,
-	WhatsAppIcon,
-} from "../../../components/Icons";
+import { CalendarIcon, EmailIcon, GitHubIcon, WhatsAppIcon } from "../../icons";
 import type { ConsultantOnePagerData } from "../../../config/schemas/consultantOnePager";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
