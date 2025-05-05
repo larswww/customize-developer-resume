@@ -1,5 +1,18 @@
-import { Outlet } from "react-router";
+import { Outlet, useLoaderData } from "react-router";
 import { NavLink } from "~/components/ui/NavLink";
+import {
+	Sidebar,
+	SidebarContent,
+	SidebarGroup,
+	SidebarGroupLabel,
+	SidebarMenu,
+	SidebarMenuItem,
+	SidebarTrigger,
+	SidebarInset,
+	SidebarProvider,
+} from "~/components/ui/sidebar";
+import type { Job } from "~/services/db/dbService.server";
+import dbService from "~/services/db/dbService.server";
 
 import text from "~/text";
 
@@ -9,36 +22,58 @@ const navLinks = [
 	{ to: "/settings", label: text.nav.info },
 ];
 
-export default function AppLayout() {
-	return (
-		<div className="flex flex-col min-h-screen">
-			<nav className="bg-blue-600">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="flex items-center justify-between h-16">
-						<div className="flex items-center">
-							<div className="flex-shrink-0 text-white text-lg font-bold">
-								AI Resume Tools
-							</div>
-							<div className="hidden md:block">
-								<div className="ml-10 flex items-baseline space-x-4">
-									{navLinks.map((link) => (
-										<NavLink key={link.to} to={link.to} size="sm">
-											{link.label}
-										</NavLink>
-									))}
-								</div>
-							</div>
-						</div>
-						{/* Placeholder for potential right-aligned items like user profile */}
-					</div>
-				</div>
-				{/* Mobile menu, if needed - omitted for brevity */}
-			</nav>
+export async function loader() {
+	const jobs = dbService.getAllJobs();
+	return { jobs };
+}
 
-			<main className="flex-grow">
-				{/* Outlet renders the matched child route component */}
+export default function AppLayout() {
+	const { jobs } = useLoaderData<{ jobs: Job[] }>();
+
+	return (
+		<SidebarProvider defaultOpen={true}>
+			<Sidebar variant="floating" collapsible="icon">
+				<SidebarContent className="pt-4">
+					<SidebarGroup className="px-2">
+						<SidebarGroupLabel className="px-2 mb-1">
+							Navigation
+						</SidebarGroupLabel>
+						<SidebarMenu>
+							{navLinks.map((link) => (
+								<SidebarMenuItem key={link.to} className="mb-1">
+									<NavLink to={link.to} size="md">
+										{link.label}
+									</NavLink>
+								</SidebarMenuItem>
+							))}
+						</SidebarMenu>
+					</SidebarGroup>
+
+					<SidebarGroup className="mt-6 px-2">
+						<SidebarGroupLabel className="px-2 mb-1">Jobs</SidebarGroupLabel>
+						<SidebarMenu>
+							{jobs.length === 0 ? (
+								<div className="px-3 py-2 text-sm text-muted-foreground">
+									No jobs available
+								</div>
+							) : (
+								jobs.map((job) => (
+									<SidebarMenuItem key={job.id} className="mb-1">
+										<NavLink to={`/job/${job.id}`} size="sm" variant="ghost">
+											{job.title}
+										</NavLink>
+									</SidebarMenuItem>
+								))
+							)}
+						</SidebarMenu>
+					</SidebarGroup>
+				</SidebarContent>
+			</Sidebar>
+
+			<main className="flex-1">
+				<SidebarTrigger />
 				<Outlet />
 			</main>
-		</div>
+		</SidebarProvider>
 	);
 }
