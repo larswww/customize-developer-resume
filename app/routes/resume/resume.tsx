@@ -25,7 +25,7 @@ import type { Route } from "./+types/resume";
 
 export const handle = {
 	title: "Resume",
-	rightSection: <Button>Save</Button>,
+	rightSection: <ResumePreviewActions />,
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -125,25 +125,12 @@ export default function JobResume({
 		isWorkflowComplete: boolean;
 	}>();
 	const { selectedTemplateId, isWorkflowComplete } = parentContext;
-	const [error, setError] = useState<string | null>(null);
 
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state === "submitting";
 	const isGenerating =
 		isSubmitting && navigation.formData?.get("actionType") === "generate";
 
-	const handlePrintClick = useCallback(() => {
-		setError(null);
-		printResumeElement("printable-resume", setError);
-	}, []);
-
-	const handleDownloadPdfClick = async () => {
-		setError(null);
-		await downloadResumeAsPdf({
-			elementId: "printable-resume",
-			onError: setError,
-		});
-	};
 	const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
 	const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
 
@@ -216,22 +203,16 @@ export default function JobResume({
 					</div>
 				)}
 
-				{error && (
+				{/* {error && (
 					<div className="text-red-500 p-4 border border-red-200 rounded bg-red-50">
 						{error}
 					</div>
-				)}
+				)} */}
 
 				{/* </div> */}
 			</div>
 
 			<div className="p-4 bg-white border-t">
-				{hasResume && (
-					<ResumePreviewActions
-						onPrint={handlePrintClick}
-						onDownloadPdf={handleDownloadPdfClick}
-					/>
-				)}
 				<InputGroup>
 					<Input
 						type="text"
