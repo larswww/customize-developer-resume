@@ -1,6 +1,6 @@
-import type { DefaultResumeData } from "~/config/schemas/default";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
+import type { DefaultResumeData } from "~/config/schemas/default";
 
 interface ResumeTemplateProps {
 	data: DefaultResumeData;

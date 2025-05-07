@@ -1,10 +1,10 @@
 import { Outlet, useMatches } from "react-router";
+import { AppSidebar } from "~/components/AppSidebar";
+import { MainHeader } from "~/components/MainHeader";
 import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import dbService from "~/services/db/dbService.server";
 import text from "~/text";
-import { AppSidebar } from "~/components/AppSidebar";
 import type { Route } from "./+types/AppLayout";
-import { MainHeader } from "~/components/MainHeader";
 
 const navLinks = [
 	{ to: "/dashboard", label: text.nav.dashboard },

@@ -1,3 +1,6 @@
+import { BookText, LayoutDashboard, User } from "lucide-react";
+import { NavLink } from "~/components/ui/NavLink";
+import type { Job } from "~/services/db/dbService.server";
 import {
 	Sidebar,
 	SidebarContent,
@@ -8,9 +11,6 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "./ui/sidebar";
-import { LayoutDashboard, BookText, User } from "lucide-react";
-import type { Job } from "~/services/db/dbService.server";
-import { NavLink } from "~/components/ui/NavLink";
 interface AppSidebarProps {
 	jobs: Job[];
 	navLinks: { to: string; label: string }[];

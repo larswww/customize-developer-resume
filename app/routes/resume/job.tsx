@@ -1,12 +1,13 @@
 import {
-	Outlet,
-	redirect,
-	useSearchParams,
-	useNavigation,
 	Form,
+	Outlet,
 	isRouteErrorResponse,
+	redirect,
+	useNavigation,
+	useSearchParams,
 } from "react-router";
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { WorkflowSteps } from "~/components/WorkflowSteps";
 import type { RouteOutletContext } from "~/routes/resume/types";
 import {
 	extractRouteParams,
@@ -20,19 +21,18 @@ import {
 } from "../../config/schemas";
 import { workflows } from "../../config/workflows";
 import type { Route } from "./+types/job";
-import { WorkflowSteps } from "~/components/WorkflowSteps";
 
-import text from "~/text";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { useRef } from "react";
 import { Collapsible } from "~/components/Collapsible";
-import { Button } from "~/components/ui/button";
+import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import {
 	LoadingSpinnerIcon,
-	RetryIcon,
 	MagicWandIcon,
+	RetryIcon,
 } from "~/components/icons";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
-import type { MDXEditorMethods } from "@mdxeditor/editor";
+import { Button } from "~/components/ui/button";
+import text from "~/text";
 
 export function meta() {
 	return [

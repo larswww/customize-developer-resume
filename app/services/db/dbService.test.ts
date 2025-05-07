@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import deleteTestDb from "~/../tests/e2e/utils/deleteTestDb";
 import type { ContactInfo } from "~/config/schemas/sharedTypes";
 import type { DefaultResumeData } from "../../config/schemas/default";
 import {
+	DB_PATHS,
 	type WorkflowStepStatus,
 	createDbService,
-	DB_PATHS,
 } from "./dbService.server";
-import deleteTestDb from "~/../tests/e2e/utils/deleteTestDb";
 
 describe("DbService", () => {
 	let dbService: ReturnType<typeof createDbService>;

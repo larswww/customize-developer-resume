@@ -1,4 +1,4 @@
-import { useForm, getFormProps } from "@conform-to/react";
+import { getFormProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import {
 	Form,
@@ -6,14 +6,14 @@ import {
 	useNavigation,
 	useOutletContext,
 } from "react-router";
-import { EducationSchema } from "~/config/schemas/sharedTypes";
-import type { SettingsOutletContext } from "./settings";
-import { SETTINGS_KEYS } from "~/config/constants";
-import text from "~/text";
-import { FormField } from "~/components/ui/FormField";
-import { Button } from "~/components/ui/button";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
+import { FormField } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
+import { Button } from "~/components/ui/button";
+import { SETTINGS_KEYS } from "~/config/constants";
+import { EducationSchema } from "~/config/schemas/sharedTypes";
+import text from "~/text";
+import type { SettingsOutletContext } from "./settings";
 
 export default function SettingsEducation() {
 	const { education } = useOutletContext<SettingsOutletContext>();

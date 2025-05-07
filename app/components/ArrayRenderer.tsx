@@ -1,6 +1,6 @@
-import { useState, useEffect, memo, useCallback } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
+import { PlusIcon, TrashIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
-import { TrashIcon, PlusIcon } from "~/components/icons";
 
 interface ArrayRendererProps<T> {
 	items: T[];

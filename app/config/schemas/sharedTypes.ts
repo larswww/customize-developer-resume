@@ -1,9 +1,9 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
+import type { WorkFlowId } from "../workflows";
 import type { ConsultantOnePagerCoreData } from "./consultantOnePager";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
-import type { WorkFlowId } from "../workflows";
 
 export const ContactInfoSchema = z
 	.object({

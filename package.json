@@ -16,7 +16,7 @@
 		"test:watch": "vitest",
 		"test:ui": "vitest --ui",
 		"test:coverage": "vitest run --coverage",
-		"lint": "biome check --write .",
+		"lint": "biome check --write --organize-imports-enabled=true .",
 		"lint:format": "biome format --write .",
 		"lint:lint": "biome lint --write ."
 	},

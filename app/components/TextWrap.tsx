@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TEST_IDS } from "~/config/testIds";
 interface TextWrapProps {
 	text: string | undefined;
