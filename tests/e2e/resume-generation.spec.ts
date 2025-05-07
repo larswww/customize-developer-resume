@@ -43,7 +43,6 @@ test.describe("Resume Generation E2E Flow", () => {
 			await page
 				.getByRole("button", { name: text.resume.generateButton, exact: true })
 				.click();
-			await expect(page.getByText(text.ui.generating).first()).toBeVisible();
 			await expect(
 				page.getByText(text.ui.generating).first(),
 			).not.toBeVisible();

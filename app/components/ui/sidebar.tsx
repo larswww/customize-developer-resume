@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
@@ -86,8 +88,7 @@ function SidebarProvider({
 		[setOpenProp, open],
 	);
 
-	//@biome-ignore Helper to toggle the sidebar.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Mobile state is managed separately
+	// Helper to toggle the sidebar.
 	const toggleSidebar = React.useCallback(() => {
 		return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
 	}, [isMobile, setOpen, setOpenMobile]);
@@ -112,7 +113,6 @@ function SidebarProvider({
 	// This makes it easier to style the sidebar with Tailwind classes.
 	const state = open ? "expanded" : "collapsed";
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: Mobile state is managed separately
 	const contextValue = React.useMemo<SidebarContextProps>(
 		() => ({
 			state,
@@ -207,7 +207,7 @@ function Sidebar({
 
 	return (
 		<div
-			className="peer text-sidebar-foreground hidden md:block"
+			className="group peer text-sidebar-foreground hidden md:block"
 			data-state={state}
 			data-collapsible={state === "collapsed" ? collapsible : ""}
 			data-variant={variant}

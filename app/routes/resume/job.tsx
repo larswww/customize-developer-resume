@@ -46,6 +46,11 @@ export function meta() {
 
 export const JOB_ROUTE_ID = "routes/job";
 
+export const handle = {
+	title: "Job",
+	rightSection: <Button>Save</Button>,
+};
+
 export async function loader(args: LoaderFunctionArgs) {
 	const { job, jobId, selectedTemplateId, selectedTemplateConfig } =
 		await extractRouteParams(args);

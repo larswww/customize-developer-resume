@@ -23,6 +23,11 @@ import { InputGroup } from "~/components/ui/InputGroup";
 import { Input } from "~/components/ui/input";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 
+export const handle = {
+	title: "Resume",
+	rightSection: <Button>Save</Button>,
+};
+
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
 

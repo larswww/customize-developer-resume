@@ -1,24 +1,14 @@
-import { Outlet, useLoaderData } from "react-router";
-import { NavLink } from "~/components/ui/NavLink";
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarGroup,
-	SidebarGroupLabel,
-	SidebarMenu,
-	SidebarMenuItem,
-	SidebarTrigger,
-	SidebarInset,
-	SidebarProvider,
-} from "~/components/ui/sidebar";
-import type { Job } from "~/services/db/dbService.server";
+import { Outlet, useMatches } from "react-router";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
 import dbService from "~/services/db/dbService.server";
-
 import text from "~/text";
+import { AppSidebar } from "./AppSidebar";
+import type { Route } from "./+types/AppLayout";
+import { MainHeader } from "./MainHeader";
 
 const navLinks = [
 	{ to: "/dashboard", label: text.nav.dashboard },
-	{ to: "/settings/work-history", label: text.nav.settings },
+	{ to: "/career", label: text.nav.career },
 	{ to: "/settings", label: text.nav.info },
 ];
 
@@ -27,53 +17,44 @@ export async function loader() {
 	return { jobs };
 }
 
-export default function AppLayout() {
-	const { jobs } = useLoaderData<{ jobs: Job[] }>();
+export default function AppLayout({ loaderData }: Route.ComponentProps) {
+	const { jobs } = loaderData;
+	const matches = useMatches();
+	const lastMatch = matches[matches.length - 1];
+	const title =
+		lastMatch &&
+		typeof lastMatch.handle === "object" &&
+		lastMatch.handle &&
+		"title" in lastMatch.handle
+			? lastMatch.handle.title
+			: undefined;
+	const rightSection =
+		lastMatch &&
+		typeof lastMatch.handle === "object" &&
+		lastMatch.handle &&
+		"rightSection" in lastMatch.handle
+			? lastMatch.handle.rightSection
+			: undefined;
+
+	const safeTitle = typeof title === "string" ? title : "";
+	const safeRightSection = rightSection as React.ReactNode | undefined;
 
 	return (
-		<SidebarProvider defaultOpen={true}>
-			<Sidebar variant="floating" collapsible="icon">
-				<SidebarContent className="pt-4">
-					<SidebarGroup className="px-2">
-						<SidebarGroupLabel className="px-2 mb-1">
-							Navigation
-						</SidebarGroupLabel>
-						<SidebarMenu>
-							{navLinks.map((link) => (
-								<SidebarMenuItem key={link.to} className="mb-1">
-									<NavLink to={link.to} size="md">
-										{link.label}
-									</NavLink>
-								</SidebarMenuItem>
-							))}
-						</SidebarMenu>
-					</SidebarGroup>
-
-					<SidebarGroup className="mt-6 px-2">
-						<SidebarGroupLabel className="px-2 mb-1">Jobs</SidebarGroupLabel>
-						<SidebarMenu>
-							{jobs.length === 0 ? (
-								<div className="px-3 py-2 text-sm text-muted-foreground">
-									No jobs available
-								</div>
-							) : (
-								jobs.map((job) => (
-									<SidebarMenuItem key={job.id} className="mb-1">
-										<NavLink to={`/job/${job.id}`} size="sm" variant="ghost">
-											{job.title}
-										</NavLink>
-									</SidebarMenuItem>
-								))
-							)}
-						</SidebarMenu>
-					</SidebarGroup>
-				</SidebarContent>
-			</Sidebar>
-
-			<main className="flex-1">
-				<SidebarTrigger />
+		<SidebarProvider
+			style={
+				{
+					"--sidebar-width": "calc(var(--spacing) * 72)",
+					"--header-height": "calc(var(--spacing) * 12)",
+				} as React.CSSProperties
+			}
+		>
+			<AppSidebar jobs={jobs} navLinks={navLinks} />
+			<SidebarInset>
+				{(safeTitle || safeRightSection) && (
+					<MainHeader title={safeTitle} rightSection={safeRightSection} />
+				)}
 				<Outlet />
-			</main>
+			</SidebarInset>
 		</SidebarProvider>
 	);
 }
