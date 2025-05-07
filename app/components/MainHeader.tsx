@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
-import { SidebarTrigger } from "./ui/sidebar";
+import { Separator } from "~/components/ui/separator";
+import { SidebarTrigger } from "~/components/ui/sidebar";
 
 export function MainHeader({
 	title,
