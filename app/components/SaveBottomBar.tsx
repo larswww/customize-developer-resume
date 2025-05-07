@@ -1,5 +1,5 @@
 import { Button } from "~/components/ui/button";
-import { LoadingSpinnerIcon } from "./icons";
+import { LoadingSpinnerIcon } from "~/components/icons";
 
 interface SaveBottomBarProps {
 	formId: string;
