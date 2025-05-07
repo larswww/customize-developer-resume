@@ -1,6 +1,6 @@
-import type { DefaultResumeData } from "~/config/schemas/default";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
+import type { DefaultResumeData } from "~/config/schemas/default";
 
 interface ResumeTemplateProps {
 	data: DefaultResumeData;
@@ -313,7 +313,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 
 								<ArrayRenderer
 									items={job.description}
-									getKey={(desc, index) => `desc-${index}`}
+									getKey={(_desc, index) => `desc-${index}`}
 									renderItem={(desc, descIndex) => (
 										<p className="mb-2 text-gray-800">
 											<TextWrap
@@ -329,7 +329,7 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 									<ul className="list-disc pl-5 mt-2 text-gray-700">
 										<ArrayRenderer
 											items={job.highlights}
-											getKey={(highlight, index) => `highlight-${index}`}
+											getKey={(_highlight, index) => `highlight-${index}`}
 											renderItem={(highlight, highlightIndex) => (
 												<li className="mb-1">
 													<TextWrap

@@ -19,7 +19,7 @@ export default [
 			route(SETTINGS_KEYS.EDUCATION, "routes/settings.education.tsx"),
 		]),
 
-		route("settings/work-history", "routes/settings.work-history.tsx"),
+		route("career", "routes/settings.work-history.tsx"),
 	]),
 	route("export-pdf", "routes/export-pdf.tsx"),
 	index("routes/index.tsx"),

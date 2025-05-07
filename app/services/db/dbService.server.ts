@@ -3,6 +3,12 @@ import path from "node:path";
 import Database from "better-sqlite3";
 import { z } from "zod";
 import {
+	DB_DIR,
+	DB_NAMES,
+	SETTINGS_KEYS,
+	SETTINGS_SCHEMAS,
+} from "~/config/constants";
+import {
 	type ContactInfo,
 	ContactInfoSchema,
 	type Education,
@@ -15,12 +21,6 @@ import type {
 	DefaultResumeData,
 } from "../../config/schemas/default";
 import { defaultWorkflowId } from "../../config/workflows";
-import {
-	DB_DIR,
-	DB_NAMES,
-	SETTINGS_KEYS,
-	SETTINGS_SCHEMAS,
-} from "~/config/constants";
 
 export const DB_PATHS = {
 	TEST: path.join(DB_DIR, DB_NAMES.TEST),

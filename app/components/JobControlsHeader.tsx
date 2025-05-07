@@ -1,12 +1,5 @@
 import type React from "react";
 import { Select, type SelectOption } from "~/components/ui/Select";
-import { defaultTemplateId } from "~/config/schemas";
-import { defaultWorkflowId } from "~/config/workflows";
-
-interface WorkflowOption {
-	id: string;
-	label: string;
-}
 
 interface TemplateOption {
 	id: string;

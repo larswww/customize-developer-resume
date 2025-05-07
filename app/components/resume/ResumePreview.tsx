@@ -33,7 +33,6 @@ export function ResumePreview({
 	// Calculate how many page markers to show based on A4 dimensions
 	// Standard A4 is 297mm tall (210mm wide) in portrait mode
 	const pageHeight = isLandscape ? 210 : 297; // mm
-	const containerHeight = isLandscape ? 210 : 297; // mm
 	const pageCount = 3; // Show markers for multiple pages
 
 	return (

@@ -1,5 +1,5 @@
 import { JSONSchemaFaker } from "json-schema-faker";
-import { http, HttpResponse, bypass } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import { serverLogger } from "../utils/logger.server";
 
 const workflowResponses = {
@@ -126,6 +126,7 @@ export const anthropicHandler = http.post(
 	"https://api.anthropic.com/v1/messages",
 	async ({ request }) => {
 		serverLogger.log("[MSW] Anthropic API call intercepted");
+		await delay();
 
 		// Get the request body to determine appropriate response
 		const requestBody = await request
@@ -176,6 +177,7 @@ const openAIHandler = http.post(
 	"https://api.openai.com/v1/chat/completions",
 	async ({ request }) => {
 		serverLogger.debug("[MSW] OpenAI API call intercepted");
+		await delay();
 
 		const requestBody = (await request
 			.clone()
@@ -273,6 +275,7 @@ export const geminiHandler = http.post(
 	"https://generativelanguage.googleapis.com/*",
 	async ({ request }) => {
 		serverLogger.debug("[MSW] Gemini API call intercepted");
+		await delay();
 
 		const requestBody = (await request
 			.clone()
@@ -333,16 +336,22 @@ export const geminiHandler = http.post(
 export const fallbackHandlers = [
 	http.all("https://api.anthropic.com/*", async () => {
 		serverLogger.debug("[MSW] Fallback Anthropic request intercepted");
+		await delay();
+
 		return HttpResponse.json({ message: "Fallback Anthropic response" });
 	}),
 
 	http.all("https://api.openai.com/*", async () => {
 		serverLogger.debug("[MSW] Fallback OpenAI request intercepted");
+		await delay();
+
 		return HttpResponse.json({ message: "Fallback OpenAI response" });
 	}),
 
 	http.all("https://generativelanguage.googleapis.com/*", async () => {
 		serverLogger.debug("[MSW] Fallback Gemini request intercepted");
+		await delay();
+
 		return HttpResponse.json({ message: "Fallback Gemini response" });
 	}),
 ];

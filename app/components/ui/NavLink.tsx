@@ -23,30 +23,30 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(
 			<RouterNavLink
 				className={({ isActive }) =>
 					cn(
-						"inline-flex items-center justify-center font-medium transition-colors rounded-md",
+						"inline-flex items-center justify-start w-full font-medium transition-colors rounded-md",
 						// Size variants
 						{
-							"text-xs px-3 py-1": size === "sm",
-							"text-sm px-4 py-2": size === "md",
-							"text-base px-5 py-2.5": size === "lg",
+							"text-xs px-3 py-1.5": size === "sm",
+							"text-sm px-3 py-2": size === "md",
+							"text-base px-4 py-2.5": size === "lg",
 						},
 						// Style variants (only applies if not active)
 						!isActive && {
-							"bg-gray-50 text-gray-700 hover:bg-gray-100":
+							"bg-background text-foreground hover:bg-accent hover:text-accent-foreground":
 								variant === "default",
-							"bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100":
+							"bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20":
 								variant === "primary",
-							"border border-gray-300 text-gray-700 hover:bg-gray-50":
+							"border border-border text-foreground hover:bg-accent hover:text-accent-foreground":
 								variant === "secondary",
-							"bg-red-50 text-red-700 border border-red-200 hover:bg-red-100":
+							"bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20":
 								variant === "destructive",
-							"text-gray-700 hover:bg-gray-100 hover:text-gray-900":
+							"text-muted-foreground hover:bg-accent hover:text-accent-foreground":
 								variant === "ghost",
-							"border border-gray-300 bg-transparent hover:bg-gray-50 text-gray-700":
+							"border border-border bg-transparent hover:bg-accent hover:text-accent-foreground":
 								variant === "outline",
 						},
 						// Active state overrides
-						isActive && "bg-blue-900 text-white",
+						isActive && "bg-primary text-primary-foreground",
 						className,
 					)
 				}

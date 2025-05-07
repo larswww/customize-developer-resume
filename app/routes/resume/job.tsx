@@ -1,12 +1,13 @@
 import {
-	Outlet,
-	redirect,
-	useSearchParams,
-	useNavigation,
 	Form,
+	Outlet,
 	isRouteErrorResponse,
+	redirect,
+	useNavigation,
+	useSearchParams,
 } from "react-router";
-import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { WorkflowSteps } from "~/components/WorkflowSteps";
 import type { RouteOutletContext } from "~/routes/resume/types";
 import {
 	extractRouteParams,
@@ -20,19 +21,18 @@ import {
 } from "../../config/schemas";
 import { workflows } from "../../config/workflows";
 import type { Route } from "./+types/job";
-import { WorkflowSteps } from "~/components/WorkflowSteps";
 
-import text from "~/text";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { useRef } from "react";
 import { Collapsible } from "~/components/Collapsible";
-import { Button } from "~/components/ui/Button";
+import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import {
 	LoadingSpinnerIcon,
-	RetryIcon,
 	MagicWandIcon,
-} from "~/components/Icons";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
-import type { MDXEditorMethods } from "@mdxeditor/editor";
+	RetryIcon,
+} from "~/components/icons";
+import { Button } from "~/components/ui/button";
+import text from "~/text";
 
 export function meta() {
 	return [
@@ -45,6 +45,11 @@ export function meta() {
 }
 
 export const JOB_ROUTE_ID = "routes/job";
+
+export const handle = {
+	title: "Job",
+	rightSection: <Button>Save</Button>,
+};
 
 export async function loader(args: LoaderFunctionArgs) {
 	const { job, jobId, selectedTemplateId, selectedTemplateConfig } =
@@ -176,7 +181,6 @@ function JobContent({
 					<Button
 						type="submit"
 						disabled={isSubmitting}
-						variant="primary"
 						size="lg"
 						className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
 					>

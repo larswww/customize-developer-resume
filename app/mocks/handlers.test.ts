@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { JSONSchemaFaker } from "json-schema-faker";
+import { describe, expect, it } from "vitest";
 
 const requestBodySchema = {
 	type: "object",

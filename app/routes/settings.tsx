@@ -1,3 +1,4 @@
+import { parseWithZod } from "@conform-to/zod";
 import {
 	type ActionFunctionArgs,
 	type LoaderFunctionArgs,
@@ -5,11 +6,10 @@ import {
 	Outlet,
 	redirect,
 } from "react-router";
-import { parseWithZod } from "@conform-to/zod";
-import dbService, { type ContactInfo } from "~/services/db/dbService.server";
 import { SETTINGS_KEYS, SETTINGS_SCHEMAS } from "~/config/constants";
-import type { Route } from "./+types/settings";
 import type { Education } from "~/config/schemas/sharedTypes";
+import dbService, { type ContactInfo } from "~/services/db/dbService.server";
+import type { Route } from "./+types/settings";
 
 export const loader = async () => {
 	const contactInfo = await dbService.getContactInfo();

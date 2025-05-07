@@ -1,8 +1,8 @@
 import { serverLogger } from "~/utils/logger.server";
 import {
+	type WorkFlowId,
 	defaultWorkflowId,
 	workflows,
-	type WorkFlowId,
 } from "../../config/workflows";
 import type { WorkflowContext, WorkflowStep } from "../../services/ai/types";
 import dbService from "../db/dbService.server";

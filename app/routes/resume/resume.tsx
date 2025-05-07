@@ -1,3 +1,5 @@
+import { parseWithZod } from "@conform-to/zod";
+import { useCallback, useRef, useState } from "react";
 import {
 	Form,
 	Link,
@@ -6,22 +8,25 @@ import {
 	useRouteError,
 } from "react-router";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { parseWithZod } from "@conform-to/zod";
+import { FeedbackMessage } from "~/components/FeedbackMessage";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
-import { Button } from "~/components/ui/Button";
+import { InputGroup } from "~/components/ui/InputGroup";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { extractRouteParams } from "~/routes/resume/utils";
+import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 import text from "~/text";
+import { downloadResumeAsPdf } from "~/utils/pdf.client";
+import { printResumeElement } from "~/utils/print.client";
 import { availableTemplates } from "../../config/schemas";
 import dbService from "../../services/db/dbService.server";
 import type { Route } from "./+types/resume";
-import { downloadResumeAsPdf } from "~/utils/pdf.client";
-import { useCallback, useRef, useState } from "react";
-import { printResumeElement } from "~/utils/print.client";
-import { FeedbackMessage } from "~/components/FeedbackMessage";
-import { InputGroup } from "~/components/ui/InputGroup";
-import { Input } from "~/components/ui/Input";
-import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
+
+export const handle = {
+	title: "Resume",
+	rightSection: <Button>Save</Button>,
+};
 
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);

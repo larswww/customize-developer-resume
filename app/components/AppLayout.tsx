@@ -1,44 +1,60 @@
-import { Outlet } from "react-router";
-import { NavLink } from "~/components/ui/NavLink";
-
+import { Outlet, useMatches } from "react-router";
+import { AppSidebar } from "~/components/AppSidebar";
+import { MainHeader } from "~/components/MainHeader";
+import { SidebarInset, SidebarProvider } from "~/components/ui/sidebar";
+import dbService from "~/services/db/dbService.server";
 import text from "~/text";
+import type { Route } from "./+types/AppLayout";
 
 const navLinks = [
 	{ to: "/dashboard", label: text.nav.dashboard },
-	{ to: "/settings/work-history", label: text.nav.settings },
+	{ to: "/career", label: text.nav.career },
 	{ to: "/settings", label: text.nav.info },
 ];
 
-export default function AppLayout() {
-	return (
-		<div className="flex flex-col min-h-screen">
-			<nav className="bg-blue-600">
-				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-					<div className="flex items-center justify-between h-16">
-						<div className="flex items-center">
-							<div className="flex-shrink-0 text-white text-lg font-bold">
-								AI Resume Tools
-							</div>
-							<div className="hidden md:block">
-								<div className="ml-10 flex items-baseline space-x-4">
-									{navLinks.map((link) => (
-										<NavLink key={link.to} to={link.to} size="sm">
-											{link.label}
-										</NavLink>
-									))}
-								</div>
-							</div>
-						</div>
-						{/* Placeholder for potential right-aligned items like user profile */}
-					</div>
-				</div>
-				{/* Mobile menu, if needed - omitted for brevity */}
-			</nav>
+export async function loader() {
+	const jobs = dbService.getAllJobs();
+	return { jobs };
+}
 
-			<main className="flex-grow">
-				{/* Outlet renders the matched child route component */}
+export default function AppLayout({ loaderData }: Route.ComponentProps) {
+	const { jobs } = loaderData;
+	const matches = useMatches();
+	const lastMatch = matches[matches.length - 1];
+	const title =
+		lastMatch &&
+		typeof lastMatch.handle === "object" &&
+		lastMatch.handle &&
+		"title" in lastMatch.handle
+			? lastMatch.handle.title
+			: undefined;
+	const rightSection =
+		lastMatch &&
+		typeof lastMatch.handle === "object" &&
+		lastMatch.handle &&
+		"rightSection" in lastMatch.handle
+			? lastMatch.handle.rightSection
+			: undefined;
+
+	const safeTitle = typeof title === "string" ? title : "";
+	const safeRightSection = rightSection as React.ReactNode | undefined;
+
+	return (
+		<SidebarProvider
+			style={
+				{
+					"--sidebar-width": "calc(var(--spacing) * 72)",
+					"--header-height": "calc(var(--spacing) * 12)",
+				} as React.CSSProperties
+			}
+		>
+			<AppSidebar jobs={jobs} navLinks={navLinks} />
+			<SidebarInset>
+				{(safeTitle || safeRightSection) && (
+					<MainHeader title={safeTitle} rightSection={safeRightSection} />
+				)}
 				<Outlet />
-			</main>
-		</div>
+			</SidebarInset>
+		</SidebarProvider>
 	);
 }

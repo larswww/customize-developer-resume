@@ -1,6 +1,5 @@
-import React from "react";
-import { Button } from "~/components/ui/Button";
-import { LoadingSpinnerIcon } from "./Icons";
+import { LoadingSpinnerIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
 
 interface SaveBottomBarProps {
 	formId: string;
@@ -20,8 +19,7 @@ export function SaveBottomBar({
 			<Button
 				type="submit"
 				form={formId}
-				variant="primary"
-				size="md"
+				variant="default"
 				disabled={isSubmitting}
 				className="bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 dark:disabled:bg-gray-600 dark:disabled:text-gray-400"
 			>

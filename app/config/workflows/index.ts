@@ -1,12 +1,12 @@
 import type { WorkflowStep } from "../../services/ai/types";
 import { workflowSteps as alternativeWorkflowSteps } from "./alternative";
 import { workflowSteps as defaultWorkflowSteps } from "./default";
+import { workflowSteps as defaultAltWorkflowSteps } from "./default-alt";
 import { workflowSteps as developerWorkflowSteps } from "./developer";
 import { workflowSteps as instructionsWorkflowSteps } from "./instructions";
-import { workflowSteps as testWorkflowSteps } from "./test";
-import { workflowSteps as defaultAltWorkflowSteps } from "./default-alt";
 import { workflowSteps as onePagerWorkflowSteps } from "./one-pager";
 import { workflowSteps as simpleResumeWorkflowSteps } from "./simple-resume";
+import { workflowSteps as testWorkflowSteps } from "./test";
 export type WorkflowConfig = {
 	label: string;
 	steps: WorkflowStep[];

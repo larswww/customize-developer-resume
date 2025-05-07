@@ -1,13 +1,8 @@
 import type React from "react";
-import {
-	CalendarIcon,
-	EmailIcon,
-	GitHubIcon,
-	WhatsAppIcon,
-} from "../../../components/Icons";
-import type { ConsultantOnePagerData } from "../../../config/schemas/consultantOnePager";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
+import type { ConsultantOnePagerData } from "../../../config/schemas/consultantOnePager";
+import { CalendarIcon, EmailIcon, GitHubIcon, WhatsAppIcon } from "../../icons";
 
 interface ConsultantOnePagerTemplateProps {
 	data: ConsultantOnePagerData;

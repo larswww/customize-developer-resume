@@ -1,5 +1,5 @@
-import { LoadingSpinnerIcon } from "~/components/Icons";
-import { Button } from "~/components/ui/Button";
+import { LoadingSpinnerIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
 
 interface ResumeGenerationControlsProps {
 	isSubmitting: boolean;
@@ -36,7 +36,7 @@ export function ResumeGenerationControls({
 					type="submit"
 					name="actionType"
 					value="generate"
-					variant="primary"
+					variant="default"
 					size="lg"
 					disabled={generateDisabled}
 					title={

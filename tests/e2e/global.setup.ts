@@ -6,7 +6,7 @@ test.describe("Global Setup", () => {
 	test("add work history", async ({ page }) => {
 		await page.goto("/dashboard");
 		await page
-			.getByRole("link", { name: text.nav.settings, exact: true })
+			.getByRole("link", { name: text.nav.career, exact: true })
 			.click();
 
 		const workHistoryTextbox = await page.getByRole("textbox");
