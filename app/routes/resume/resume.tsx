@@ -7,7 +7,11 @@ import {
 	useOutletContext,
 	useRouteError,
 } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type {
+	ActionFunctionArgs,
+	LoaderFunctionArgs,
+	UIMatch,
+} from "react-router";
 import { FeedbackMessage } from "~/components/FeedbackMessage";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
@@ -17,14 +21,16 @@ import { Input } from "~/components/ui/input";
 import { extractRouteParams } from "~/routes/resume/utils";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 import text from "~/text";
-import { downloadResumeAsPdf } from "~/utils/pdf.client";
-import { printResumeElement } from "~/utils/print.client";
 import { availableTemplates } from "../../config/schemas";
-import dbService from "../../services/db/dbService.server";
+import dbService, { type Job } from "../../services/db/dbService.server";
 import type { Route } from "./+types/resume";
 
 export const handle = {
-	title: "Resume",
+	title: (_match: UIMatch, matches: UIMatch[]) => {
+		const jobMatch = matches[matches.length - 2] as UIMatch<{ job: Job }>;
+		const job = jobMatch?.data?.job;
+		return `${job?.title} - Edit Resume`;
+	},
 	rightSection: <ResumePreviewActions />,
 };
 

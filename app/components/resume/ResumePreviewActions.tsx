@@ -1,3 +1,4 @@
+import { SaveIcon } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import { Form, useLocation, useNavigation } from "react-router";
 import { DownloadIcon, PrintIcon } from "~/components/icons";
@@ -27,7 +28,14 @@ export function ResumePreviewActions() {
 			preventScrollReset
 			className="flex gap-3"
 		>
-			<Button type="submit" name="actionType" value="save">
+			<Button
+				type="submit"
+				name="actionType"
+				value="save"
+				variant="default"
+				size="sm"
+			>
+				<SaveIcon />
 				{text.resume.saveChanges}
 			</Button>
 			<Button

@@ -36,17 +36,15 @@ export function JobControlsHeader({
 
 	return (
 		<div className={containerClasses}>
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<Select
-					id="templateId"
-					name="template"
-					options={templateOptions}
-					value={currentTemplateId}
-					onChange={onTemplateChange}
-					label={templateLabel}
-					fullWidth
-				/>
-			</div>
+			<Select
+				id="templateId"
+				name="template"
+				options={templateOptions}
+				value={currentTemplateId}
+				onChange={onTemplateChange}
+				label={templateLabel}
+				fullWidth
+			/>
 		</div>
 	);
 }
