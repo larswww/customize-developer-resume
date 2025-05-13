@@ -25,7 +25,8 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 		lastMatch &&
 		typeof lastMatch.handle === "object" &&
 		lastMatch.handle &&
-		"title" in lastMatch.handle
+		"title" in lastMatch.handle &&
+		typeof lastMatch.handle.title === "function"
 			? lastMatch.handle.title
 			: undefined;
 	const rightSection =
@@ -36,7 +37,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 			? lastMatch.handle.rightSection
 			: undefined;
 
-	const safeTitle = typeof title === "string" ? title : "";
+	const safeTitle = title ? title(lastMatch, matches) : "";
 	const safeRightSection = rightSection as React.ReactNode | undefined;
 
 	return (

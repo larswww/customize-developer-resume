@@ -41,7 +41,7 @@ export default function SettingsEducation() {
 
 			<Form method="post" action="/settings" {...getFormProps(form)}>
 				<div className="space-y-8">
-					{educations.map((education) => {
+					{educations.map((education, index) => {
 						const eduFields = education.getFieldset();
 						return (
 							<FieldsetSection
@@ -82,6 +82,15 @@ export default function SettingsEducation() {
 										errorId={eduFields.location.errorId}
 									/>
 								</FormGrid>
+								<Button
+									{...form.remove.getButtonProps({
+										name: fields.educations.name,
+										index,
+									})}
+									className="text-sm px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md"
+								>
+									Remove Education
+								</Button>
 							</FieldsetSection>
 						);
 					})}

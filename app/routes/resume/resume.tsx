@@ -1,13 +1,18 @@
 import { parseWithZod } from "@conform-to/zod";
-import { useCallback, useRef, useState } from "react";
+import { useRef } from "react";
 import {
 	Form,
 	Link,
+	useFetcher,
 	useNavigation,
 	useOutletContext,
 	useRouteError,
 } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type {
+	ActionFunctionArgs,
+	LoaderFunctionArgs,
+	UIMatch,
+} from "react-router";
 import { FeedbackMessage } from "~/components/FeedbackMessage";
 import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
@@ -17,28 +22,32 @@ import { Input } from "~/components/ui/input";
 import { extractRouteParams } from "~/routes/resume/utils";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 import text from "~/text";
-import { downloadResumeAsPdf } from "~/utils/pdf.client";
-import { printResumeElement } from "~/utils/print.client";
-import { availableTemplates } from "../../config/schemas";
-import dbService from "../../services/db/dbService.server";
+import { EducationSchema, availableTemplates } from "../../config/schemas";
+import dbService, { type Job } from "../../services/db/dbService.server";
 import type { Route } from "./+types/resume";
 
 export const handle = {
-	title: "Resume",
-	rightSection: <Button>Save</Button>,
+	title: (_match: UIMatch, matches: UIMatch[]) => {
+		const jobMatch = matches[matches.length - 2] as UIMatch<{ job: Job }>;
+		const job = jobMatch?.data?.job;
+		return `${job?.title} - Edit Resume`;
+	},
+	rightSection: <ResumePreviewActions />,
 };
 
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
 
 	const savedResume = dbService.getResume(jobId, selectedTemplateId);
-	const education = dbService.getEducation();
-	const contactInfo = dbService.getContactInfo();
+	const { education, contactInfo, hasEmptyContactInfo, hasEducation } =
+		getSharedObjects();
 	const hasResume = savedResume !== null && savedResume.structuredData !== null;
 
 	const resumeData = {
 		education,
 		contactInfo,
+		hasEmptyContactInfo,
+		hasEducation,
 		...savedResume?.structuredData,
 	};
 
@@ -48,6 +57,49 @@ export async function loader(args: LoaderFunctionArgs) {
 	};
 }
 
+import pickBy from "lodash/pickBy";
+
+function updateEmptySettings(payload: any) {
+	const { education, contactInfo } = getSharedObjects();
+	const predicate = (v: any) => v != null && v !== "";
+	const filteredContactInfo = pickBy(payload.contactInfo, predicate);
+	const filteredExistingContactInfo = pickBy(contactInfo, predicate);
+
+	const updatedContacts = {
+		...filteredContactInfo,
+		...filteredExistingContactInfo,
+	};
+
+	const filteredExistingEducations = education.educations.map((edu) =>
+		pickBy(edu, predicate),
+	);
+
+	const filteredNewEducations = (payload.education?.educations || []).map(
+		(edu: any) => pickBy(edu, predicate),
+	);
+
+	// Merge each education object by index, only filling empty fields
+	const mergedEducations = filteredExistingEducations.map((edu, idx) => ({
+		...edu,
+		...filteredNewEducations[idx],
+	}));
+
+	const updatedEducation = {
+		...education,
+		educations: mergedEducations,
+	};
+	dbService.saveSetting({
+		key: "contactInfo",
+		structuredData: updatedContacts,
+		value: null,
+	});
+
+	dbService.saveSetting({
+		key: "education",
+		structuredData: updatedEducation,
+		value: null,
+	});
+}
 export async function action(args: ActionFunctionArgs) {
 	const formData = await args.request.formData();
 	const { selectedTemplateConfig, selectedTemplateId, jobId } =
@@ -57,6 +109,8 @@ export async function action(args: ActionFunctionArgs) {
 		schema: selectedTemplateConfig.componentSchema,
 	});
 
+	updateEmptySettings(submission.payload);
+
 	if (actionType === "save") {
 		if (submission.status === "success") {
 			dbService.saveResume({
@@ -64,7 +118,7 @@ export async function action(args: ActionFunctionArgs) {
 				templateId: selectedTemplateId,
 				structuredData: submission.value as any,
 			});
-		} else {
+		} else if (submission.status === "error") {
 			return {
 				success: false,
 				message: "Fill out missing fields marked in red.",
@@ -113,50 +167,49 @@ export async function action(args: ActionFunctionArgs) {
 	}
 }
 
+function getSharedObjects() {
+	const education = dbService.getEducation();
+	const contactInfo = dbService.getContactInfo();
+
+	const hasEmptyContactInfo = Object.values(contactInfo).some(
+		(value) => !value,
+	);
+
+	const hasEducation = education.educations.length;
+
+	return {
+		education,
+		contactInfo,
+		hasEmptyContactInfo,
+		hasEducation,
+	};
+}
+
 export default function JobResume({
 	loaderData,
 	actionData,
 }: Route.ComponentProps) {
 	const { resumeData, hasResume } = loaderData;
 	const resumeRef = useRef<HTMLDivElement>(null);
-
+	const fetcher = useFetcher();
 	const parentContext = useOutletContext<{
 		selectedTemplateId: string;
 		isWorkflowComplete: boolean;
 	}>();
 	const { selectedTemplateId, isWorkflowComplete } = parentContext;
-	const [error, setError] = useState<string | null>(null);
 
 	const navigation = useNavigation();
 	const isSubmitting = navigation.state === "submitting";
 	const isGenerating =
 		isSubmitting && navigation.formData?.get("actionType") === "generate";
 
-	const handlePrintClick = useCallback(() => {
-		setError(null);
-		printResumeElement("printable-resume", setError);
-	}, []);
-
-	const handleDownloadPdfClick = async () => {
-		setError(null);
-		await downloadResumeAsPdf({
-			elementId: "printable-resume",
-			onError: setError,
-		});
-	};
 	const CurrentTemplateConfig = availableTemplates[selectedTemplateId] ?? null;
 	const CurrentTemplateComponent = CurrentTemplateConfig?.component ?? null;
-
-	const hasEmptyContactInfo = Object.values(resumeData.contactInfo).some(
-		(value) => !value,
-	);
-
-	const hasEducation = resumeData.education.educations.length;
 
 	const formId = "resume-form";
 
 	return (
-		<Form
+		<fetcher.Form
 			method="post"
 			id={formId}
 			className="h-full flex flex-col"
@@ -164,7 +217,7 @@ export default function JobResume({
 		>
 			<div className="flex-1 flex flex-col overflow-hidden bg-transparent">
 				<div className="space-y-4 bg-transparent">
-					{hasEmptyContactInfo ? (
+					{resumeData.hasEmptyContactInfo ? (
 						<FeedbackMessage type="info">
 							Your contact information is incomplete. Please add your details in
 							the{" "}
@@ -175,7 +228,7 @@ export default function JobResume({
 						</FeedbackMessage>
 					) : null}
 
-					{!hasEducation ? (
+					{!resumeData.hasEducation ? (
 						<FeedbackMessage type="info">
 							Your education information is incomplete. Please add your
 							education details in the{" "}
@@ -216,22 +269,16 @@ export default function JobResume({
 					</div>
 				)}
 
-				{error && (
+				{/* {error && (
 					<div className="text-red-500 p-4 border border-red-200 rounded bg-red-50">
 						{error}
 					</div>
-				)}
+				)} */}
 
 				{/* </div> */}
 			</div>
 
 			<div className="p-4 bg-white border-t">
-				{hasResume && (
-					<ResumePreviewActions
-						onPrint={handlePrintClick}
-						onDownloadPdf={handleDownloadPdfClick}
-					/>
-				)}
 				<InputGroup>
 					<Input
 						type="text"
@@ -269,7 +316,7 @@ export default function JobResume({
 					</FeedbackMessage>
 				)}
 			</div>
-		</Form>
+		</fetcher.Form>
 	);
 }
 

@@ -1,25 +1,38 @@
-import React from "react";
+import { SaveIcon } from "lucide-react";
+import React, { useCallback } from "react";
 import { DownloadIcon, PrintIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import text from "~/text";
+import { downloadResumeAsPdf } from "~/utils/pdf.client";
+import { printResumeElement } from "~/utils/print.client";
 
-interface ResumePreviewActionsProps {
-	onPrint: () => void;
-	onDownloadPdf: () => Promise<void>;
-}
+export function ResumePreviewActions() {
+	const handlePrintClick = useCallback(() => {
+		printResumeElement("printable-resume", console.error);
+	}, []);
 
-export function ResumePreviewActions({
-	onPrint,
-	onDownloadPdf,
-}: ResumePreviewActionsProps) {
+	const handleDownloadPdfClick = async () => {
+		await downloadResumeAsPdf({
+			elementId: "printable-resume",
+			onError: console.error,
+		});
+	};
 	return (
 		<div className="flex gap-3">
-			<Button type="submit" name="actionType" value="save">
+			<Button
+				type="submit"
+				name="actionType"
+				value="save"
+				variant="default"
+				size="sm"
+				form={"resume-form"}
+			>
+				<SaveIcon />
 				{text.resume.saveChanges}
 			</Button>
 			<Button
 				type="button"
-				onClick={onPrint}
+				onClick={handlePrintClick}
 				variant="default"
 				size="sm"
 				className="shadow-sm flex items-center gap-2"
@@ -29,7 +42,7 @@ export function ResumePreviewActions({
 			</Button>
 			<Button
 				type="button"
-				onClick={onDownloadPdf}
+				onClick={handleDownloadPdfClick}
 				variant="default"
 				size="sm"
 				className="shadow-sm flex items-center gap-2"

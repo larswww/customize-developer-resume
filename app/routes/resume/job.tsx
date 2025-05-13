@@ -6,7 +6,11 @@ import {
 	useNavigation,
 	useSearchParams,
 } from "react-router";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import type {
+	ActionFunctionArgs,
+	LoaderFunctionArgs,
+	UIMatch,
+} from "react-router";
 import { WorkflowSteps } from "~/components/WorkflowSteps";
 import type { RouteOutletContext } from "~/routes/resume/types";
 import {
@@ -19,7 +23,6 @@ import {
 	type ResumeTemplateConfig,
 	availableTemplates,
 } from "../../config/schemas";
-import { workflows } from "../../config/workflows";
 import type { Route } from "./+types/job";
 
 import type { MDXEditorMethods } from "@mdxeditor/editor";
@@ -47,8 +50,10 @@ export function meta() {
 export const JOB_ROUTE_ID = "routes/job";
 
 export const handle = {
-	title: "Job",
-	rightSection: <Button>Save</Button>,
+	title: (match: UIMatch<{ job: { title: string } }>) => {
+		return match.data.job.title;
+	},
+	rightSection: <></>,
 };
 
 export async function loader(args: LoaderFunctionArgs) {
@@ -112,8 +117,7 @@ export default function JobLayout({
 
 	return (
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
-			<div className="w-full lg:w-1/2 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
-				<h1 className="text-xl font-bold mb-6">{job.title}</h1>
+			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
 				<JobControlsHeader
 					availableTemplates={templatesList}
 					currentTemplateId={selectedTemplateId}
@@ -132,7 +136,7 @@ export default function JobLayout({
 				/>
 			</div>
 
-			<div className="w-full lg:w-1/2 h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
+			<div className="w-full  h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
 				<Outlet
 					context={{
 						selectedTemplateId,
@@ -161,6 +165,14 @@ function JobContent({
 
 	return (
 		<>
+			<div className="mt-8">
+				{error && (
+					<div className="mb-4 p-4 border rounded bg-red-50 text-red-700">
+						Error: {error}
+					</div>
+				)}
+			</div>
+
 			<Form method="post" className="py-4">
 				<Collapsible
 					title="Job Description"
@@ -177,6 +189,14 @@ function JobContent({
 					</div>
 				</Collapsible>
 
+				{hasWorkflowSteps && (
+					<WorkflowSteps
+						stepsToRender={currentWorkflowSteps || []}
+						workflowStepsData={workflowStepsData || []}
+						height={contentHeight}
+						isComplete={isWorkflowComplete}
+					/>
+				)}
 				<div className="flex justify-end">
 					<Button
 						type="submit"
@@ -199,23 +219,6 @@ function JobContent({
 					</Button>
 				</div>
 			</Form>
-
-			<div className="mt-8">
-				{error && (
-					<div className="mb-4 p-4 border rounded bg-red-50 text-red-700">
-						Error: {error}
-					</div>
-				)}
-
-				{hasWorkflowSteps && (
-					<WorkflowSteps
-						stepsToRender={currentWorkflowSteps || []}
-						workflowStepsData={workflowStepsData || []}
-						height={contentHeight}
-						isComplete={isWorkflowComplete}
-					/>
-				)}
-			</div>
 		</>
 	);
 }

@@ -24,7 +24,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 						text={contactInfo.firstName}
 						name="contactInfo.firstName"
 						label="Name"
-					/>
+					/>{" "}
 					<TextWrap
 						text={contactInfo.lastName}
 						name="contactInfo.lastName"
@@ -244,7 +244,7 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 				</section>
 			)}
 
-			{education ? (
+			{education.educations.length > 0 ? (
 				<section className="mb-4">
 					<h2 className="text-xl font-semibold border-b pb-1 mb-3 text-gray-800">
 						<TextWrap
