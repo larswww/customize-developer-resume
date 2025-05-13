@@ -25,15 +25,7 @@ import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { useRef } from "react";
 import { Collapsible } from "~/components/Collapsible";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
-import {
-	CheckIcon,
-	FailedIcon,
-	LoadingSpinnerIcon,
-	MagicWandIcon,
-	RetryIcon,
-} from "~/components/icons";
-import { Button } from "~/components/ui/button";
-import text from "~/text";
+import { CheckIcon, FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
 import type { PendingTemplate, TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
 
@@ -255,27 +247,6 @@ function JobContent({
 						isComplete={isWorkflowComplete}
 					/>
 				)}
-				<div className="flex justify-end">
-					<Button
-						type="submit"
-						disabled={isSubmitting}
-						size="lg"
-						className="flex items-center bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400 font-semibold"
-					>
-						{isSubmitting ? (
-							<LoadingSpinnerIcon size="md" />
-						) : isWorkflowComplete ? (
-							<RetryIcon size="md" />
-						) : (
-							<MagicWandIcon size="md" />
-						)}
-						{isSubmitting
-							? text.ui.generating
-							: isWorkflowComplete
-								? text.content.regenerateButton
-								: text.content.generateButton}
-					</Button>
-				</div>
 			</Form>
 		</>
 	);

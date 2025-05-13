@@ -1,6 +1,7 @@
 import { TEST_IDS } from "~/config/testIds";
 import text from "../../app/text";
 import { expect, test } from "./fixtures/job-fixtures";
+import { availableTemplates } from "~/config/schemas";
 
 test.describe("Resume Generation E2E Flow", () => {
 	const jobTitle = `E2E Test Job ${Date.now()}`;
@@ -17,23 +18,23 @@ test.describe("Resume Generation E2E Flow", () => {
 		const jobDescription = "This is a test job description for the E2E flow.";
 		await createJob(jobTitle, jobDescription);
 
-		await test.step("Navigate to Generate Content", async () => {
-			await expect(
-				page.getByRole("heading", { name: new RegExp(jobTitle) }),
-			).toBeVisible();
-		});
+		await test.step("Generates all resumes and redirects to default template page", async () => {
+			const buttonCount = await page
+				.getByRole("button", { name: text.content.generateButton })
+				.count();
+			for (let i = 0; i < buttonCount; i++) {
+				await page
+					.getByRole("button", { name: text.content.generateButton })
+					.first()
+					.click();
+			}
 
-		await test.step("Generates all content and redirects to resume page", async () => {
 			await page
-				.getByRole("button", { name: text.content.generateButton, exact: true })
-				.click();
-
-			await page
-				.getByText(text.ui.complete)
+				.getByText(`Check mark${text.ui.complete}`, { exact: true })
 				.first()
 				.waitFor({ state: "visible" });
 
-			await expect(page.url()).toContain("/resume");
+			await page.getByText(availableTemplates.default.name).first().click();
 		});
 
 		await test.step("Generate and Verify Structured Resume Content", async () => {
@@ -83,16 +84,11 @@ test.describe("Resume Generation E2E Flow", () => {
 		});
 
 		await test.step("Changing template", async () => {
-			await expect(page.locator('select[name="template"]')).toHaveValue(
-				"default",
-				{ timeout: 10000 },
+			await expect(page.url()).toContain(availableTemplates.default.id);
+			await page.getByText(availableTemplates.consultantOnePager.name).click();
+			await expect(page.url()).toContain(
+				availableTemplates.consultantOnePager.id,
 			);
-			await page.selectOption('select[name="template"]', "consultantOnePager");
-			await expect(page).toHaveURL(
-				/\?template=consultantOnePager(&template=[^&]+)?$/,
-			);
-			await expect(page.getByText(text.content.generateButton)).toBeVisible();
-			await expect(page.getByText(text.ui.complete)).not.toBeVisible();
 		});
 
 		await deleteJob(jobTitle);

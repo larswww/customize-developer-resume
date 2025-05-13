@@ -15,7 +15,7 @@ import text from "~/text";
 import type { PendingTemplate, TemplateStatus } from "./templateStatus";
 
 export const handle = {
-	title: () => "Choose a template",
+	title: () => text.template.title,
 };
 
 interface TemplatesOutletContext {
@@ -111,9 +111,6 @@ export default function Templates() {
 
 	return (
 		<div className="p-6">
-			<h1 className="text-2xl font-bold mb-4">
-				Choose a template for your resume
-			</h1>
 			<p className="mb-6">
 				Select a template to generate a tailored resume for job #{job.id}:{" "}
 				{job.title}
@@ -201,7 +198,7 @@ function GeneratingFallback() {
 	return (
 		<div className="text-blue-600 flex items-center">
 			<LoadingSpinnerIcon size="md" className="mr-1" />
-			Processing...
+			{text.ui.generating}
 		</div>
 	);
 }
@@ -211,7 +208,7 @@ function GenerationError() {
 	return (
 		<div className="text-red-600 flex items-center">
 			<FailedIcon size="md" className="mr-1" />
-			Failed
+			{text.ui.failed}
 		</div>
 	);
 }
@@ -221,7 +218,7 @@ function CompletedStatus() {
 	return (
 		<div className="text-green-600 flex items-center">
 			<CheckIcon size="md" className="mr-1" />
-			Generated
+			{text.ui.complete}
 		</div>
 	);
 }

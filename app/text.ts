@@ -9,6 +9,7 @@ export default {
 		delete: "Delete",
 		generating: "Generating...",
 		complete: "Complete",
+		failed: "Failed",
 	},
 	settings: {
 		workHistory: {
@@ -38,6 +39,9 @@ export default {
 			viewJobButton: "View Job",
 			resumeButton: "Resume",
 		},
+	},
+	template: {
+		title: "Choose a template",
 	},
 	content: {
 		generateButton: "Generate Resume Text",
