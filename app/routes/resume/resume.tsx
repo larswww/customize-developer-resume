@@ -25,7 +25,6 @@ import text from "~/text";
 import { EducationSchema, availableTemplates } from "../../config/schemas";
 import dbService, { type Job } from "../../services/db/dbService.server";
 import type { Route } from "./+types/resume";
-import type { ParseResult } from "zod";
 
 export const handle = {
 	title: (_match: UIMatch, matches: UIMatch[]) => {
