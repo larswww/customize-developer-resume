@@ -22,7 +22,7 @@ import { Input } from "~/components/ui/input";
 import { extractRouteParams } from "~/routes/resume/utils";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 import text from "~/text";
-import { availableTemplates, EducationSchema } from "../../config/schemas";
+import { EducationSchema, availableTemplates } from "../../config/schemas";
 import dbService, { type Job } from "../../services/db/dbService.server";
 import type { Route } from "./+types/resume";
 import type { ParseResult } from "zod";
