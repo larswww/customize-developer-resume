@@ -1,6 +1,5 @@
 import { SaveIcon } from "lucide-react";
-import React, { useCallback, useState } from "react";
-import { Form, useLocation, useNavigation } from "react-router";
+import React, { useCallback } from "react";
 import { DownloadIcon, PrintIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import text from "~/text";
@@ -8,8 +7,6 @@ import { downloadResumeAsPdf } from "~/utils/pdf.client";
 import { printResumeElement } from "~/utils/print.client";
 
 export function ResumePreviewActions() {
-	const location = useLocation();
-
 	const handlePrintClick = useCallback(() => {
 		printResumeElement("printable-resume", console.error);
 	}, []);
@@ -21,19 +18,14 @@ export function ResumePreviewActions() {
 		});
 	};
 	return (
-		<Form
-			method="post"
-			action={location.pathname}
-			id={"resume-form"}
-			preventScrollReset
-			className="flex gap-3"
-		>
+		<div className="flex gap-3">
 			<Button
 				type="submit"
 				name="actionType"
 				value="save"
 				variant="default"
 				size="sm"
+				form={"resume-form"}
 			>
 				<SaveIcon />
 				{text.resume.saveChanges}
@@ -58,6 +50,6 @@ export function ResumePreviewActions() {
 				<DownloadIcon />
 				{text.resume.downloadButton}
 			</Button>
-		</Form>
+		</div>
 	);
 }
