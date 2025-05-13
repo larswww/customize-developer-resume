@@ -228,6 +228,11 @@ const getResumeFn = z
 	.args(z.number(), z.string().optional())
 	.returns(ResumeSchema.nullable());
 
+const getResumesFn = z
+	.function()
+	.args(z.number().optional())
+	.returns(z.array(ResumeSchema));
+
 const getSettingFn = z
 	.function()
 	.args(SettingsKeySchema)
@@ -633,6 +638,27 @@ export class DbService {
 					.get(jobId, templateId),
 			ResumeSchema,
 			`getResume(${jobId}, ${templateId})`,
+		);
+	});
+
+	getResumes = getResumesFn.implement((jobId) => {
+		if (jobId) {
+			return withArrayErrorHandling(
+				() =>
+					this.db
+						.prepare(
+							"SELECT * FROM resumes WHERE jobId = ? ORDER BY updatedAt DESC",
+						)
+						.all(jobId),
+				z.array(ResumeSchema),
+				`getResumes(${jobId})`,
+			);
+		}
+		return withArrayErrorHandling(
+			() =>
+				this.db.prepare("SELECT * FROM resumes ORDER BY updatedAt DESC").all(),
+			z.array(ResumeSchema),
+			"getResumes()",
 		);
 	});
 

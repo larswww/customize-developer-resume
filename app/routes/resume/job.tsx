@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import {
+	Await,
 	Form,
+	NavLink,
 	Outlet,
 	isRouteErrorResponse,
-	redirect,
 	useNavigation,
-	useSearchParams,
 } from "react-router";
 import type {
 	ActionFunctionArgs,
@@ -18,11 +19,6 @@ import {
 	getWorkflow,
 	handleContentAction,
 } from "~/routes/resume/utils";
-import { JobControlsHeader } from "../../components/JobControlsHeader";
-import {
-	type ResumeTemplateConfig,
-	availableTemplates,
-} from "../../config/schemas";
 import type { Route } from "./+types/job";
 
 import type { MDXEditorMethods } from "@mdxeditor/editor";
@@ -30,12 +26,16 @@ import { useRef } from "react";
 import { Collapsible } from "~/components/Collapsible";
 import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import {
+	CheckIcon,
+	FailedIcon,
 	LoadingSpinnerIcon,
 	MagicWandIcon,
 	RetryIcon,
 } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import text from "~/text";
+import type { PendingTemplate, TemplateStatus } from "./templateStatus";
+import { getTemplateStatuses } from "./templateStatus";
 
 export function meta() {
 	return [
@@ -57,37 +57,22 @@ export const handle = {
 };
 
 export async function loader(args: LoaderFunctionArgs) {
-	const { job, jobId, selectedTemplateId, selectedTemplateConfig } =
+	const { job, selectedTemplateId, selectedTemplateConfig } =
 		await extractRouteParams(args);
 
 	const { selectedWorkflow, isWorkflowComplete, workflowStepsData } =
 		getWorkflow(job.id, selectedTemplateConfig.defaultWorkflowId);
 
-	const url = new URL(args.request.url);
-	const isOnResume = url.pathname.includes("/resume");
-	if (isWorkflowComplete && !isOnResume) {
-		return redirect(`/job/${jobId}/resume?template=${selectedTemplateId}`);
-	}
-
-	if (!isWorkflowComplete && isOnResume) {
-		return redirect(`/job/${jobId}/?template=${selectedTemplateId}`);
-	}
-
-	const templatesList = Object.values(availableTemplates).map(
-		(config: ResumeTemplateConfig) => ({
-			id: config.id,
-			name: config.name,
-		}),
-	);
+	const templateStatuses = await getTemplateStatuses(job.id);
 
 	return {
 		job,
 		currentWorkflowSteps: selectedWorkflow.steps,
 		selectedTemplateId,
-		templatesList,
 		templateDescription: selectedTemplateConfig.description,
 		isWorkflowComplete,
 		workflowStepsData,
+		templateStatuses,
 	};
 }
 
@@ -103,28 +88,40 @@ export default function JobLayout({
 		job,
 		currentWorkflowSteps,
 		selectedTemplateId,
-		templatesList,
 		isWorkflowComplete,
 		workflowStepsData,
+		templateStatuses,
 	} = loaderData;
-	const [, setSearchParams] = useSearchParams();
-	const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-		setSearchParams((prev) => {
-			prev.set(event.target.name, event.target.value);
-			return prev;
-		});
-	};
 
 	return (
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
 			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto p-4 lg:p-6 bg-white relative h-[50vh] lg:h-full">
-				<JobControlsHeader
-					availableTemplates={templatesList}
-					currentTemplateId={selectedTemplateId}
-					onTemplateChange={handleChange}
-					templateLabel="Target Resume Template"
-					compact={false}
-				/>
+				<NavLink
+					to={`/job/${job.id}`}
+					className="text-blue-600 hover:underline font-medium"
+				>
+					All Templates
+				</NavLink>
+
+				{templateStatuses.length > 0 && (
+					<div className="mt-4">
+						<h3 className="text-lg font-semibold mb-2">Resume Templates</h3>
+						<div className="flex flex-col border rounded overflow-hidden">
+							{templateStatuses.map((template) => {
+								if (template.status === "not-started") {
+									return null;
+								}
+								return (
+									<TemplateStatusItem
+										key={template.templateId}
+										template={template}
+										jobId={job.id}
+									/>
+								);
+							})}
+						</div>
+					</div>
+				)}
 
 				<JobContent
 					selectedTemplateId={selectedTemplateId}
@@ -136,15 +133,76 @@ export default function JobLayout({
 				/>
 			</div>
 
-			<div className="w-full  h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
+			<div className="w-full h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
 				<Outlet
 					context={{
 						selectedTemplateId,
 						isWorkflowComplete,
+						templateStatuses,
+						job,
 					}}
 				/>
 			</div>
 		</div>
+	);
+}
+
+function TemplateStatusItem({
+	template,
+	jobId,
+}: { template: TemplateStatus; jobId: number }) {
+	return (
+		<div className="border-b last:border-b-0">
+			<NavLink
+				to={`/job/${jobId}/${template.templateId}`}
+				className={({ isActive }) => `
+					py-2 px-4 flex items-center justify-between
+					hover:bg-gray-50 
+					${isActive ? "bg-blue-50 font-medium text-blue-600 border-l-4 border-l-blue-600" : ""}
+				`}
+			>
+				<span>{template.name}</span>
+
+				{template.status === "completed" ? (
+					<StatusCompleted />
+				) : template.status === "pending" ? (
+					<StatusPending
+						promise={(template as PendingTemplate).completionPromise}
+					/>
+				) : null}
+			</NavLink>
+		</div>
+	);
+}
+
+function StatusCompleted() {
+	return (
+		<span className="text-green-600 flex items-center">
+			<CheckIcon size="md" />
+		</span>
+	);
+}
+
+function StatusPending({ promise }: { promise: Promise<any> }) {
+	return (
+		<Suspense
+			fallback={
+				<span className="text-blue-600">
+					<LoadingSpinnerIcon size="md" />
+				</span>
+			}
+		>
+			<Await
+				resolve={promise}
+				errorElement={
+					<span className="text-red-600">
+						<FailedIcon size="md" />
+					</span>
+				}
+			>
+				{(result) => <StatusCompleted />}
+			</Await>
+		</Suspense>
 	);
 }
 
