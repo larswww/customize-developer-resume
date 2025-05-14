@@ -1,4 +1,4 @@
-import { Queue, QueueEvents, Worker } from "bullmq";
+import { Queue, QueueEvents } from "bullmq";
 import { serverLogger } from "~/utils/logger.server";
 
 // Redis connection configuration
@@ -46,6 +46,12 @@ const resumeGenerationQueue = new Queue(QUEUE_NAMES.RESUME_GENERATION, {
 const queueEvents = new QueueEvents(QUEUE_NAMES.RESUME_GENERATION, {
 	connection,
 });
+
+// Increase max listeners to prevent memory leak warnings
+queueEvents.setMaxListeners(50);
+
+// Cache for job completion promises to prevent duplicate listeners
+const jobCompletionCache = new Map<string, Promise<any>>();
 
 // Export the queue service
 export const queueService = {
@@ -119,6 +125,11 @@ export const queueService = {
 
 	// Wait for a job to complete and get the result
 	async waitForJobCompletion(jobId: string) {
+		// Check if we already have a cached promise for this job
+		if (jobCompletionCache.has(jobId)) {
+			return jobCompletionCache.get(jobId);
+		}
+
 		await queueEvents.waitUntilReady();
 
 		const job = await resumeGenerationQueue.getJob(jobId);
@@ -128,11 +139,13 @@ export const queueService = {
 
 		// If job is already completed, return immediately
 		if (await job.isCompleted()) {
-			return {
+			const result = {
 				status: JobStatus.COMPLETED,
 				jobId: job.data.jobId,
 				templateId: job.data.templateId,
 			};
+			jobCompletionCache.set(jobId, Promise.resolve(result));
+			return result;
 		}
 
 		// If job has failed, throw error
@@ -140,8 +153,8 @@ export const queueService = {
 			throw new Error(`Job ${jobId} failed: ${job.failedReason}`);
 		}
 
-		// Wait for the job to complete
-		return job
+		// Create a promise that will resolve when the job completes
+		const completionPromise = job
 			.waitUntilFinished(queueEvents)
 			.then(() => ({
 				status: JobStatus.COMPLETED,
@@ -149,12 +162,31 @@ export const queueService = {
 				templateId: job.data.templateId,
 			}))
 			.catch((error: Error) => {
+				// Remove from cache on error
+				jobCompletionCache.delete(jobId);
 				throw new Error(`Error waiting for job ${jobId}: ${error.message}`);
+			})
+			.finally(() => {
+				// Clean up the cache after the job completes or fails
+				// with a small delay to allow any other code to access the result
+				setTimeout(() => {
+					jobCompletionCache.delete(jobId);
+				}, 5000);
 			});
+
+		// Cache the promise to avoid creating duplicate event listeners
+		jobCompletionCache.set(jobId, completionPromise);
+		return completionPromise;
+	},
+
+	// Clear cached job completion promises
+	clearJobCompletionCache() {
+		jobCompletionCache.clear();
 	},
 
 	// Clean up - close connections
 	async close() {
+		this.clearJobCompletionCache();
 		await resumeGenerationQueue.close();
 	},
 };

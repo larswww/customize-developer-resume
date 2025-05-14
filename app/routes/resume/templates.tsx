@@ -10,7 +10,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { CheckIcon, FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { availableTemplates } from "~/config/schemas";
 import dbService from "~/services/db/dbService.server";
-import { queueService } from "~/services/queue/index.server";
+import { queueService } from "~/services/queue/queueService.server";
 import text from "~/text";
 import type { PendingTemplate, TemplateStatus } from "./templateStatus";
 
@@ -118,7 +118,6 @@ export default function Templates() {
 
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{templateStatuses.map((template) => {
-					const isGenerating = template.status === "pending";
 					const wasJustSubmitted =
 						actionData?.success &&
 						actionData.templateId === template.templateId;
@@ -133,8 +132,8 @@ export default function Templates() {
 								<p className="text-gray-600 mb-4">{template.description}</p>
 
 								<div className="flex items-center justify-between">
-									{/* Show status based on job completion promise */}
-									{isGenerating ? (
+									{/* Show status based on template state */}
+									{template.status === "pending" ? (
 										<TemplateStatusDisplay
 											promise={(template as PendingTemplate).completionPromise}
 										/>
@@ -146,7 +145,7 @@ export default function Templates() {
 										<CompletedStatus />
 									) : null}
 
-									{!isGenerating && !wasJustSubmitted && (
+									{template.status !== "pending" && !wasJustSubmitted && (
 										<Form method="post">
 											<input type="hidden" name="jobId" value={job.id} />
 											<input

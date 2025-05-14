@@ -1,4 +1,5 @@
 import { Worker } from "bullmq";
+
 import { availableTemplates } from "~/config/schemas";
 import { workflows } from "~/config/workflows";
 import type { WorkflowStep } from "~/services/ai/types";
@@ -8,6 +9,17 @@ import { generateAndSaveResume } from "../resume/resumeDataService";
 import { executeWorkflow } from "../workflow/workflow-service";
 import { JOB_TYPES, QUEUE_NAMES } from "./queueService.server";
 
+const isMswEnabled = process.env.MSW_ENABLED === "true";
+
+if (isMswEnabled) {
+	serverLogger.log("Initializing MSW for server-side API mocking...");
+	try {
+		const { startServer } = await import("../../mocks/server");
+		startServer();
+	} catch (error) {
+		serverLogger.error("Error initializing server-side MSW:", error);
+	}
+}
 // Redis connection configuration
 const connection = {
 	host: process.env.REDIS_HOST || "localhost",
@@ -118,7 +130,7 @@ const resumeWorker = new Worker(
 			throw error;
 		}
 	},
-	{ connection },
+	{ connection, concurrency: 50 },
 );
 
 // Error handling
