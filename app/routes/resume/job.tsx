@@ -55,7 +55,7 @@ export async function loader(args: LoaderFunctionArgs) {
 	const { selectedWorkflow, isWorkflowComplete, workflowStepsData } =
 		getWorkflow(job.id, selectedTemplateConfig.defaultWorkflowId);
 
-	const templateStatuses = getTemplateStatuses(job.id);
+	const templateStatuses = await getTemplateStatuses(job.id);
 
 	return {
 		job,

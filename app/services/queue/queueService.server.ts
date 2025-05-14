@@ -1,4 +1,4 @@
-import { Queue, QueueEvents } from "bullmq";
+import { Queue, QueueEvents, type JobState } from "bullmq";
 import { serverLogger } from "~/utils/logger.server";
 
 // Redis connection configuration
@@ -76,17 +76,15 @@ export const queueService = {
 	},
 
 	// Search for jobs by their data properties
-	async searchJobsByData(criteria: JobSearchCriteria) {
+	async searchJobsByData(
+		criteria: JobSearchCriteria,
+		statuses: JobState[] = [],
+	) {
 		// Get jobs in various states
-		const waitingJobs = await resumeGenerationQueue.getWaiting();
-		const activeJobs = await resumeGenerationQueue.getActive();
-		const delayedJobs = await resumeGenerationQueue.getDelayed();
-
-		// Combine all jobs
-		const allJobs = [...waitingJobs, ...activeJobs, ...delayedJobs];
+		const jobs = await resumeGenerationQueue.getJobs(statuses);
 
 		// Filter jobs by criteria
-		return allJobs.filter((job) => {
+		return jobs.filter((job) => {
 			const data = job.data;
 
 			// Match each provided criteria

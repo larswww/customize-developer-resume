@@ -9,7 +9,7 @@ import { generateAndSaveResume } from "../resume/resumeDataService";
 import { executeWorkflow } from "../workflow/workflow-service";
 import { JOB_TYPES, QUEUE_NAMES } from "./queueService.server";
 
-const isMswEnabled = process.env.MSW_ENABLED === "true";
+const isMswEnabled = process.env.NODE_ENV === "test";
 
 if (isMswEnabled) {
 	serverLogger.log("Initializing MSW for server-side API mocking...");
