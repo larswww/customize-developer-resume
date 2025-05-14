@@ -177,7 +177,7 @@ const openAIHandler = http.post(
 	"https://api.openai.com/v1/chat/completions",
 	async ({ request }) => {
 		serverLogger.debug("[MSW] OpenAI API call intercepted");
-		await delay(5000);
+		await delay();
 
 		const requestBody = (await request
 			.clone()

@@ -1,9 +1,9 @@
 name: Pull request
 on: [pull_request, push]
 env:
-  ANTHROPIC_API_KEY: no_real_key_needed_for_ci
-  OPENAI_API_KEY: no_real_key_needed_for_ci
-  GEMINI_API_KEY: no_real_key_needed_for_ci
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 permissions:
   contents: read
 jobs:
@@ -132,6 +132,11 @@ jobs:
         run: pnpm dlx puppeteer browsers install --yes
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
+      - name: Start worker process
+        run: NODE_ENV=test dotenv run pnpm worker
+        env:
+          REDIS_URL: redis://localhost:6379
+        working-directory: ${{ github.workspace }}
       - name: Run Playwright tests
         run: pnpm playwright test --reporter=line
       - name: Upload test results
