@@ -175,7 +175,7 @@ function getSharedObjects() {
 		(value) => !value,
 	);
 
-	const hasEducation = education.educations.length;
+	const hasEducation = education?.educations?.length;
 
 	return {
 		education,

@@ -1,9 +1,9 @@
 name: Pull request
 on: [pull_request, push]
 env:
-  ANTHROPIC_API_KEY: no_real_key_needed_for_ci
-  OPENAI_API_KEY: no_real_key_needed_for_ci
-  GEMINI_API_KEY: no_real_key_needed_for_ci
+  ANTHROPIC_API_KEY: mock-key-only
+  OPENAI_API_KEY: mock-key-only
+  GEMINI_API_KEY: mock-key-only
 permissions:
   contents: read
 jobs:
@@ -94,6 +94,16 @@ jobs:
     name: Playwright
     runs-on: ubuntu-latest
     needs: [setup, build]
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -123,7 +133,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
-        run: pnpm playwright test --reporter=line
+        run: pnpm test:e2e
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -153,7 +163,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Run Vitest
-        run: pnpm vitest run
+        run: pnpm test
       - name: Upload coverage reports
         if: always()
         uses: actions/upload-artifact@v4

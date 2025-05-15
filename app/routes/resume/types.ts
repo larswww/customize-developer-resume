@@ -1,3 +1,5 @@
+import type { TemplateStatus } from "./templateStatus";
+
 export interface RouteOutletContext {
 	selectedTemplateId: string;
 	isWorkflowComplete: boolean;
@@ -11,6 +13,7 @@ export interface RouteOutletContext {
 		relevantDescription?: string;
 	};
 	error?: string;
+	templateStatuses?: TemplateStatus[];
 }
 
 export interface ResumeRouteContext extends RouteOutletContext {

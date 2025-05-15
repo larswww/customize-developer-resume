@@ -11,7 +11,8 @@ export default [
 		route("dashboard", "routes/dashboard.tsx"),
 
 		route("job/:jobId", "routes/resume/job.tsx", [
-			route("resume", "routes/resume/resume.tsx"),
+			index("routes/resume/templates.tsx"),
+			route(":templateId", "routes/resume/resume.tsx"),
 		]),
 
 		route("settings", "routes/settings.tsx", [

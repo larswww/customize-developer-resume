@@ -2,6 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
 	testDir: "./tests/e2e",
+	globalSetup: "./tests/e2e/setup.ts",
 	fullyParallel: true,
 	forbidOnly: !!process.env.CI,
 	retries: 2,
@@ -19,11 +20,6 @@ export default defineConfig({
 		{
 			name: "setup",
 			testMatch: /global\.setup\.ts/,
-			teardown: "cleanup",
-		},
-		{
-			name: "cleanup",
-			testMatch: /global\.teardown\.ts/,
 		},
 		{
 			name: "chromium",
@@ -33,7 +29,9 @@ export default defineConfig({
 	],
 	webServer: {
 		stdout: "pipe",
-		command: process.env.CI ? "pnpm start:prod:msw" : "pnpm dev:msw",
+		command: process.env.CI
+			? "./deleteDb.sh e2e && pnpm start:prod:msw"
+			: "./deleteDb.sh e2e && pnpm dev:msw",
 		url: "http://localhost:4000",
 		reuseExistingServer: !process.env.CI,
 	},

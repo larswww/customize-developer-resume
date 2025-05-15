@@ -23,7 +23,6 @@ export interface RouteParams {
 
 export function extractRouteParams({
 	params,
-	request,
 }: LoaderFunctionArgs): RouteParams {
 	const jobId = Number(params.jobId);
 	if (Number.isNaN(jobId)) {
@@ -37,9 +36,7 @@ export function extractRouteParams({
 		throw data("Could not find this job. Did you delete it?", { status: 404 });
 	}
 
-	const url = new URL(request.url);
-	const selectedTemplateId =
-		url.searchParams.get("template") || defaultTemplateId;
+	const selectedTemplateId = params.templateId ?? defaultTemplateId;
 
 	const selectedTemplateConfig =
 		availableTemplates[selectedTemplateId] ??
