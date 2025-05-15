@@ -24,14 +24,18 @@ import { defaultWorkflowId } from "../../config/workflows";
 
 export const DB_PATHS = {
 	TEST: path.join(DB_DIR, DB_NAMES.TEST),
-	E2E: path.join(DB_DIR, DB_NAMES.E2E),
+	UNIT: path.join(DB_DIR, DB_NAMES.UNIT),
 	PROD: path.join(DB_DIR, DB_NAMES.PROD),
+	E2E: path.join(DB_DIR, DB_NAMES.E2E),
 };
+const { DB_NAME } = process.env;
+if (!DB_NAME) throw new Error("DB_NAME is not set");
+const DEFAULT_DB_PATH = path.join(DB_DIR, DB_NAME);
 const isTestEnv =
 	process.env.NODE_ENV === "test" || process.env.MSW_ENABLED === "true";
-const DEFAULT_DB_PATH = isTestEnv ? DB_PATHS.TEST : DB_PATHS.PROD;
+
 if (isTestEnv) {
-	serverLogger.log("Using test database");
+	serverLogger.log("DB test env...");
 }
 
 const TimeStampSchema = z.object({
@@ -267,6 +271,8 @@ export class DbService {
 			});
 
 			this.db.pragma("journal_mode = WAL");
+			this.db.pragma("synchronous = NORMAL");
+			this.db.pragma("busy_timeout = 5000");
 
 			serverLogger.log(`SQLite database connected at ${dbPath}`);
 

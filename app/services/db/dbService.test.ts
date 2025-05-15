@@ -13,8 +13,8 @@ describe("DbService", () => {
 	let dbService: ReturnType<typeof createDbService>;
 
 	beforeEach(() => {
-		deleteTestDb();
-		dbService = createDbService(DB_PATHS.TEST, false);
+		deleteTestDb(DB_PATHS.UNIT);
+		dbService = createDbService(DB_PATHS.UNIT, false);
 	});
 
 	afterEach(() => {

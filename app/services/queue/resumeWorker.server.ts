@@ -9,15 +9,15 @@ import { generateAndSaveResume } from "../resume/resumeDataService";
 import { executeWorkflow } from "../workflow/workflow-service";
 import { JOB_TYPES, QUEUE_NAMES } from "./queueService.server";
 
-const isMswEnabled = process.env.NODE_ENV === "test";
+const isMswEnabled = process.env.MSW_ENABLED === "true";
 
 if (isMswEnabled) {
-	serverLogger.log("Initializing MSW for server-side API mocking...");
+	serverLogger.log("Initializing MSW for worker...");
 	try {
 		const { startServer } = await import("../../mocks/server");
 		startServer();
 	} catch (error) {
-		serverLogger.error("Error initializing server-side MSW:", error);
+		serverLogger.error("Error initializing MSW for worker:", error);
 	}
 }
 // Redis connection configuration
@@ -47,6 +47,8 @@ const resumeWorker = new Worker(
 
 		try {
 			// Get job and template details
+			console.log(typeof jobId);
+			console.log(jobId);
 			const jobData = dbService.getJob(jobId);
 			if (!jobData) {
 				throw new Error(`Job ${jobId} not found`);
@@ -121,6 +123,7 @@ const resumeWorker = new Worker(
 			serverLogger.log(
 				`Resume generation job ${job.id} completed successfully`,
 			);
+
 			return { success: true };
 		} catch (error) {
 			serverLogger.error(

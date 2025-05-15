@@ -18,8 +18,9 @@ export default {
 export const DB_DIR = "./db-data";
 export const DB_NAMES = {
 	TEST: "test.db",
-	E2E: "e2e.db",
 	PROD: "resume_app.db",
+	UNIT: "unit.db",
+	E2E: "e2e.db",
 };
 
 export const SETTINGS_KEYS = {
