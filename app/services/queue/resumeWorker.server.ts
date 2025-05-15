@@ -32,7 +32,6 @@ interface SimpleStep {
 	name: string;
 }
 
-// Worker for resume generation queue
 const resumeWorker = new Worker(
 	QUEUE_NAMES.RESUME_GENERATION,
 	async (job) => {
@@ -46,7 +45,6 @@ const resumeWorker = new Worker(
 		);
 
 		try {
-			// Get job and template details
 			console.log(typeof jobId);
 			console.log(jobId);
 			const jobData = dbService.getJob(jobId);
@@ -64,7 +62,6 @@ const resumeWorker = new Worker(
 				throw new Error(`Workflow ${workflowId} not found`);
 			}
 
-			// Execute workflow
 			const { jobDescription } = jobData;
 			const templateDescription = templateConfig.description;
 
@@ -83,7 +80,6 @@ const resumeWorker = new Worker(
 				throw new Error("Workflow execution failed");
 			}
 
-			// Generate resume data
 			const workflowStepsData = dbService.getWorkflowSteps(jobId, workflowId);
 			const resumeSourceSteps = selectedWorkflow.steps
 				.filter((step: WorkflowStep) => step.useInResume)
@@ -112,7 +108,6 @@ const resumeWorker = new Worker(
 				throw new Error(result.error || "Resume generation failed");
 			}
 
-			// Save the resume to database
 			dbService.saveResume({
 				jobId,
 				templateId,
@@ -136,7 +131,6 @@ const resumeWorker = new Worker(
 	{ connection, concurrency: 50 },
 );
 
-// Error handling
 resumeWorker.on("failed", (job, error) => {
 	serverLogger.error(`Resume generation job ${job?.id} failed:`, error);
 });
@@ -145,17 +139,31 @@ resumeWorker.on("completed", (job) => {
 	serverLogger.log(`Resume generation job ${job.id} completed`);
 });
 
-// Initialize shutdown handlers
-process.on("exit", async () => {
-	await resumeWorker.close();
-});
-process.on("SIGINT", async () => {
-	await resumeWorker.close();
-	process.exit(0);
-});
-process.on("SIGTERM", async () => {
-	await resumeWorker.close();
-	process.exit(0);
+const gracefulShutdown = async () => {
+	// Prevent running twice
+	// @ts-ignore  allow dynamic property
+	if ((gracefulShutdown as any).called) return;
+	// @ts-ignore
+	(gracefulShutdown as any).called = true;
+
+	serverLogger.log("Gracefully shutting down resumeWorker…");
+
+	try {
+		await resumeWorker.close();
+		serverLogger.log("resumeWorker closed");
+	} catch (err) {
+		serverLogger.error("Error during worker shutdown:", err);
+	} finally {
+		process.exit(0);
+	}
+};
+
+process.once("SIGINT", gracefulShutdown);
+process.once("SIGTERM", gracefulShutdown);
+process.once("beforeExit", gracefulShutdown);
+
+process.on("message", (msg) => {
+	if (msg === "shutdown") gracefulShutdown();
 });
 
 export default resumeWorker;
