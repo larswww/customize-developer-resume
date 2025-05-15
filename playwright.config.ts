@@ -20,12 +20,7 @@ export default defineConfig({
 		{
 			name: "setup",
 			testMatch: /global\.setup\.ts/,
-			// teardown: "cleanup",
 		},
-		// {
-		// 	name: "cleanup",
-		// 	testMatch: /global\.teardown\.ts/,
-		// },
 		{
 			name: "chromium",
 			use: { ...devices["Desktop Chrome"] },
@@ -35,7 +30,7 @@ export default defineConfig({
 	webServer: {
 		stdout: "pipe",
 		command: process.env.CI
-			? "pnpm start:prod:msw"
+			? "./deleteDb.sh e2e && pnpm start:prod:msw"
 			: "./deleteDb.sh e2e && pnpm dev:msw",
 		url: "http://localhost:4000",
 		reuseExistingServer: !process.env.CI,

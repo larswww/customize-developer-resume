@@ -1,17 +1,24 @@
-import type { FullConfig } from "@playwright/test";
-import { spawn, ChildProcess } from "node:child_process";
+import { spawn } from "node:child_process";
 
-let worker: ChildProcess;
-async function globalSetup(config: FullConfig) {
-	// 2. cross-platform way to invoke pnpm
+async function globalSetup() {
 	const pnpmCmd = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
-	// 3. launch the worker via the script declared in package.json:
-	//    "scripts": { "worker": "ts-node src/worker.ts" }
-	worker = spawn(pnpmCmd, ["run", "worker"], {
+	const worker = spawn(pnpmCmd, ["run", "worker"], {
 		env: { ...process.env },
-		stdio: "inherit", // stream worker logs into the test output
+		stdio: "inherit",
 	});
+
+	return async () => {
+		console.log("globalTeardown: stopping worker …");
+		worker.kill("SIGTERM");
+
+		const forceKill = setTimeout(() => {
+			if (!worker.killed) worker.kill("SIGKILL");
+		}, 5000);
+
+		await new Promise((res) => worker.once("exit", res));
+		clearTimeout(forceKill);
+	};
 }
 
 export default globalSetup;
