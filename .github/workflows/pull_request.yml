@@ -132,11 +132,6 @@ jobs:
         run: pnpm dlx puppeteer browsers install --yes
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
-      - name: Start worker process
-        run: NODE_ENV=test dotenv run pnpm worker
-        env:
-          REDIS_URL: redis://localhost:6379
-        working-directory: ${{ github.workspace }}
       - name: Run Playwright tests
         run: pnpm playwright test --reporter=line
       - name: Upload test results
