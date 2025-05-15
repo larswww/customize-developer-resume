@@ -133,7 +133,7 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm playwright install --with-deps
       - name: Run Playwright tests
-        run: pnpm playwright test --reporter=line
+        run: pnpm test:e2e
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
@@ -163,7 +163,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/pnpm-lock.yaml') }}
       - name: Run Vitest
-        run: pnpm vitest run
+        run: pnpm test
       - name: Upload coverage reports
         if: always()
         uses: actions/upload-artifact@v4
