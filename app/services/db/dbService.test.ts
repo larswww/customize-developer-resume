@@ -1,6 +1,7 @@
+import { execSync } from "node:child_process";
+import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import deleteTestDb from "~/../tests/e2e/utils/deleteTestDb";
 import type { ContactInfo } from "~/config/schemas/sharedTypes";
 import type { DefaultResumeData } from "../../config/schemas/default";
 import {
@@ -13,7 +14,7 @@ describe("DbService", () => {
 	let dbService: ReturnType<typeof createDbService>;
 
 	beforeEach(() => {
-		deleteTestDb(DB_PATHS.UNIT);
+		execSync(`bash ${path.resolve("./deleteDb.sh")} unit`);
 		dbService = createDbService(DB_PATHS.UNIT, false);
 	});
 
