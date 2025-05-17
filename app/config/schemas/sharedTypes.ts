@@ -4,6 +4,7 @@ import type { WorkFlowId } from "../workflows";
 import type { ConsultantOnePagerCoreData } from "./consultantOnePager";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
+import type { StandardResumeCoreData } from "./standardResume";
 
 export const ContactInfoSchema = z
 	.object({
@@ -29,6 +30,15 @@ export const EduSchema = z.object({
 	location: z
 		.string()
 		.describe("The location of the institution (e.g., City, Country)."),
+	achievements: z
+		.array(z.string())
+		.describe("Achievements or notable accomplishments.")
+		.optional(),
+	thesis: z.string().describe("Thesis title or project name.").optional(),
+	specialization: z
+		.string()
+		.describe("Specialization or focus of the degree.")
+		.optional(),
 });
 
 export const EducationSchema = z.object({
@@ -58,7 +68,8 @@ export const defaultContactInfo: ContactInfo = {
 export type ResumeCoreData =
 	| DefaultResumeCoreData
 	| SimpleConsultantCoreData
-	| ConsultantOnePagerCoreData;
+	| ConsultantOnePagerCoreData
+	| StandardResumeCoreData;
 
 export interface ResumeTemplateConfig {
 	id: string;

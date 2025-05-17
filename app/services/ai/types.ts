@@ -1,3 +1,5 @@
+import type { z } from "zod";
+
 export interface AIResponse {
 	text: string;
 	metadata?: Record<string, unknown>;
@@ -54,8 +56,12 @@ interface BaseAIRequestOptions {
 	model?: string;
 	maxTokens?: number;
 	temperature?: number;
-	response_format?: { type: "json_object" } | { type: "text" };
+	response_format?:
+		| { type: "json_object" }
+		| { type: "text" }
+		| { type: "json_schema" };
 	systemPrompt?: string | AnthropicSystemParam[];
+	zodSchema?: z.ZodTypeAny;
 	provider: AIProvider; // Added provider here for the base interface
 }
 

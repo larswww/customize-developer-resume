@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
-import SimpleTemplate from "~/components/resume/templates/SimpleTemplate";
+import { SimpleTemplate } from "~/components/resume/templates/SimpleTemplate";
 import { CoreSchema, type ResumeTemplateConfig } from "./sharedTypes";
 
 export const ConsultantProjectSchema = z.object({

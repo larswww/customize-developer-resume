@@ -1,7 +1,7 @@
 import { serverLogger } from "~/utils/logger.server";
 import { AnthropicClient } from "../../services/ai/anthropic";
 import { GeminiClient } from "../../services/ai/gemini";
-import { OpenAIClient } from "../../services/ai/openai";
+import { OpenAIClient } from "../../services/ai/resumeStructuredDataService";
 import type {
 	AIClient,
 	AIProvider,
@@ -23,9 +23,6 @@ export interface DBService {
 	updateStepStatus(update: WorkflowStepUpdate): Promise<void>;
 }
 
-/**
- * WorkflowEngine - Handles the execution of workflow steps
- */
 export class WorkflowEngine {
 	private steps: WorkflowStep[];
 	private dbService?: DBService;
