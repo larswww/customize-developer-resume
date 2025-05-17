@@ -4,24 +4,21 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { ContactInfo } from "~/config/schemas/sharedTypes";
 import type { DefaultResumeData } from "../../config/schemas/default";
-import {
-	DB_PATHS,
-	type WorkflowStepStatus,
-	createDbService,
-} from "./dbService.server";
+import { type WorkflowStepStatus, createDbService } from "./dbService.server";
 
 describe("DbService", () => {
 	let dbService: ReturnType<typeof createDbService>;
 
 	beforeEach(() => {
 		execSync(`bash ${path.resolve("./deleteDb.sh")} unit`);
-		dbService = createDbService(DB_PATHS.UNIT, false);
+		dbService = createDbService();
 	});
 
 	afterEach(() => {
 		try {
 			if (dbService) {
 				dbService.close();
+				setTimeout(() => {}, 100);
 			}
 		} catch (error) {
 			console.error("Error closing database:", error);

@@ -9,6 +9,7 @@ export default defineConfig({
 		include: ["**/*.test.{ts,tsx}"],
 		exclude: ["node_modules", "dist", ".git", ".cache", "playwright-report"],
 		setupFiles: [],
+		forceRerunTriggers: ["**/dbService.test.ts"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "json", "html"],

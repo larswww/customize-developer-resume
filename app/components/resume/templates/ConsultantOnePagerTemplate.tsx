@@ -1,16 +1,13 @@
-import type React from "react";
+import type { FC } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
 import type { ConsultantOnePagerData } from "../../../config/schemas/consultantOnePager";
 import { CalendarIcon, EmailIcon, GitHubIcon, WhatsAppIcon } from "../../icons";
+import type { ResumeTemplateProps } from "./types";
 
-interface ConsultantOnePagerTemplateProps {
-	data: ConsultantOnePagerData;
-}
-
-const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
-	data,
-}) => {
+const ConsultantOnePagerTemplate: FC<
+	ResumeTemplateProps<ConsultantOnePagerData>
+> = ({ data }) => {
 	const {
 		contactInfo,
 		title,
@@ -299,4 +296,4 @@ const ConsultantOnePagerTemplate: React.FC<ConsultantOnePagerTemplateProps> = ({
 	);
 };
 
-export default ConsultantOnePagerTemplate;
+export { ConsultantOnePagerTemplate };

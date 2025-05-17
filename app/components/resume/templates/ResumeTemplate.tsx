@@ -1,14 +1,12 @@
+import type { FC } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
 import type { DefaultResumeData } from "~/config/schemas/default";
+import type { ResumeTemplateProps } from "./types";
 
-interface ResumeTemplateProps {
-	data: DefaultResumeData;
-	onDataChange: (path: (string | number)[], value: string) => void;
-	onItemDelete: (path: (string | number)[]) => void;
-}
-
-export function ResumeTemplate({ data }: ResumeTemplateProps) {
+const ResumeTemplate: FC<ResumeTemplateProps<DefaultResumeData>> = ({
+	data,
+}) => {
 	const contactInfo = data.contactInfo;
 	const education = data.education.educations[0] ?? null;
 	const skills = data.skills || [];
@@ -349,4 +347,6 @@ export function ResumeTemplate({ data }: ResumeTemplateProps) {
 			</div>
 		</div>
 	);
-}
+};
+
+export { ResumeTemplate };

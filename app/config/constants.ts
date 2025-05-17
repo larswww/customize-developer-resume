@@ -16,12 +16,7 @@ export default {
 };
 
 export const DB_DIR = "./db-data";
-export const DB_NAMES = {
-	TEST: "test.db",
-	PROD: "resume_app.db",
-	UNIT: "unit.db",
-	E2E: "e2e.db",
-};
+export const DB_FILE_NAME = "resume.db";
 
 export const SETTINGS_KEYS = {
 	WORK_HISTORY: "workHistory",

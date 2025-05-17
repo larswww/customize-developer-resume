@@ -1,13 +1,12 @@
-import type React from "react";
+import type { FC } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
 import type { SimpleConsultantComponentData } from "~/config/schemas/simple";
+import type { ResumeTemplateProps } from "./types";
 
-interface SimpleTemplateProps {
-	data: SimpleConsultantComponentData;
-}
-
-const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
+const SimpleTemplate: FC<
+	ResumeTemplateProps<SimpleConsultantComponentData>
+> = ({ data }) => {
 	const {
 		contactInfo,
 		employmentHistory,
@@ -298,4 +297,4 @@ const SimpleTemplate: React.FC<SimpleTemplateProps> = ({ data }) => {
 	);
 };
 
-export default SimpleTemplate;
+export { SimpleTemplate };

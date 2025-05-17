@@ -1,8 +1,10 @@
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
+import type { ChatCompletionMessageParam } from "openai/resources";
 import type { z } from "zod";
 import type { ResumeCoreData } from "~/config/schemas/sharedTypes";
 import { serverLogger } from "~/utils/logger.server";
+import type { AIClient, AIRequestOptions, AIResponse } from "./types";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -14,6 +16,94 @@ if (!OPENAI_API_KEY) {
 const openai = new OpenAI({
 	apiKey: OPENAI_API_KEY,
 });
+
+export class OpenAIClient implements AIClient {
+	async generate(
+		prompt: string,
+		options?: AIRequestOptions,
+	): Promise<AIResponse> {
+		// Simply delegate to our standalone generate function
+		return generate(prompt, options || { provider: "openai" });
+	}
+}
+
+export async function generate(
+	prompt: string,
+	options: AIRequestOptions & { zodSchema?: z.ZodTypeAny },
+): Promise<AIResponse> {
+	serverLogger.log("[Resume Service] Making request to OpenAI API");
+
+	const model = options.model || "gpt-4.1";
+	const systemPrompt = options.systemPrompt || "You are a helpful assistant.";
+
+	// Properly type the messages for OpenAI
+	const messages: ChatCompletionMessageParam[] = [
+		{
+			role: "system",
+			content:
+				typeof systemPrompt === "string"
+					? systemPrompt
+					: "You are a helpful assistant.",
+		},
+		{ role: "user", content: prompt },
+	];
+
+	try {
+		// Check if we should use Zod schema parsing
+		if (options.response_format?.type === "json_schema" && options.zodSchema) {
+			serverLogger.log("[Resume Service] Using Zod schema parsing");
+
+			const completion = await openai.beta.chat.completions.parse({
+				model: model as string,
+				messages,
+				response_format: zodResponseFormat(options.zodSchema, "resume_data"),
+				...(options.maxTokens && { max_tokens: options.maxTokens }),
+			});
+
+			// Return the text content, not the parsed data
+			return {
+				text: completion.choices[0].message.content || "",
+				metadata: {
+					model: completion.model,
+					usage: completion.usage,
+				},
+			};
+		}
+
+		// Standard request without Zod schema
+		const requestOptions: any = {
+			model: model,
+			messages,
+			temperature:
+				options.temperature !== undefined ? options.temperature : 0.1,
+		};
+
+		if (options.maxTokens) {
+			requestOptions.max_tokens = options.maxTokens;
+		}
+
+		if (options.response_format) {
+			requestOptions.response_format = options.response_format;
+		}
+
+		const completion = await openai.chat.completions.create(requestOptions);
+
+		serverLogger.log("[Resume Service] Received response from OpenAI API");
+
+		return {
+			text: completion.choices[0].message.content || "",
+			metadata: {
+				model: completion.model,
+				usage: completion.usage,
+			},
+		};
+	} catch (error) {
+		serverLogger.error("[Resume Service] Error:", error);
+		throw new Error(
+			`OpenAI API error: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}
 
 export async function reGenerateWithFeedback<T extends z.ZodTypeAny>(
 	structuredData: ResumeCoreData,

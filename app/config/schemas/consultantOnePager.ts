@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
 
-import ConsultantOnePagerTemplate from "../../components/resume/templates/ConsultantOnePagerTemplate";
+import { ConsultantOnePagerTemplate } from "../../components/resume/templates/ConsultantOnePagerTemplate";
 import { ContactInfoSchema, type ResumeTemplateConfig } from "./sharedTypes";
 
 export const ConsultantOnePagerCoreDataSchema = z.object({
@@ -44,9 +44,9 @@ export const templateConfig: ResumeTemplateConfig = {
 	name: "Consultant One-Pager",
 	description:
 		"A one-page template designed specifically for introducing consultants, featuring a profile image, title, subtitle, expertise areas, and key highlights.",
-	component: function WrappedTemplate(props: { data: ConsultantOnePagerData }) {
-		return ConsultantOnePagerTemplate(props);
-	} as ComponentType<{ data: ConsultantOnePagerData }>,
+	component: ConsultantOnePagerTemplate as ComponentType<{
+		data: ConsultantOnePagerData;
+	}>,
 	outputSchema: ConsultantOnePagerCoreDataSchema,
 	componentSchema: ConsultantOnePagerDataSchema,
 };

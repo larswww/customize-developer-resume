@@ -33,7 +33,7 @@ export function ResumePreview({
 	// Calculate how many page markers to show based on A4 dimensions
 	// Standard A4 is 297mm tall (210mm wide) in portrait mode
 	const pageHeight = isLandscape ? 210 : 297; // mm
-	const pageCount = 3; // Show markers for multiple pages
+	const pageCount = 5; // should be dynamic but hardcoded works fine for now and doesn't affect print
 
 	return (
 		<div className="bg-gray-100 pt-6 flex justify-center items-start h-full overflow-y-auto">
