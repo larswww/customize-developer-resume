@@ -4,7 +4,7 @@ import Database from "better-sqlite3";
 import { z } from "zod";
 import {
 	DB_DIR,
-	DB_NAMES,
+	DB_FILE_NAME,
 	SETTINGS_KEYS,
 	SETTINGS_SCHEMAS,
 } from "~/config/constants";
@@ -22,15 +22,9 @@ import type {
 } from "../../config/schemas/default";
 import { defaultWorkflowId } from "../../config/workflows";
 
-export const DB_PATHS = {
-	TEST: path.join(DB_DIR, DB_NAMES.TEST),
-	UNIT: path.join(DB_DIR, DB_NAMES.UNIT),
-	PROD: path.join(DB_DIR, DB_NAMES.PROD),
-	E2E: path.join(DB_DIR, DB_NAMES.E2E),
-};
 const { DB_NAME } = process.env;
 if (!DB_NAME) throw new Error("DB_NAME is not set");
-const DEFAULT_DB_PATH = path.join(DB_DIR, DB_NAME);
+const DEFAULT_DB_PATH = path.join(DB_DIR, DB_NAME, DB_FILE_NAME);
 const isTestEnv =
 	process.env.NODE_ENV === "test" || process.env.MSW_ENABLED === "true";
 
@@ -762,11 +756,17 @@ export class DbService {
 	});
 
 	close() {
-		if (this.db?.open) {
-			this.db?.close();
-			serverLogger.log("SQLite database connection closed.");
-		} else {
-			serverLogger.log("SQLite database connection was already closed.");
+		try {
+			if (this.db?.open) {
+				this.db.pragma("optimize");
+				this.db.close();
+				(this.db as any) = null;
+				serverLogger.log("SQLite database connection closed.");
+			} else {
+				serverLogger.log("SQLite database connection was already closed.");
+			}
+		} catch (error) {
+			serverLogger.error("Error closing database:", error);
 		}
 	}
 }

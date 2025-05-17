@@ -5,6 +5,7 @@ export const workflowSteps: WorkflowStep[] = [
 	{
 		id: "parse-to-format",
 		name: "Parse to Format",
+		useInResume: true,
 		description:
 			"Parse the job description to a format that can be used in the next step",
 		systemPrompt: `You are an expert resume writer. You receive job description prompts and adapt the candidates work history to the provided structure. 
