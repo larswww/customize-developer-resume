@@ -184,3 +184,67 @@ export async function generateStructuredResume<T extends z.ZodTypeAny>(
 		);
 	}
 }
+
+export async function parseGenerate<T extends z.ZodTypeAny>(
+	prompt: string,
+	zodSchema: T,
+	options?: {
+		systemPrompt?: string;
+		model?: string;
+		temperature?: number;
+		maxTokens?: number;
+		responseFormatName?: string;
+	},
+): Promise<z.infer<T>> {
+	serverLogger.log(
+		"[parseGenerate] Starting generic structured data generation...",
+	);
+	if (!openai.apiKey) throw new Error("OpenAI API key missing.");
+
+	const model = options?.model || "gpt-4.1";
+	const systemPrompt = options?.systemPrompt || "You are a helpful assistant.";
+	const responseFormatName = options?.responseFormatName || "structured_data";
+
+	try {
+		serverLogger.log("[parseGenerate] Calling OpenAI API...");
+		const completion = await openai.beta.chat.completions.parse({
+			model,
+			messages: [
+				{ role: "system", content: systemPrompt },
+				{ role: "user", content: prompt },
+			],
+			response_format: zodResponseFormat(zodSchema, responseFormatName),
+			temperature: options?.temperature ?? 0.1,
+			...(options?.maxTokens && { max_tokens: options.maxTokens }),
+		});
+
+		const parsedData = completion.choices[0].message.parsed;
+		if (!parsedData) {
+			throw new Error("AI did not return parsed data.");
+		}
+
+		const validationResult = zodSchema.safeParse(parsedData);
+		if (!validationResult.success) {
+			serverLogger.error(
+				"[parseGenerate] AI output failed schema validation:",
+				validationResult.error,
+			);
+			throw new Error(
+				`AI output failed validation: ${validationResult.error.message}`,
+			);
+		}
+
+		serverLogger.log(
+			"[parseGenerate] Successfully generated and validated structured data.",
+		);
+		return validationResult.data;
+	} catch (error) {
+		serverLogger.error(
+			"[parseGenerate] Error in generic structured data generation:",
+			error,
+		);
+		throw new Error(
+			`Failed to generate structured data: ${error instanceof Error ? error.message : String(error)}`,
+		);
+	}
+}

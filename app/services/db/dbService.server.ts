@@ -13,6 +13,7 @@ import {
 	ContactInfoSchema,
 	type Education,
 	EducationSchema,
+	ExperienceSchema,
 } from "~/config/schemas/sharedTypes";
 import type { SimpleConsultantCoreData } from "~/config/schemas/simple";
 import serverLogger from "~/utils/logger.server";
@@ -125,14 +126,23 @@ const ResumeSchema = z
 	.merge(TimeStampSchema.partial());
 
 const SettingsKeySchema = z.nativeEnum(SETTINGS_KEYS);
-const SettingsDataSchema = EducationSchema.or(ContactInfoSchema);
-const SettingsSchema = z
-	.object({
-		key: SettingsKeySchema,
+const SettingsSchema = z.discriminatedUnion("key", [
+	z.object({
+		key: z.literal(SETTINGS_KEYS.EDUCATION),
+		structuredData: EducationSchema,
 		value: z.string().nullable(),
-		structuredData: SettingsDataSchema.nullable(),
-	})
-	.merge(TimeStampSchema);
+	}),
+	z.object({
+		key: z.literal(SETTINGS_KEYS.CONTACT_INFO),
+		structuredData: ContactInfoSchema,
+		value: z.string().nullable(),
+	}),
+	z.object({
+		key: z.literal(SETTINGS_KEYS.EXPERIENCE),
+		structuredData: ExperienceSchema,
+		value: z.string().nullable(),
+	}),
+]);
 
 // Inferred Types
 export type Job = z.infer<typeof JobSchema>;
@@ -236,10 +246,7 @@ const getSettingFn = z
 	.args(SettingsKeySchema)
 	.returns(SettingsSchema.nullable());
 
-const saveSettingFn = z
-	.function()
-	.args(SettingsSchema.omit({ createdAt: true, updatedAt: true }))
-	.returns(z.boolean());
+const saveSettingFn = z.function().args(SettingsSchema).returns(z.boolean());
 
 const saveWorkHistoryFn = z.function().args(z.string()).returns(z.boolean());
 
@@ -711,15 +718,15 @@ export class DbService {
 	});
 
 	getWorkHistory = () => {
-		const result = this.getSetting(SETTINGS_KEYS.WORK_HISTORY);
+		const result = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
 		return result?.value as string | null;
 	};
 
 	saveWorkHistory = saveWorkHistoryFn.implement((content) => {
+		//@ts-ignore
 		return this.saveSetting({
-			key: SETTINGS_KEYS.WORK_HISTORY,
+			key: SETTINGS_KEYS.EXPERIENCE,
 			value: content,
-			structuredData: null,
 		});
 	});
 

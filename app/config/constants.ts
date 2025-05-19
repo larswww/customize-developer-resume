@@ -19,23 +19,44 @@ export const DB_DIR = "./db-data";
 export const DB_FILE_NAME = "resume.db";
 
 export const SETTINGS_KEYS = {
-	WORK_HISTORY: "workHistory",
+	EXPERIENCE: "experience",
 	CONTACT_INFO: "contactInfo",
 	EDUCATION: "education",
 } as const;
 
 import { z } from "zod";
-import { ContactInfoSchema, EducationSchema } from "./schemas/sharedTypes";
+import {
+	ContactInfoSchema,
+	EducationSchema,
+	ExperienceSchema,
+} from "./schemas/sharedTypes";
 
 export const SETTINGS_SCHEMAS = {
-	[SETTINGS_KEYS.WORK_HISTORY]: {
+	[SETTINGS_KEYS.EXPERIENCE]: {
 		hasStructuredData: false,
-		schema: z.string().nullable(),
-		emptyValue: "",
+		schema: ExperienceSchema,
+		emptyValue: ExperienceSchema.parse({
+			experience: [
+				{
+					company: "",
+					location: "",
+					dates: "",
+					roles: [
+						{
+							title: "",
+							description: "",
+							achievements: [],
+							responsibilities: [],
+							skills: [],
+						},
+					],
+				},
+			],
+		}),
 	},
 	[SETTINGS_KEYS.CONTACT_INFO]: {
 		hasStructuredData: true,
-		schema: ContactInfoSchema.nullable(),
+		schema: ContactInfoSchema,
 		emptyValue: ContactInfoSchema.parse({
 			name: "",
 			title: "",
@@ -46,7 +67,7 @@ export const SETTINGS_SCHEMAS = {
 	},
 	[SETTINGS_KEYS.EDUCATION]: {
 		hasStructuredData: true,
-		schema: EducationSchema.nullable(),
+		schema: EducationSchema,
 		emptyValue: EducationSchema.parse({
 			educations: [
 				{

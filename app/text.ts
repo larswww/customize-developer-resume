@@ -13,7 +13,8 @@ export default {
 	},
 	settings: {
 		workHistory: {
-			buttonText: "Save Work History",
+			legend: "Work Experience",
+			buttonText: "Save Work Experience",
 		},
 		contactInfo: {
 			legend: "Contact Information",

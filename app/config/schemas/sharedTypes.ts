@@ -6,6 +6,25 @@ import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
 import type { StandardResumeCoreData } from "./standardResume";
 
+export const ExperienceSchema = z.object({
+	experience: z.array(
+		z.object({
+			company: z.string(),
+			location: z.string(),
+			dates: z.string(),
+			roles: z.array(
+				z.object({
+					title: z.string(),
+					description: z.string(),
+					achievements: z.array(z.string()),
+					responsibilities: z.array(z.string()),
+					skills: z.array(z.string()),
+				}),
+			),
+		}),
+	),
+});
+
 export const ContactInfoSchema = z
 	.object({
 		firstName: z.string(),
