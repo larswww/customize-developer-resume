@@ -44,10 +44,7 @@ export const SETTINGS_SCHEMAS = {
 					roles: [
 						{
 							title: "",
-							description: "",
-							achievements: [],
-							responsibilities: [],
-							skills: [],
+							content: "",
 						},
 					],
 				},

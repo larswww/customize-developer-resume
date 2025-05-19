@@ -15,10 +15,7 @@ export const ExperienceSchema = z.object({
 			roles: z.array(
 				z.object({
 					title: z.string(),
-					description: z.string(),
-					achievements: z.array(z.string()),
-					responsibilities: z.array(z.string()),
-					skills: z.array(z.string()),
+					content: z.string().describe("MARKDOWN content for the role"),
 				}),
 			),
 		}),

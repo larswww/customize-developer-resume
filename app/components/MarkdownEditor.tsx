@@ -1,11 +1,14 @@
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import {
 	BlockTypeSelect,
+	CreateLink,
 	BoldItalicUnderlineToggles,
+	linkDialogPlugin,
 	ListsToggle,
 	MDXEditor,
 	Separator,
 	headingsPlugin,
+	linkPlugin,
 	listsPlugin,
 	quotePlugin,
 	thematicBreakPlugin,
@@ -42,6 +45,8 @@ export function MarkdownEditor({
 						headingsPlugin(),
 						listsPlugin(),
 						quotePlugin(),
+						linkPlugin(),
+						linkDialogPlugin(),
 						thematicBreakPlugin(),
 						toolbarPlugin({
 							toolbarContents: () => (
@@ -51,6 +56,7 @@ export function MarkdownEditor({
 									<BoldItalicUnderlineToggles />
 									<Separator />
 									<ListsToggle />
+									<CreateLink />
 								</>
 							),
 						}),

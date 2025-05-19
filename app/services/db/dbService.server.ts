@@ -719,7 +719,7 @@ export class DbService {
 
 	getWorkHistory = () => {
 		const result = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
-		return result?.value as string | null;
+		return JSON.stringify(result?.structuredData);
 	};
 
 	saveWorkHistory = saveWorkHistoryFn.implement((content) => {
