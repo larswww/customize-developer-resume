@@ -3,17 +3,29 @@ import { expect, test } from "./fixtures/job-fixtures";
 import { fillForm, submitForm, verifyInputValues } from "./utils";
 
 test.describe("Global Setup", () => {
-	test("add work history", async ({ page }) => {
-		await page.goto("/dashboard");
-		await page
-			.getByRole("link", { name: text.nav.career, exact: true })
-			.click();
+	test("add work experience", async ({ page }) => {
+		await page.goto("/settings/experience");
 
-		const workHistoryTextbox = await page.getByRole("textbox");
+		const workExperienceData = {
+			"experience[0].company": "Test Company",
+			"experience[0].location": "Test Location",
+			"experience[0].dates": "2020-2024",
+		};
+
+		await fillForm(page, workExperienceData);
+
+		await page.getByRole("textbox", { name: "Title" }).fill("Test role title");
+		const workHistoryTextbox = await page.getByRole("textbox", {
+			name: "editable markdown",
+		});
 		await workHistoryTextbox.pressSequentially("Test Work History");
 		await page
 			.getByRole("button", { name: text.settings.workHistory.buttonText })
 			.click();
+
+		await page.waitForLoadState("networkidle");
+		await page.reload();
+
 		await expect(workHistoryTextbox).toContainText("Test Work History");
 	});
 

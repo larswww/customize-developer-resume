@@ -114,42 +114,39 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 					getKey={(job, index) => `job-${index}`}
 					renderItem={(job, index) => (
 						<div className="mb-4">
-							<div className="flex justify-between items-start">
-								<div>
-									<h3 className="text-lg font-bold">
-										<TextWrap
-											text={job.title}
-											name={`workExperience[${index}].title`}
-											label="Job Title"
-										/>
-									</h3>
-									<p>
-										<TextWrap
-											text={job.company}
-											name={`workExperience[${index}].company`}
-											label="Company"
-										/>
-										{job.location && (
-											<>
-												{" "}
-												(
-												<TextWrap
-													text={job.location}
-													name={`workExperience[${index}].location`}
-													label="Location"
-												/>
-												)
-											</>
-										)}
-									</p>
+							{/* First row: Company - Location (center, gray) - Date */}
+							<div className="flex justify-between items-center w-full mb-1">
+								<div className="font-bold text-lg">
+									<TextWrap
+										text={job.company}
+										name={`workExperience[${index}].company`}
+										label="Company"
+									/>
 								</div>
-								<p className="text-sm">
+								{job.location && (
+									<div className="flex-1 text-center text-xs text-gray-500">
+										<TextWrap
+											text={job.location}
+											name={`workExperience[${index}].location`}
+											label="Location"
+										/>
+									</div>
+								)}
+								<div className="text-sm text-right min-w-fit">
 									<TextWrap
 										text={job.dates}
 										name={`workExperience[${index}].dates`}
 										label="Dates"
 									/>
-								</p>
+								</div>
+							</div>
+							{/* Second row: Title */}
+							<div className=" text-base mb-1">
+								<TextWrap
+									text={job.title}
+									name={`workExperience[${index}].title`}
+									label="Job Title"
+								/>
 							</div>
 							<ul className="list-disc pl-5 mt-2">
 								<ArrayRenderer

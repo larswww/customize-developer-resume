@@ -60,34 +60,28 @@ export default function SettingsExperience() {
 								<div className="space-y-6 mt-4">
 									{roles.map((role: any, roleIndex: number) => {
 										const roleFields = role.getFieldset();
-										const achievements = roleFields.achievements.getFieldList();
-										const responsibilities =
-											roleFields.responsibilities.getFieldList();
-										const skills = roleFields.skills.getFieldList();
 										return (
 											<FieldsetSection
 												key={role.key}
 												title="Role"
 												description="Title, description, achievements, responsibilities, and skills for this role"
 											>
-												<FormGrid columns={1}>
-													<FormField
-														name={roleFields.title.name}
-														defaultValue={roleFields.title.value}
-														placeholder="Title"
-														error={roleFields.title.errors}
-														errorId={roleFields.title.errorId}
-													/>
+												<FormField
+													name={roleFields.title.name}
+													defaultValue={roleFields.title.value}
+													placeholder="Title"
+													error={roleFields.title.errors}
+													errorId={roleFields.title.errorId}
+												/>
 
-													<ClientMarkdownEditor
-														name={roleFields.content.name}
-														markdown={roleFields.content.value || ""}
-														onChange={(markdown) => {
-															roleFields.content.value = markdown;
-														}}
-														editorRef={roleFields.content.editorRef}
-													/>
-												</FormGrid>
+												<ClientMarkdownEditor
+													name={roleFields.content.name}
+													markdown={roleFields.content.value || ""}
+													onChange={(markdown) => {
+														roleFields.content.value = markdown;
+													}}
+													editorRef={roleFields.content.editorRef}
+												/>
 
 												<Button
 													{...form.remove.getButtonProps({
