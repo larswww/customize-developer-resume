@@ -4,6 +4,7 @@ import { StandardResumeTemplate } from "~/components/resume/templates/StandardRe
 import {
 	CoreSchema,
 	ProjectSchema,
+	type ResumeTemplateConfig,
 } from "./sharedTypes";
 
 export const WorkExperienceSchema = z
