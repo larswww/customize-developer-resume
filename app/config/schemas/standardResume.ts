@@ -3,7 +3,6 @@ import { z } from "zod";
 import { StandardResumeTemplate } from "~/components/resume/templates/StandardResumeTemplate";
 import {
 	CoreSchema,
-	type ResumeTemplateConfig,
 	ProjectSchema,
 } from "./sharedTypes";
 
