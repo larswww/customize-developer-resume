@@ -19,7 +19,6 @@ export interface NotStartedTemplate extends TemplateBase {
 export interface PendingTemplate extends TemplateBase {
 	status: "pending";
 	pendingJobId: string;
-	completionPromise: Promise<any>;
 }
 
 export type TemplateStatus =
@@ -60,9 +59,6 @@ export async function getTemplateStatuses(
 				...baseTemplate,
 				status: "pending",
 				pendingJobId: foundPendingJob.id,
-				completionPromise: queueService.waitForJobCompletion(
-					foundPendingJob.id,
-				),
 			};
 		}
 

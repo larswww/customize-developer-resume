@@ -37,7 +37,6 @@ export const handle = {
 
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
-
 	const savedResume = dbService.getResume(jobId, selectedTemplateId);
 	const { education, contactInfo, hasEmptyContactInfo, hasEducation } =
 		getSharedObjects();
@@ -58,6 +57,7 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 import pickBy from "lodash/pickBy";
+import type React from "react";
 
 function updateEmptySettings(payload: any) {
 	const { education, contactInfo } = getSharedObjects();

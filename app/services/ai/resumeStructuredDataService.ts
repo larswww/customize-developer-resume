@@ -74,8 +74,7 @@ export async function generate(
 		const requestOptions: any = {
 			model: model,
 			messages,
-			temperature:
-				options.temperature !== undefined ? options.temperature : 0.1,
+			temperature: options.temperature,
 		};
 
 		if (options.maxTokens) {

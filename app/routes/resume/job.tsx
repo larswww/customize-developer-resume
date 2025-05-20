@@ -158,9 +158,7 @@ function TemplateStatusItem({
 				{template.status === "completed" ? (
 					<StatusCompleted />
 				) : template.status === "pending" ? (
-					<StatusPending
-						promise={(template as PendingTemplate).completionPromise}
-					/>
+					<StatusPending />
 				) : null}
 			</NavLink>
 		</div>
@@ -175,26 +173,29 @@ function StatusCompleted() {
 	);
 }
 
-function StatusPending({ promise }: { promise: Promise<any> }) {
+function StatusPending() {
 	return (
-		<Suspense
-			fallback={
-				<span className="text-blue-600">
-					<LoadingSpinnerIcon size="md" />
-				</span>
-			}
-		>
-			<Await
-				resolve={promise}
-				errorElement={
-					<span className="text-red-600">
-						<FailedIcon size="md" />
-					</span>
-				}
-			>
-				{(result) => <StatusCompleted />}
-			</Await>
-		</Suspense>
+		<span className="text-blue-600">
+			<LoadingSpinnerIcon size="md" />
+		</span>
+		// <Suspense
+		// 	fallback={
+		// 		<span className="text-blue-600">
+		// 			<LoadingSpinnerIcon size="md" />
+		// 		</span>
+		// 	}
+		// >
+		// 	<Await
+		// 		resolve={promise}
+		// 		errorElement={
+		// 			<span className="text-red-600">
+		// 				<FailedIcon size="md" />
+		// 			</span>
+		// 		}
+		// 	>
+		// 		{(result) => <StatusCompleted />}
+		// 	</Await>
+		// </Suspense>
 	);
 }
 

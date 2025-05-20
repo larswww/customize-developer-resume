@@ -122,7 +122,7 @@ language: "Language of the template text elements.".
 
 You are looking for statements that are not present in the SOURCE, and for each such occurrence, you rewrite that particular part of the letter so that its factually accurate whilst maintaining the tone and writing style of the letter.
 
-Return only the edited LETTER in the same structure with no added commentary.
+Return only the edited LETTER in the same structure with no added commentary. Respond in JSON format.
 `,
 		provider: "openai",
 		options: {
