@@ -2,7 +2,7 @@ import type { MDXEditorMethods } from "@mdxeditor/editor";
 import {
 	BlockTypeSelect,
 	BoldItalicUnderlineToggles,
-	linkDialogPlugin,
+	CreateLink,
 	ListsToggle,
 	MDXEditor,
 	Separator,
