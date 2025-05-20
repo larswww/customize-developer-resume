@@ -13,7 +13,8 @@ export default {
 	},
 	settings: {
 		workHistory: {
-			buttonText: "Save Work History",
+			legend: "Work Experience",
+			buttonText: "Save Work Experience",
 		},
 		contactInfo: {
 			legend: "Contact Information",
@@ -22,6 +23,19 @@ export default {
 		education: {
 			legend: "Education",
 			buttonText: "Save Education",
+		},
+		projects: {
+			legend: "Projects",
+			buttonText: "Save Projects",
+			project: {
+				legend: "Project",
+				description: "Details about the project",
+				title: "Title",
+				date: "Date",
+				link: "Link",
+				removeProject: "Remove Project",
+				addProject: "Add Project",
+			},
 		},
 		nav: {
 			contactInfo: "Contact Info",

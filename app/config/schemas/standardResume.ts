@@ -1,7 +1,11 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
 import { StandardResumeTemplate } from "~/components/resume/templates/StandardResumeTemplate";
-import { CoreSchema, type ResumeTemplateConfig } from "./sharedTypes";
+import {
+	CoreSchema,
+	ProjectSchema,
+	type ResumeTemplateConfig,
+} from "./sharedTypes";
 
 export const WorkExperienceSchema = z
 	.object({
@@ -31,27 +35,15 @@ export const WorkExperienceSchema = z
 	.describe(`
     Talk about impact of your work and how you contributed to it, not just what you did or were responsible for. Showcase how you have consciously and proactively added value through your actions.`);
 
-export const ProjectSchema = z.object({
-	title: z.string().describe("The name of the project."),
-	date: z.string().describe("The date or date range of the project."),
-	description: z.string().describe("Description of the project."),
-	link: z.string().optional().describe("Optional link to the project."),
-});
-
 export const TechnologyCategorySchema = z
 	.object({
-		title: z
-			.string()
-			.describe(
-				"Title such as 'Languages & Technologies', 'Relevant Skills', 'Tools & Technologies'.",
-			),
 		category: z
 			.string()
 			.describe(
 				"The category name (e.g., Languages, Languages & frameworks, Technologies, Other).",
 			),
-		items: z
-			.array(z.string())
+		item: z
+			.string()
 			.describe("List of technologies or skills in this category."),
 	})
 	.describe(
@@ -71,6 +63,7 @@ export const templateConfig: ResumeTemplateConfig = {
 	id: "standardResume",
 	defaultWorkflowId: "standardResume",
 	name: "Standard Resume",
+	pages: 2,
 	description:
 		"A professional resume layout including work experience, education, projects, and technology sections. Based on a clean, minimalist design.",
 	component: StandardResumeTemplate as ComponentType<{

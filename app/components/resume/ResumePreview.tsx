@@ -18,7 +18,7 @@ interface ResumePreviewProps {
 			| ConsultantOnePagerData;
 	}> | null;
 	isGenerating: boolean;
-	templateConfig?: ResumeTemplateConfig | null;
+	templateConfig: ResumeTemplateConfig;
 }
 
 export function ResumePreview({
@@ -28,17 +28,16 @@ export function ResumePreview({
 	isGenerating,
 	templateConfig,
 }: ResumePreviewProps) {
-	const isLandscape = templateConfig?.orientation === "landscape";
+	const isLandscape = templateConfig.orientation === "landscape";
+	const pageCount = templateConfig.pages;
 
-	// Calculate how many page markers to show based on A4 dimensions
-	// Standard A4 is 297mm tall (210mm wide) in portrait mode
-	const pageHeight = isLandscape ? 210 : 297; // mm
-	const pageCount = 5; // should be dynamic but hardcoded works fine for now and doesn't affect print
+	const pageHeight = isLandscape ? 210 : 297;
+	const pageWidth = isLandscape ? 297 : 210;
 
 	return (
 		<div className="bg-gray-100 pt-6 flex justify-center items-start h-full overflow-y-auto">
 			<div
-				className="bg-white border md:scale-[0.6] scale-[0.4] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0 transform-gpu"
+				className="bg-white border md:scale-[0.8] scale-[0.8] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0 transform-gpu"
 				style={{
 					transformOrigin: "top center",
 					margin: "0 auto",
@@ -49,7 +48,7 @@ export function ResumePreview({
 					className="absolute inset-0 pointer-events-none print:hidden"
 					aria-hidden="true"
 				>
-					{Array.from({ length: pageCount - 1 }).map((_, index) => (
+					{Array.from({ length: pageCount * 2 }).map((_, index) => (
 						<div
 							key={`page-marker-${(index + 1) * pageHeight}`}
 							className="absolute w-full border-b border-dashed border-red-400 z-10"
@@ -66,8 +65,7 @@ export function ResumePreview({
 					id="printable-resume"
 					className="overflow-visible"
 					style={{
-						height: isLandscape ? "210mm" : "297mm", // Full A4 height
-						width: isLandscape ? "297mm" : "210mm", // Full A4 width
+						width: `${pageWidth}mm`,
 						margin: "none",
 					}}
 				>

@@ -1,37 +1,15 @@
-import { getFormProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import {
-	Form,
-	useActionData,
-	useNavigation,
-	useOutletContext,
-} from "react-router";
+import { getFormProps } from "@conform-to/react";
+import { Form, useOutletContext } from "react-router";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import { FormField } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
-import { EducationSchema } from "~/config/schemas/sharedTypes";
 import text from "~/text";
-import type { SettingsOutletContext } from "./settings";
+import type { SettingsOutletContext } from ".";
 
 export default function SettingsEducation() {
-	const { education } = useOutletContext<SettingsOutletContext>();
-	const lastResult = useActionData();
-	const navigation = useNavigation();
-
-	const [form, fields] = useForm({
-		id: "education-form",
-		lastResult: navigation.state === "idle" ? lastResult : undefined,
-		defaultValue: education,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: EducationSchema });
-		},
-		constraint: getZodConstraint(EducationSchema),
-		shouldValidate: "onBlur",
-		shouldRevalidate: "onInput",
-	});
-
+	const { form, fields } = useOutletContext<SettingsOutletContext>();
 	const educations = fields.educations.getFieldList();
 	return (
 		<div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
@@ -41,7 +19,7 @@ export default function SettingsEducation() {
 
 			<Form method="post" action="/settings" {...getFormProps(form)}>
 				<div className="space-y-8">
-					{educations.map((education, index) => {
+					{educations.map((education: any, index: number) => {
 						const eduFields = education.getFieldset();
 						return (
 							<FieldsetSection
@@ -110,12 +88,9 @@ export default function SettingsEducation() {
 							value={SETTINGS_KEYS.EDUCATION}
 							type="submit"
 							variant="default"
-							disabled={navigation.state !== "idle"}
 							className="w-full sm:w-auto"
 						>
-							{navigation.state !== "idle"
-								? "Saving..."
-								: text.settings.education.buttonText}
+							{text.settings.education.buttonText}
 						</Button>
 					</div>
 				</div>

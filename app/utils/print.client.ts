@@ -49,14 +49,9 @@ export function printResumeElement(
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Structured Resume</title>
-            <link href="http://localhost:3000/index1.css" rel="stylesheet">
-            <style>
-          @page
-{
-  size: A4 portrait;
-  margin: 0mm;
-}
-            </style>
+
+			    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
           </head>
           <body>
             ${contentClone.outerHTML}

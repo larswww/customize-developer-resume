@@ -241,7 +241,7 @@ export default function JobResume({
 				</div>
 
 				<div className="flex-1 w-full">
-					{hasResume ? (
+					{hasResume && CurrentTemplateConfig ? (
 						<ResumePreview
 							displayData={resumeData as any}
 							resumeRef={resumeRef}

@@ -390,19 +390,6 @@ describe("DbService", () => {
 		});
 	});
 
-	// Work history settings tests
-	describe("Work history settings", () => {
-		it("should save and retrieve work history", () => {
-			const workHistory = "My detailed work history goes here";
-
-			const saveResult = dbService.saveWorkHistory(workHistory);
-			expect(saveResult).toBe(true);
-
-			const retrievedHistory = dbService.getWorkHistory();
-			expect(retrievedHistory).toBe(workHistory);
-		});
-	});
-
 	// Contact Info settings tests
 	describe("Contact info settings", () => {
 		it("should save and retrieve contact info", () => {

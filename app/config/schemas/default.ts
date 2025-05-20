@@ -50,6 +50,7 @@ export const templateConfig: ResumeTemplateConfig = {
 	name: "Standard Professional",
 	description:
 		"A standard professional resume layout including work experience, education, and a categorized skills section. Suitable for typical job applications.",
+	pages: 1,
 	component: ResumeTemplate as ComponentType<{ data: DefaultResumeData }>,
 	outputSchema: DefaultResumeCoreDataSchema,
 	componentSchema: DefaultResumeDataSchema,

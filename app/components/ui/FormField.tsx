@@ -3,7 +3,7 @@ import { cn } from "~/utils/cn";
 
 export interface FormFieldProps
 	extends React.InputHTMLAttributes<HTMLInputElement> {
-	label: string;
+	label?: string;
 	error?: string | string[] | undefined;
 	errorId?: string;
 }

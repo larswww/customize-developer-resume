@@ -1,45 +1,15 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import {
-	Form,
-	useActionData,
-	useNavigation,
-	useOutletContext,
-} from "react-router";
+import { getFormProps, getInputProps } from "@conform-to/react";
+import { Form, useOutletContext } from "react-router";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import { FormField } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
-import {
-	type ContactInfo,
-	ContactInfoSchema,
-	type Education,
-} from "~/config/schemas/sharedTypes";
 import text from "~/text";
-import type { action as settingsAction } from "./settings";
-
-interface SettingsOutletContext {
-	contactInfo: ContactInfo;
-	education: Education;
-}
+import type { SettingsOutletContext } from ".";
 
 export default function SettingsContact() {
-	const context = useOutletContext<SettingsOutletContext>();
-	const lastResult = useActionData<typeof settingsAction>();
-	const navigation = useNavigation();
-
-	const [form, fields] = useForm({
-		id: "contact-info-form",
-		lastResult: navigation.state === "idle" ? lastResult : undefined,
-		defaultValue: context?.contactInfo,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: ContactInfoSchema });
-		},
-		constraint: getZodConstraint(ContactInfoSchema),
-		shouldValidate: "onBlur",
-		shouldRevalidate: "onInput",
-	});
+	const { form, fields } = useOutletContext<SettingsOutletContext>();
 
 	return (
 		<div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
@@ -139,12 +109,9 @@ export default function SettingsContact() {
 							name="intent"
 							value={SETTINGS_KEYS.CONTACT_INFO}
 							type="submit"
-							disabled={navigation.state !== "idle"}
 							className="w-full sm:w-auto"
 						>
-							{navigation.state !== "idle"
-								? "Saving..."
-								: text.settings.contactInfo.buttonText}
+							{text.settings.contactInfo.buttonText}
 						</Button>
 					</div>
 				</div>

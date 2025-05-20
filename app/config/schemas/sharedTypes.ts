@@ -6,6 +6,33 @@ import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
 import type { StandardResumeCoreData } from "./standardResume";
 
+export const ExperienceSchema = z.object({
+	experience: z.array(
+		z.object({
+			company: z.string(),
+			location: z.string(),
+			dates: z.string(),
+			roles: z.array(
+				z.object({
+					title: z.string(),
+					content: z.string().describe("MARKDOWN content for the role"),
+				}),
+			),
+		}),
+	),
+});
+
+export const ProjectSchema = z.object({
+	title: z.string().describe("The name of the project."),
+	date: z.string().describe("The date or date range of the project."),
+	description: z.string().describe("Description of the project."),
+	link: z.string().optional().describe("Optional link to the project."),
+});
+
+export const ProjectsSchema = z.object({
+	projects: z.array(ProjectSchema),
+});
+
 export const ContactInfoSchema = z
 	.object({
 		firstName: z.string(),
@@ -76,6 +103,7 @@ export interface ResumeTemplateConfig {
 	defaultWorkflowId: WorkFlowId;
 	name: string;
 	description: string;
+	pages: number;
 	component: ComponentType<{ data: any }>;
 	outputSchema: z.ZodType<ResumeCoreData>;
 	componentSchema: z.ZodObject<any>;

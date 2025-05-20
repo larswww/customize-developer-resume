@@ -1,9 +1,23 @@
-import { Fragment } from "react";
 import type { FC } from "react";
 import { ArrayRenderer } from "~/components/ArrayRenderer";
 import { TextWrap } from "~/components/TextWrap";
 import type { StandardResumeData } from "~/config/schemas/standardResume";
 import type { ResumeTemplateProps } from "./types";
+
+const marginSettings = {
+	header: "mb-6",
+	section: "mb-24",
+	sectionTitle: "pb-1 mb-4",
+	workItem: "mb-4",
+	workItemTitle: "mb-1",
+	workItemAccomplishments: "mt-2",
+	techCategory: "gap-4",
+	educationItem: "mb-3",
+	educationItemTitle: "mb-1",
+	projectSection: "mb-8",
+	projectItem: "mb-4",
+	projectTitle: "mt-1",
+};
 
 const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 	data,
@@ -17,14 +31,19 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 	} = data;
 
 	return (
-		<div className="resume-container print:w-full print:h-auto flex flex-col bg-white shadow-lg print:shadow-none p-8 max-w-4xl mx-auto">
+		<div className="resume-container print:w-full print:h-auto print:block  bg-white shadow-lg print:shadow-none p-8 max-w-4xl mx-auto">
 			{/* Header with name */}
-			<header className="mb-6">
+			<header className={marginSettings.header}>
 				<h1 className="text-4xl font-bold">
 					<TextWrap
-						text={`${contactInfo.firstName || ""} ${contactInfo.lastName || ""}`}
-						name="contactInfo.name"
-						label="Name"
+						text={contactInfo.firstName}
+						name="contactInfo.firstName"
+						label="First Name"
+					/>{" "}
+					<TextWrap
+						text={contactInfo.lastName}
+						name="contactInfo.lastName"
+						label="Last Name"
 					/>
 				</h1>
 
@@ -101,8 +120,10 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 			</header>
 
 			{/* Work Experience Section */}
-			<section className="mb-6">
-				<h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-1 mb-4">
+			<section className={marginSettings.section}>
+				<h2
+					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+				>
 					<TextWrap
 						text="Work Experience"
 						name="workExperienceTitle"
@@ -113,45 +134,46 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 					items={workExperience || []}
 					getKey={(job, index) => `job-${index}`}
 					renderItem={(job, index) => (
-						<div className="mb-4">
-							<div className="flex justify-between items-start">
-								<div>
-									<h3 className="text-lg font-bold">
-										<TextWrap
-											text={job.title}
-											name={`workExperience[${index}].title`}
-											label="Job Title"
-										/>
-									</h3>
-									<p>
-										<TextWrap
-											text={job.company}
-											name={`workExperience[${index}].company`}
-											label="Company"
-										/>
-										{job.location && (
-											<>
-												{" "}
-												(
-												<TextWrap
-													text={job.location}
-													name={`workExperience[${index}].location`}
-													label="Location"
-												/>
-												)
-											</>
-										)}
-									</p>
+						<div className={marginSettings.workItem}>
+							{/* First row: Company - Location (center, gray) - Date */}
+							<div
+								className={`flex justify-between items-center w-full ${marginSettings.workItemTitle}`}
+							>
+								<div className="font-bold text-lg">
+									<TextWrap
+										text={job.company}
+										name={`workExperience[${index}].company`}
+										label="Company"
+									/>
 								</div>
-								<p className="text-sm">
+								{job.location && (
+									<div className="flex-1 text-center text-xs text-gray-500">
+										<TextWrap
+											text={job.location}
+											name={`workExperience[${index}].location`}
+											label="Location"
+										/>
+									</div>
+								)}
+								<div className="text-sm text-right min-w-fit">
 									<TextWrap
 										text={job.dates}
 										name={`workExperience[${index}].dates`}
 										label="Dates"
 									/>
-								</p>
+								</div>
 							</div>
-							<ul className="list-disc pl-5 mt-2">
+							{/* Second row: Title */}
+							<div className=" text-base mb-1">
+								<TextWrap
+									text={job.title}
+									name={`workExperience[${index}].title`}
+									label="Job Title"
+								/>
+							</div>
+							<ul
+								className={`list-disc pl-5 ${marginSettings.workItemAccomplishments}`}
+							>
 								<ArrayRenderer
 									items={job.accomplishments || []}
 									getKey={(item, i) => `desc-${index}-${i}`}
@@ -171,10 +193,107 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 				/>
 			</section>
 
+			{/* Technologies and Languages Section */}
+			<section className={marginSettings.section}>
+				<h2
+					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+				>
+					<TextWrap
+						text="Technologies and Languages"
+						name="technologiesTitle"
+						label="Technologies Section Title"
+					/>
+				</h2>
+				<div className={`grid grid-cols-1 ${marginSettings.techCategory}`}>
+					<ArrayRenderer
+						items={technologyCategories || []}
+						getKey={(category, index) => `tech-${index}`}
+						renderItem={(category, index) => (
+							<div>
+								<h3 className="font-bold">
+									<TextWrap
+										text={category.category}
+										name={`technologyCategories[${index}].category`}
+										label="Category"
+									/>
+								</h3>
+								<p>
+									<TextWrap
+										text={category.item}
+										name={`technologyCategories[${index}].item`}
+										label="Technology Item"
+									/>
+								</p>
+							</div>
+						)}
+					/>
+				</div>
+			</section>
+
+			{/* Education Section */}
+			<section className={marginSettings.section}>
+				<h2
+					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+				>
+					<TextWrap
+						text="Education"
+						name="educationTitle"
+						label="Education Section Title"
+					/>
+				</h2>
+				<ArrayRenderer
+					items={education?.educations || []}
+					getKey={(edu, index) => `edu-${index}`}
+					renderItem={(edu, index) => (
+						<div className={marginSettings.educationItem}>
+							<div className="flex justify-between items-start">
+								<div>
+									<h3 className="text-lg font-bold">
+										<TextWrap
+											text={edu.degree}
+											name={`education.educations[${index}].degree`}
+											label="Degree"
+										/>
+									</h3>
+									<p>
+										<TextWrap
+											text={edu.institution}
+											name={`education.educations[${index}].institution`}
+											label="Institution"
+										/>
+										{edu.location && (
+											<>
+												{" "}
+												(
+												<TextWrap
+													text={edu.location}
+													name={`education.educations[${index}].location`}
+													label="Location"
+												/>
+												)
+											</>
+										)}
+									</p>
+								</div>
+								<p className="text-sm">
+									<TextWrap
+										text={edu.dates}
+										name={`education.educations[${index}].dates`}
+										label="Dates"
+									/>
+								</p>
+							</div>
+						</div>
+					)}
+				/>
+			</section>
+
 			{/* Projects Section (if available) */}
 			{projects && projects.length > 0 && (
-				<section className="mb-6">
-					<h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-1 mb-4">
+				<section className={marginSettings.projectSection}>
+					<h2
+						className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					>
 						<TextWrap
 							text="Projects"
 							name="projectsTitle"
@@ -185,7 +304,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 						items={projects}
 						getKey={(project, index) => `project-${index}`}
 						renderItem={(project, index) => (
-							<div className="mb-4">
+							<div className={marginSettings.projectItem}>
 								<div className="flex justify-between items-start">
 									<h3 className="text-lg font-bold">
 										{project.link ? (
@@ -229,102 +348,6 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 					/>
 				</section>
 			)}
-
-			{/* Education Section */}
-			<section className="mb-6">
-				<h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-1 mb-4">
-					<TextWrap
-						text="Education"
-						name="educationTitle"
-						label="Education Section Title"
-					/>
-				</h2>
-				<ArrayRenderer
-					items={education?.educations || []}
-					getKey={(edu, index) => `edu-${index}`}
-					renderItem={(edu, index) => (
-						<div className="mb-3">
-							<div className="flex justify-between items-start">
-								<div>
-									<h3 className="text-lg font-bold">
-										<TextWrap
-											text={edu.degree}
-											name={`education.educations[${index}].degree`}
-											label="Degree"
-										/>
-									</h3>
-									<p>
-										<TextWrap
-											text={edu.institution}
-											name={`education.educations[${index}].institution`}
-											label="Institution"
-										/>
-										{edu.location && (
-											<>
-												{" "}
-												(
-												<TextWrap
-													text={edu.location}
-													name={`education.educations[${index}].location`}
-													label="Location"
-												/>
-												)
-											</>
-										)}
-									</p>
-								</div>
-								<p className="text-sm">
-									<TextWrap
-										text={edu.dates}
-										name={`education.educations[${index}].dates`}
-										label="Dates"
-									/>
-								</p>
-							</div>
-						</div>
-					)}
-				/>
-			</section>
-
-			{/* Technologies and Languages Section */}
-			<section>
-				<h2 className="text-2xl font-bold border-b-2 border-blue-500 pb-1 mb-4">
-					<TextWrap
-						text="Technologies and Languages"
-						name="technologiesTitle"
-						label="Technologies Section Title"
-					/>
-				</h2>
-				<div className="grid grid-cols-1 gap-4">
-					<ArrayRenderer
-						items={technologyCategories || []}
-						getKey={(category, index) => `tech-${index}`}
-						renderItem={(category, index) => (
-							<div>
-								<h3 className="font-bold">
-									<TextWrap
-										text={category.category}
-										name={`technologyCategories[${index}].category`}
-										label="Category"
-									/>
-								</h3>
-								<p>
-									{category.items.map((item, itemIndex) => (
-										<Fragment key={`tech-item-${index}-${item}`}>
-											<TextWrap
-												text={item}
-												name={`technologyCategories[${index}].items[${itemIndex}]`}
-												label="Technology Item"
-											/>
-											{itemIndex < category.items.length - 1 && ", "}
-										</Fragment>
-									))}
-								</p>
-							</div>
-						)}
-					/>
-				</div>
-			</section>
 		</div>
 	);
 };

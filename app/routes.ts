@@ -7,6 +7,8 @@ import {
 import { SETTINGS_KEYS } from "./config/constants";
 
 export default [
+	index("routes/index.tsx"),
+
 	layout("components/AppLayout.tsx", [
 		route("dashboard", "routes/dashboard.tsx"),
 
@@ -15,13 +17,15 @@ export default [
 			route(":templateId", "routes/resume/resume.tsx"),
 		]),
 
-		route("settings", "routes/settings.tsx", [
-			index("routes/settings.contact.tsx"),
-			route(SETTINGS_KEYS.EDUCATION, "routes/settings.education.tsx"),
+		route("settings", "routes/settings/index.tsx", [
+			index("routes/settings/contact.tsx"),
+			route(SETTINGS_KEYS.EDUCATION, "routes/settings/education.tsx"),
+			route(SETTINGS_KEYS.EXPERIENCE, "routes/settings/experience.tsx"),
+			route(SETTINGS_KEYS.PROJECTS, "routes/settings/projects.tsx"),
 		]),
-
-		route("career", "routes/settings.work-history.tsx"),
 	]),
+
+	// resource routes
 	route("export-pdf", "routes/export-pdf.tsx"),
-	index("routes/index.tsx"),
+	route("merge-import", "routes/merge-import.tsx"),
 ] satisfies RouteConfig;
