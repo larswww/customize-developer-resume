@@ -37,13 +37,12 @@ export function ResumePreview({
 	return (
 		<div className="bg-gray-100 pt-6 flex justify-center items-start h-full overflow-y-auto">
 			<div
-				className="bg-white border md:scale-[0.8] scale-[0.8] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0 transform-gpu"
+				className="bg-white border md:scale-[1] scale-[0.8] border-gray-300 rounded-sm shadow-lg relative origin-top p-0 m-0 transform-gpu"
 				style={{
 					transformOrigin: "top center",
 					margin: "0 auto",
 				}}
 			>
-				{/* Page markers overlay - won't be printed */}
 				<div
 					className="absolute inset-0 pointer-events-none print:hidden"
 					aria-hidden="true"
@@ -58,8 +57,6 @@ export function ResumePreview({
 						/>
 					))}
 				</div>
-
-				{/* This is what is actually printend */}
 				<div
 					ref={resumeRef}
 					id="printable-resume"
