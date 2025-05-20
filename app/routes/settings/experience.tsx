@@ -8,7 +8,6 @@ import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";
 import type { SettingsOutletContext } from ".";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 
 export default function SettingsExperience() {
 	const { form, fields } = useOutletContext<SettingsOutletContext>();
