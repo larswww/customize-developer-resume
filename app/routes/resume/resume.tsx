@@ -57,7 +57,7 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 import pickBy from "lodash/pickBy";
-import React from "react";
+import type React from "react";
 
 function updateEmptySettings(payload: any) {
 	const { education, contactInfo } = getSharedObjects();
