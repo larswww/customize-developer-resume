@@ -7,6 +7,7 @@ import {
 	MDXEditor,
 	Separator,
 	headingsPlugin,
+	linkDialogPlugin,
 	linkPlugin,
 	listsPlugin,
 	quotePlugin,
