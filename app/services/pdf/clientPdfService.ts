@@ -43,9 +43,7 @@ export async function exportHtmlToPdf(
     `;
 
 		document.body.appendChild(notification);
-		clientLogger.log("Added notification to document body");
 
-		// Direct fetch approach first - this is better for handling large content
 		try {
 			clientLogger.log("Trying fetch approach first...");
 

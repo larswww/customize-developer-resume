@@ -21,9 +21,8 @@ export default [
 			index("routes/settings/contact.tsx"),
 			route(SETTINGS_KEYS.EDUCATION, "routes/settings/education.tsx"),
 			route(SETTINGS_KEYS.EXPERIENCE, "routes/settings/experience.tsx"),
+			route(SETTINGS_KEYS.PROJECTS, "routes/settings/projects.tsx"),
 		]),
-
-		route("career", "routes/settings.work-history.tsx"),
 	]),
 
 	// resource routes

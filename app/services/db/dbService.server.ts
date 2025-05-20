@@ -14,6 +14,7 @@ import {
 	type Education,
 	EducationSchema,
 	ExperienceSchema,
+	ProjectsSchema,
 } from "~/config/schemas/sharedTypes";
 import type { SimpleConsultantCoreData } from "~/config/schemas/simple";
 import serverLogger from "~/utils/logger.server";
@@ -140,6 +141,11 @@ const SettingsSchema = z.discriminatedUnion("key", [
 	z.object({
 		key: z.literal(SETTINGS_KEYS.EXPERIENCE),
 		structuredData: ExperienceSchema,
+		value: z.string().nullable(),
+	}),
+	z.object({
+		key: z.literal(SETTINGS_KEYS.PROJECTS),
+		structuredData: ProjectsSchema,
 		value: z.string().nullable(),
 	}),
 ]);
@@ -718,8 +724,12 @@ export class DbService {
 	});
 
 	getWorkHistory = () => {
-		const result = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
-		return JSON.stringify(result?.structuredData);
+		const experience = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
+		const projects = this.getSetting(SETTINGS_KEYS.PROJECTS);
+		return {
+			experience: experience?.structuredData,
+			projects: projects?.structuredData,
+		};
 	};
 
 	saveWorkHistory = saveWorkHistoryFn.implement((content) => {

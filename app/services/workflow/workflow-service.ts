@@ -61,13 +61,12 @@ export async function executeWorkflow(
 	success: boolean;
 }> {
 	try {
-		// Get work history from DB
 		const workHistory = dbService.getWorkHistory();
 		if (!workHistory) {
 			throw new Error("Add your Work History before generating a resume.");
 		}
+		const workHistoryString = JSON.stringify(workHistory);
 
-		// Get the selected workflow steps
 		const selectedWorkflow = workflows[workflowId];
 		if (!selectedWorkflow) {
 			throw new Error(`Workflow with ID '${workflowId}' not found.`);
@@ -75,27 +74,20 @@ export async function executeWorkflow(
 		serverLogger.time(`Workflow ${workflowId} completed in`);
 
 		const currentWorkflowSteps = selectedWorkflow.steps;
-
-		// Create DB adapter for the workflow
 		const dbAdapter = new DBAdapter(jobId, workflowId);
-
-		// Create workflow engine with the selected steps and DB adapter
 		const engine = new WorkflowEngine(currentWorkflowSteps, dbAdapter);
 
-		// Initial context with job description and work history from DB
 		const initialContext: WorkflowContext = {
 			jobDescription,
-			workHistory,
+			workHistory: workHistoryString,
 			templateDescription,
 			relevant: " ",
 			intermediateResults: {},
 		};
 
-		// Execute the workflow and wait for all steps to complete
 		const { contextPromise } = await engine.execute(initialContext);
 		const finalContext = await contextPromise;
 
-		// Extract results from the final context, ensuring they are strings
 		const workflowResults: Record<string, string> = Object.entries(
 			finalContext.intermediateResults,
 		).reduce(

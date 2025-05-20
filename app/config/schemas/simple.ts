@@ -55,6 +55,7 @@ export const templateConfig: ResumeTemplateConfig = {
 	id: "simpleConsultant",
 	defaultWorkflowId: "simpleResume",
 	name: "Simple Consultant",
+	pages: 1,
 	description:
 		"A senior developer resume format. One-paragraph intro summary. Lists employers and client projects underneath each employer. Each project has a list of technologies skills that can be used to highlight key tech relevant to current job. Under each project, there are bullet point descriptions.",
 	component: SimpleTemplate as ComponentType<{ data: unknown }>,

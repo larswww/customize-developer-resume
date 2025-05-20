@@ -22,6 +22,7 @@ export const SETTINGS_KEYS = {
 	EXPERIENCE: "experience",
 	CONTACT_INFO: "contactInfo",
 	EDUCATION: "education",
+	PROJECTS: "projects",
 } as const;
 
 import { z } from "zod";
@@ -29,6 +30,7 @@ import {
 	ContactInfoSchema,
 	EducationSchema,
 	ExperienceSchema,
+	ProjectsSchema,
 } from "./schemas/sharedTypes";
 
 export const SETTINGS_SCHEMAS = {
@@ -72,6 +74,20 @@ export const SETTINGS_SCHEMAS = {
 					institution: "",
 					dates: "",
 					location: "",
+				},
+			],
+		}),
+	},
+	[SETTINGS_KEYS.PROJECTS]: {
+		hasStructuredData: true,
+		schema: ProjectsSchema,
+		emptyValue: ProjectsSchema.parse({
+			projects: [
+				{
+					title: "",
+					date: "",
+					description: "",
+					link: "",
 				},
 			],
 		}),

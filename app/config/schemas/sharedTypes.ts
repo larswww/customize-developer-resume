@@ -22,6 +22,17 @@ export const ExperienceSchema = z.object({
 	),
 });
 
+export const ProjectSchema = z.object({
+	title: z.string().describe("The name of the project."),
+	date: z.string().describe("The date or date range of the project."),
+	description: z.string().describe("Description of the project."),
+	link: z.string().optional().describe("Optional link to the project."),
+});
+
+export const ProjectsSchema = z.object({
+	projects: z.array(ProjectSchema),
+});
+
 export const ContactInfoSchema = z
 	.object({
 		firstName: z.string(),
@@ -92,6 +103,7 @@ export interface ResumeTemplateConfig {
 	defaultWorkflowId: WorkFlowId;
 	name: string;
 	description: string;
+	pages: number;
 	component: ComponentType<{ data: any }>;
 	outputSchema: z.ZodType<ResumeCoreData>;
 	componentSchema: z.ZodObject<any>;

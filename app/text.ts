@@ -24,6 +24,19 @@ export default {
 			legend: "Education",
 			buttonText: "Save Education",
 		},
+		projects: {
+			legend: "Projects",
+			buttonText: "Save Projects",
+			project: {
+				legend: "Project",
+				description: "Details about the project",
+				title: "Title",
+				date: "Date",
+				link: "Link",
+				removeProject: "Remove Project",
+				addProject: "Add Project",
+			},
+		},
 		nav: {
 			contactInfo: "Contact Info",
 			education: "Education",

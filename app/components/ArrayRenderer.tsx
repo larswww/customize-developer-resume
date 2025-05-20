@@ -98,7 +98,7 @@ function ArrayRendererBase<T>({
 								onClick={() => handleAdd(index)}
 								size="sm"
 								variant="default"
-								className="rounded-full !p-1"
+								className="rounded-full !p-1 print:hidden"
 								aria-label="Add item"
 							>
 								<PlusIcon size="xs" />

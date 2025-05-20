@@ -44,6 +44,7 @@ export const templateConfig: ResumeTemplateConfig = {
 	name: "Consultant One-Pager",
 	description:
 		"A one-page template designed specifically for introducing consultants, featuring a profile image, title, subtitle, expertise areas, and key highlights.",
+	pages: 1,
 	component: ConsultantOnePagerTemplate as ComponentType<{
 		data: ConsultantOnePagerData;
 	}>,
