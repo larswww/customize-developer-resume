@@ -134,13 +134,9 @@ export default function Templates() {
 								<div className="flex items-center justify-between">
 									{/* Show status based on template state */}
 									{template.status === "pending" ? (
-										<TemplateStatusDisplay
-											promise={(template as PendingTemplate).completionPromise}
-										/>
+										<TemplateStatusDisplay />
 									) : wasJustSubmitted && actionData.completionPromise ? (
-										<TemplateStatusDisplay
-											promise={actionData.completionPromise}
-										/>
+										<TemplateStatusDisplay />
 									) : template.status === "completed" ? (
 										<CompletedStatus />
 									) : null}
@@ -182,13 +178,14 @@ export default function Templates() {
 }
 
 // Component for displaying template status with loading/error/success states
-function TemplateStatusDisplay({ promise }: { promise: Promise<any> }) {
+function TemplateStatusDisplay() {
 	return (
-		<Suspense fallback={<GeneratingFallback />}>
-			<Await resolve={promise} errorElement={<GenerationError />}>
-				{(result) => <CompletedStatus />}
-			</Await>
-		</Suspense>
+		<GeneratingFallback />
+		// <Suspense fallback={<GeneratingFallback />}>
+		// 	<Await resolve={promise} errorElement={<GenerationError />}>
+		// 		{(result) => <CompletedStatus />}
+		// 	</Await>
+		// </Suspense>
 	);
 }
 
