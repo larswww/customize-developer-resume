@@ -732,14 +732,6 @@ export class DbService {
 		};
 	};
 
-	saveWorkHistory = saveWorkHistoryFn.implement((content) => {
-		//@ts-ignore
-		return this.saveSetting({
-			key: SETTINGS_KEYS.EXPERIENCE,
-			value: content,
-		});
-	});
-
 	getContactInfo = () => {
 		const result = this.getSetting(SETTINGS_KEYS.CONTACT_INFO);
 		return (
