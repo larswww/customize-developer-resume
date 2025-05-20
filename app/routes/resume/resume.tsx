@@ -43,11 +43,17 @@ export async function loader(args: LoaderFunctionArgs) {
 	const hasResume = savedResume !== null && savedResume.structuredData !== null;
 
 	const resumeData = {
-		education,
-		contactInfo,
 		hasEmptyContactInfo,
 		hasEducation,
 		...savedResume?.structuredData,
+		contactInfo: {
+			...contactInfo,
+			...savedResume?.structuredData?.contactInfo,
+		},
+		education: {
+			...education,
+			...savedResume?.structuredData?.education,
+		},
 	};
 
 	return {
