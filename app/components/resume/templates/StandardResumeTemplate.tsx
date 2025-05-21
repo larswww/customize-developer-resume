@@ -251,7 +251,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 						getKey={(edu, index) => `edu-${index}`}
 						renderItem={(edu, index) => (
 							<li>
-								<div className="flex justify-between items-start">
+								<div className="flex justify-between items-center">
 									<span>
 										<span className="font-bold">
 											<TextWrap
@@ -314,37 +314,50 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 							getKey={(project, index) => `project-${index}`}
 							renderItem={(project, index) => (
 								<li>
-									<span className="font-bold">
-										{project.link ? (
-											<a
-												href={project.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="hover:underline"
-											>
-												<TextWrap
-													text={project.title}
-													name={`projects[${index}].title`}
-													label="Project Title"
-												/>
-											</a>
-										) : (
-											<TextWrap
-												text={project.title}
-												name={`projects[${index}].title`}
-												label="Project Title"
-											/>
-										)}
-									</span>
-									{project.description && (
-										<span className="ml-1">
-											<TextWrap
-												text={project.description}
-												name={`projects[${index}].description`}
-												label="Description"
-											/>
+									<div className="flex justify-between items-start mt-1">
+										<span>
+											<span className="font-bold">
+												{project.link ? (
+													<a
+														href={project.link}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="underline"
+													>
+														<TextWrap
+															text={project.title}
+															name={`projects[${index}].title`}
+															label="Project Title"
+														/>
+													</a>
+												) : (
+													<TextWrap
+														text={project.title}
+														name={`projects[${index}].title`}
+														label="Project Title"
+													/>
+												)}
+											</span>
+											{project.description && (
+												<span className="ml-1">
+													<TextWrap
+														text={project.description}
+														name={`projects[${index}].description`}
+														label="Description"
+													/>
+												</span>
+											)}
 										</span>
-									)}
+										{project.date && (
+											<span className="text-sm text-gray-500 min-w-fit text-right mt-1 ml-2">
+												<TextWrap
+													text={project.date}
+													name={`projects[${index}].date`}
+													label="Date"
+												/>
+											</span>
+										)}
+									</div>
 								</li>
 							)}
 						/>
