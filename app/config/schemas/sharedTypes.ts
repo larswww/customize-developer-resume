@@ -33,6 +33,12 @@ export const ProjectsSchema = z.object({
 	projects: z.array(ProjectSchema),
 });
 
+export const OtherSchema = z.object({
+	items: z
+		.array(z.string())
+		.describe("Additional information in markdown format"),
+});
+
 export const ContactInfoSchema = z
 	.object({
 		firstName: z.string(),
@@ -80,6 +86,8 @@ export const CoreSchema = z.object({
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;
 export type Education = z.infer<typeof EducationSchema>;
 export type Core = z.infer<typeof CoreSchema>;
+export type Other = z.infer<typeof OtherSchema>;
+
 export const defaultContactInfo: ContactInfo = {
 	firstName: "",
 	lastName: "",

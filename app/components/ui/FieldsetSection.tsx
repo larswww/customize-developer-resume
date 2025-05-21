@@ -2,14 +2,14 @@ import { cn } from "~/utils/cn";
 import { FormSectionHeader } from "./FormSectionHeader";
 
 export interface FieldsetSectionProps {
-	title: string;
+	title?: string;
 	description?: string;
 	children: React.ReactNode;
 	className?: string;
 }
 
 export function FieldsetSection({
-	title,
+	title = "",
 	description,
 	children,
 	className,

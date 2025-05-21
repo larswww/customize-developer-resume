@@ -22,6 +22,7 @@ export default [
 			route(SETTINGS_KEYS.EDUCATION, "routes/settings/education.tsx"),
 			route(SETTINGS_KEYS.EXPERIENCE, "routes/settings/experience.tsx"),
 			route(SETTINGS_KEYS.PROJECTS, "routes/settings/projects.tsx"),
+			route(SETTINGS_KEYS.OTHER, "routes/settings/other.tsx"),
 		]),
 	]),
 

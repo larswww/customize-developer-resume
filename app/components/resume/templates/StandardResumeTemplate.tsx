@@ -20,6 +20,8 @@ const marginSettings = {
 	listIndent: "pl-12",
 };
 
+const linkClassName = "text-inherit underline hover:text-blue-500";
+
 const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 	data,
 }) => {
@@ -72,10 +74,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 							</span>
 						)}
 						{contactInfo.email && (
-							<a
-								href={`mailto:${contactInfo.email}`}
-								className="underline mb-1"
-							>
+							<a href={`mailto:${contactInfo.email}`} className={linkClassName}>
 								<TextWrap
 									text={contactInfo.email}
 									name="contactInfo.email"
@@ -88,7 +87,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 								href={contactInfo.linkedin}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="underline mb-1"
+								className={linkClassName}
 							>
 								LinkedIn
 							</a>
@@ -98,7 +97,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 								href={contactInfo.github}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="underline mb-1"
+								className={linkClassName}
 							>
 								GitHub
 							</a>
@@ -108,7 +107,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 								href={contactInfo.portfolio}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="underline"
+								className={linkClassName}
 							>
 								Portfolio
 							</a>
@@ -143,6 +142,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 											text={job.company}
 											name={`workExperience[${index}].company`}
 											label="Company"
+											linkClassName={linkClassName}
 										/>
 									</div>
 
@@ -151,12 +151,14 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 											text={job.title}
 											name={`workExperience[${index}].title`}
 											label="Job Title"
+											linkClassName={linkClassName}
 										/>
 										{" | "}
 										<TextWrap
 											text={job.location}
 											name={`workExperience[${index}].location`}
 											label="Location"
+											linkClassName={linkClassName}
 										/>
 									</div>
 								</div>
@@ -182,6 +184,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 												text={item}
 												name={`workExperience[${index}].accomplishments[${descIndex}]`}
 												label="Accomplishment Item"
+												linkClassName={linkClassName}
 											/>
 										</li>
 									)}
@@ -216,6 +219,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 										text={category.category}
 										name={`technologyCategories[${index}].category`}
 										label="Category"
+										linkClassName={linkClassName}
 									/>
 								</span>
 								{": "}
@@ -224,6 +228,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 										text={category.item}
 										name={`technologyCategories[${index}].item`}
 										label="Technology Item"
+										linkClassName={linkClassName}
 									/>
 								</span>
 							</li>
@@ -322,7 +327,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 														href={project.link}
 														target="_blank"
 														rel="noopener noreferrer"
-														className="underline"
+														className={linkClassName}
 													>
 														<TextWrap
 															text={project.title}
@@ -344,6 +349,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 														text={project.description}
 														name={`projects[${index}].description`}
 														label="Description"
+														linkClassName={linkClassName}
 													/>
 												</span>
 											)}

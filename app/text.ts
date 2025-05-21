@@ -37,6 +37,10 @@ export default {
 				addProject: "Add Project",
 			},
 		},
+		other: {
+			legend: "Other Information",
+			buttonText: "Save Other Information",
+		},
 		nav: {
 			contactInfo: "Contact Info",
 			education: "Education",
