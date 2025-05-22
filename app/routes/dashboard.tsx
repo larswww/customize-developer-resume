@@ -1,10 +1,4 @@
-import {
-	Form,
-	redirect,
-	useActionData,
-	useLoaderData,
-	useSearchParams,
-} from "react-router";
+import { Form, redirect, useSearchParams } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { DocumentIcon, ExternalLinkIcon, TrashIcon } from "~/components/icons";
 import { Link } from "~/components/ui/Link";
@@ -78,7 +72,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
 function CreateJobForm({ onCancel }: { onCancel: () => void }) {
 	return (
-		<div className="mb-8 p-6 bg-gray-50 border rounded">
+		<div className="mb-8 p-6 bg-card border rounded">
 			<h2 className="text-xl font-semibold mb-4">
 				{text.dashboard.createJob.ctaButton}
 			</h2>
@@ -124,16 +118,11 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
 				<div className="flex gap-2">
 					<Button
 						type="submit"
-						className="bg-green-600 hover:bg-green-700 text-white"
+						className="bg-primary hover:bg-primary/90 text-primary-foreground"
 					>
 						{text.dashboard.createJob.confirmButton}
 					</Button>
-					<Button
-						type="button"
-						variant="secondary"
-						className="bg-gray-500 hover:bg-gray-600 text-white"
-						onClick={onCancel}
-					>
+					<Button type="button" variant="secondary" onClick={onCancel}>
 						Cancel
 					</Button>
 				</div>
@@ -144,14 +133,14 @@ function CreateJobForm({ onCancel }: { onCancel: () => void }) {
 
 function JobCard({ job }: { job: Job }) {
 	return (
-		<div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+		<div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-card">
 			<div className="p-4">
 				<h3 className="font-bold text-lg mb-2 truncate">{job.title}</h3>
-				<p className="text-sm text-gray-500 mb-2">
+				<p className="text-sm text-muted-foreground mb-2">
 					Created:{" "}
 					{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "—"}
 				</p>
-				<p className="text-sm text-gray-500 mb-4">
+				<p className="text-sm text-muted-foreground mb-4">
 					Updated:{" "}
 					{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : "—"}
 				</p>
@@ -161,7 +150,7 @@ function JobCard({ job }: { job: Job }) {
 						to={`/job/${job.id}`}
 						variant="primary"
 						size="sm"
-						className="bg-blue-100 text-blue-700 hover:bg-blue-200 flex items-center"
+						className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center"
 					>
 						<DocumentIcon />
 						{text.dashboard.viewJob.resumeButton}
@@ -172,7 +161,7 @@ function JobCard({ job }: { job: Job }) {
 							href={job.link}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="inline-flex items-center px-3 py-1 text-sm rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+							className="inline-flex items-center px-3 py-1 text-sm rounded bg-secondary text-secondary-foreground hover:bg-secondary/80"
 						>
 							<ExternalLinkIcon />
 							{text.dashboard.viewJob.viewJobButton}
@@ -227,7 +216,7 @@ export default function Dashboard({
 					</Link>
 					<Button
 						type="button"
-						className="bg-blue-600 text-white hover:bg-blue-700"
+						className="bg-primary text-primary-foreground hover:bg-primary/90"
 						onClick={toggleCreateForm}
 					>
 						{showCreateForm
@@ -238,13 +227,13 @@ export default function Dashboard({
 			</div>
 
 			{actionData?.error && (
-				<div className="mb-4 p-4 bg-red-50 border border-red-200 text-red-600 rounded">
+				<div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded">
 					{actionData.error}
 				</div>
 			)}
 
 			{actionData?.success && actionData.message && (
-				<div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 rounded">
+				<div className="mb-4 p-4 bg-teal-50 border border-teal-200 text-teal-700 rounded">
 					{actionData.message}
 				</div>
 			)}
@@ -255,13 +244,13 @@ export default function Dashboard({
 				<h2 className="text-xl font-semibold mb-4">Your Resume Jobs</h2>
 
 				{jobs.length === 0 ? (
-					<div className="text-center p-8 bg-gray-50 border rounded">
-						<p className="text-gray-600 mb-4">
+					<div className="text-center p-8 bg-card border rounded">
+						<p className="text-muted-foreground mb-4">
 							You don't have any resume jobs yet.
 						</p>
 						<Button
 							type="button"
-							className="bg-blue-600 hover:bg-blue-700 text-white"
+							className="bg-primary hover:bg-primary/90 text-primary-foreground"
 							onClick={toggleCreateForm}
 						>
 							Create Your First Job

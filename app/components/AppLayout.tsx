@@ -8,7 +8,6 @@ import type { Route } from "./+types/AppLayout";
 
 const navLinks = [
 	{ to: "/dashboard", label: text.nav.dashboard },
-	{ to: "/career", label: text.nav.career },
 	{ to: "/settings", label: text.nav.info },
 ];
 

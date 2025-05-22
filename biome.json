@@ -24,7 +24,9 @@
 				"noUnusedFunctionParameters": "info",
 				"noUnusedLabels": "info",
 				"noUnusedPrivateClassMembers": "info",
-				"noUnusedVariables": "info"
+				"noUnusedVariables": "info",
+				"noUnusedImports": "info",
+				"useExhaustiveDependencies": "off"
 			},
 			"style": {
 				"noVar": "info",

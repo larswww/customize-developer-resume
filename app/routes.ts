@@ -26,7 +26,6 @@ export default [
 		]),
 	]),
 
-	// resource routes
 	route("export-pdf", "routes/export-pdf.tsx"),
 	route("merge-import", "routes/merge-import.tsx"),
 ] satisfies RouteConfig;
