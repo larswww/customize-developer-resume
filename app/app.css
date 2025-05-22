@@ -3,30 +3,140 @@
 
 @custom-variant dark (&:is(.dark *));
 
+:root {
+	--background: hsl(0 0% 100%);
+	--foreground: hsl(0 0% 3.9%);
+	--card: hsl(0, 0%, 97%);
+	--card-foreground: hsl(0, 0%, 13%);
+	--popover: hsl(0, 0%, 97%);
+	--popover-foreground: hsl(0, 0%, 13%);
+	--primary: hsl(204, 96%, 27%);
+	--primary-foreground: hsl(0, 0%, 97%);
+	--secondary: hsl(48, 95%, 76%);
+	--secondary-foreground: hsl(22, 82%, 39%);
+	--muted: hsl(0, 0%, 88%);
+	--muted-foreground: hsl(0, 0%, 49%);
+	--accent: hsl(48, 100%, 88%);
+	--accent-foreground: hsl(29, 80%, 44%);
+	--destructive: hsl(356, 75%, 53%);
+	--destructive-foreground: hsl(0, 0%, 97%);
+	--success: hsl(162, 63%, 41%);
+	--success-foreground: hsl(0, 0%, 97%);
+	--warning: hsl(356, 75%, 53%);
+	--warning-foreground: hsl(0, 0%, 97%);
+	--border: hsl(0, 0%, 81%);
+	--input: hsl(0, 0%, 81%);
+	--ring: hsl(199, 84%, 55%);
+	--chart-1: hsl(202, 83%, 41%);
+	--chart-2: hsl(0, 0%, 62%);
+	--chart-3: hsl(162, 63%, 41%);
+	--chart-4: hsl(356, 75%, 53%);
+	--chart-5: hsl(29, 80%, 44%);
+	--sidebar: hsl(0, 0%, 13%);
+	--sidebar-foreground: hsl(0, 0%, 97%);
+	--sidebar-primary: hsl(42, 87%, 55%);
+	--sidebar-primary-foreground: hsl(0, 0%, 13%);
+	--sidebar-accent: hsl(0, 0%, 23%);
+	--sidebar-accent-foreground: hsl(48, 95%, 76%);
+	--sidebar-border: hsl(0, 0%, 23%);
+	--sidebar-ring: hsl(44, 92%, 63%);
+	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+	--font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
+	--radius: 0.625rem;
+}
+
+.dark {
+	--background: hsl(0 0% 3.9%);
+	--foreground: hsl(0 0% 98%);
+	--card: hsl(0, 0%, 23%);
+	--card-foreground: hsl(0, 0%, 97%);
+	--popover: hsl(0, 0%, 23%);
+	--popover-foreground: hsl(0, 0%, 97%);
+	--primary: hsl(36, 77%, 49%);
+	--primary-foreground: hsl(0, 0%, 13%);
+	--secondary: hsl(48, 100%, 88%);
+	--secondary-foreground: hsl(22, 82%, 39%);
+	--muted: hsl(0, 0%, 32%);
+	--muted-foreground: hsl(0, 0%, 81%);
+	--accent: hsl(48, 95%, 76%);
+	--accent-foreground: hsl(29, 80%, 44%);
+	--destructive: hsl(354, 85%, 44%);
+	--destructive-foreground: hsl(0, 0%, 97%);
+	--success: hsl(164, 71%, 34%);
+	--success-foreground: hsl(0, 0%, 97%);
+	--warning: hsl(354, 85%, 44%);
+	--warning-foreground: hsl(0, 0%, 97%);
+	--border: hsl(0, 0%, 32%);
+	--input: hsl(0, 0%, 32%);
+	--ring: hsl(201, 79%, 46%);
+	--chart-1: hsl(202, 83%, 41%);
+	--chart-2: hsl(0, 0%, 62%);
+	--chart-3: hsl(164, 71%, 34%);
+	--chart-4: hsl(354, 85%, 44%);
+	--chart-5: hsl(29, 80%, 44%);
+	--sidebar: hsl(0, 0%, 13%);
+	--sidebar-foreground: hsl(0, 0%, 97%);
+	--sidebar-primary: hsl(36, 77%, 49%);
+	--sidebar-primary-foreground: hsl(0, 0%, 13%);
+	--sidebar-accent: hsl(0, 0%, 23%);
+	--sidebar-accent-foreground: hsl(48, 95%, 76%);
+	--sidebar-border: hsl(0, 0%, 23%);
+	--sidebar-ring: hsl(44, 92%, 63%);
+}
+
+@theme inline {
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-destructive-foreground: var(--destructive-foreground);
+	--color-success: var(--success);
+	--color-success-foreground: var(--success-foreground);
+	--color-warning: var(--warning);
+	--color-warning-foreground: var(--warning-foreground);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+	--color-chart-1: var(--chart-1);
+	--color-chart-2: var(--chart-2);
+	--color-chart-3: var(--chart-3);
+	--color-chart-4: var(--chart-4);
+	--color-chart-5: var(--chart-5);
+	--color-sidebar: var(--sidebar);
+	--color-sidebar-foreground: var(--sidebar-foreground);
+	--color-sidebar-primary: var(--sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+	--color-sidebar-border: var(--sidebar-border);
+	--color-sidebar-ring: var(--sidebar-ring);
+}
+
 @layer base {
-	/* Inter font - for body text */
 	@font-face {
 		font-family: "Inter";
 		src: url("../public/inter.ttf") format("truetype");
 		font-weight: 400;
-		font-display: swap;
 	}
 
-	/* Nunito font - for headings */
 	@font-face {
 		font-family: "Nunito";
 		src: url("../public/nunito.ttf") format("truetype");
-		font-weight: 700;
-		font-display: swap;
+		font-weight: 400;
+		font-feature-settings: normal;
 	}
 
-	/* Set the default fonts */
-	:root {
-		--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-		--font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
-	}
-
-	/* Apply fonts */
 	body {
 		font-family: var(--font-sans);
 	}
@@ -39,178 +149,12 @@
 	h6 {
 		font-family: var(--font-heading);
 	}
-}
 
-@theme {
-	/* Primary theme and feel color, accent borders, icons, emphasis */
-	--green-50: hsl(125, 65%, 93%);
-	--green-100: hsl(126, 49%, 84%);
-	--green-200: hsl(122, 42%, 75%);
-	--green-300: hsl(123, 38%, 63%);
-	--green-400: hsl(123, 35%, 51%);
-	--green-500: hsl(122, 39%, 41%);
-	--green-600: hsl(122, 47%, 35%);
-	--green-700: hsl(125, 56%, 29%);
-	--green-800: hsl(125, 73%, 20%);
-	--green-900: hsl(125, 86%, 14%);
-
-	/* Primary actions */
-	--light-blue-50: hsl(201, 100%, 96%);
-	--light-blue-100: hsl(200, 88%, 90%);
-	--light-blue-200: hsl(200, 71%, 80%);
-	--light-blue-300: hsl(200, 66%, 69%);
-	--light-blue-400: hsl(200, 60%, 58%);
-	--light-blue-500: hsl(200, 54%, 49%);
-	--light-blue-600: hsl(200, 59%, 43%);
-	--light-blue-700: hsl(200, 68%, 35%);
-	--light-blue-800: hsl(200, 72%, 31%);
-	--light-blue-900: hsl(200, 82%, 24%);
-
-	/* Neutrals for most of text, backgrounds, and borders,
-as well as for things like secondary buttons and links */
-	--grey-50: hsl(216, 33%, 97%);
-	--grey-100: hsl(214, 15%, 91%);
-	--grey-200: hsl(210, 16%, 82%);
-	--grey-300: hsl(211, 13%, 65%);
-	--grey-400: hsl(211, 10%, 53%);
-	--grey-500: hsl(211, 12%, 43%);
-	--grey-600: hsl(209, 14%, 37%);
-	--grey-700: hsl(209, 18%, 30%);
-	--grey-800: hsl(209, 20%, 25%);
-	--grey-900: hsl(210, 24%, 16%);
-
-	/* These colors should be used fairly conservatively throughout your UI to
-avoid overpowering your primary colors. Use them when you need an
-element to stand out, or to reinforce things like error states or positive
-trends with the appropriate semantic color. */
-	--red-vivid-50: #ffe3e3;
-	--red-vivid-100: #ffbdbd;
-	--red-vivid-200: #ff9b9b;
-	--red-vivid-300: #f86a6a;
-	--red-vivid-400: #ef4e4e;
-	--red-vivid-500: #e12d39;
-	--red-vivid-600: #cf1124;
-	--red-vivid-700: #ab091e;
-	--red-vivid-800: #8a041a;
-	--red-vivid-900: #610316;
-
-	--teal-50: #effcf6;
-	--teal-100: #c6f7e2;
-	--teal-200: #8eedc7;
-	--teal-300: #65d6ad;
-	--teal-400: #3ebd93;
-	--teal-500: #27ab83;
-	--teal-600: #199473;
-	--teal-700: #147d64;
-	--teal-800: #0c6b58;
-	--teal-900: #014d40;
-
-	/* Font families */
-	--font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-	--font-heading: "Nunito", ui-sans-serif, system-ui, sans-serif;
-}
-
-@theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-	--color-background: var(--background);
-	--color-foreground: var(--foreground);
-	--color-card: var(--grey-50);
-	--color-card-foreground: var(--grey-900);
-	--color-popover: var(--grey-50);
-	--color-popover-foreground: var(--grey-900);
-	--color-primary: var(--light-blue-700);
-	--color-primary-foreground: var(--grey-50);
-	--color-secondary: var(--green-200);
-	--color-secondary-foreground: var(--green-800);
-	--color-muted: var(--grey-100);
-	--color-muted-foreground: var(--grey-500);
-	--color-accent: var(--green-100);
-	--color-accent-foreground: var(--green-700);
-	--color-destructive: var(--red-vivid-500);
-	--color-destructive-foreground: var(--grey-50);
-	--color-success: var(--green-500);
-	--color-success-foreground: var(--grey-50);
-	--color-warning: var(--red-vivid-500);
-	--color-warning-foreground: var(--grey-50);
-	--color-border: var(--grey-200);
-	--color-input: var(--grey-200);
-	--color-ring: var(--light-blue-500);
-	--color-chart-1: var(--light-blue-700);
-	--color-chart-2: var(--grey-400);
-	--color-chart-3: var(--green-500);
-	--color-chart-4: var(--red-vivid-500);
-	--color-chart-5: var(--green-700);
-	--color-sidebar: var(--light-blue-900);
-	--color-sidebar-foreground: var(--grey-50);
-	--color-sidebar-primary: var(--light-blue-900);
-	--color-sidebar-primary-foreground: var(--grey-50);
-	--color-sidebar-accent: var(--grey-500);
-	--color-sidebar-accent-foreground: var(--light-blue-100);
-	--color-sidebar-border: var(--light-blue-400);
-	--color-sidebar-ring: var(--green-500);
-}
-
-:root {
-	--radius: 0.625rem;
-	--background: hsl(0 0% 100%);
-	--foreground: hsl(0 0% 3.9%);
-	--card: var(--grey-50);
-	--card-foreground: var(--grey-900);
-	--popover: var(--grey-50);
-	--popover-foreground: var(--grey-900);
-	--primary: var(--light-blue-900);
-	--primary-foreground: var(--grey-50);
-	--secondary: var(--green-200);
-	--secondary-foreground: var(--green-800);
-	--muted: var(--grey-100);
-	--muted-foreground: var(--grey-500);
-	--accent: var(--green-100);
-	--accent-foreground: var(--green-700);
-	--destructive: var(--red-vivid-500);
-	--destructive-foreground: var(--grey-50);
-	--success: var(--green-500);
-	--success-foreground: var(--grey-50);
-	--warning: var(--red-vivid-500);
-	--warning-foreground: var(--grey-50);
-	--border: var(--grey-200);
-	--input: var(--grey-200);
-	--ring: var(--light-blue-500);
-	--chart-1: var(--light-blue-700);
-	--chart-2: var(--grey-400);
-	--chart-3: var(--green-500);
-	--chart-4: var(--red-vivid-500);
-	--chart-5: var(--green-700);
-	--sidebar: var(--light-blue-700);
-	--sidebar-foreground: var(--grey-50);
-	--sidebar-primary: var(--light-blue-100);
-	--sidebar-primary-foreground: var(--grey-500);
-	--sidebar-accent: var(--light-blue-800);
-	--sidebar-accent-foreground: var(--grey-50);
-	--sidebar-border: var(--light-blue-900);
-	--sidebar-ring: var(--green-500);
-}
-
-@layer base {
 	* {
-		@apply border-border outline-ring/50;
+		@apply border-border outline-ring;
 	}
+
 	body {
 		@apply bg-background text-foreground;
 	}
-}
-
-.dark {
-	--background: hsl(0 0% 3.9%);
-	--foreground: hsl(0 0% 98%);
-	--sidebar: hsl(209, 20%, 25%);
-	--sidebar-foreground: hsl(210, 16%, 82%);
-	--sidebar-primary: hsl(200, 68%, 35%);
-	--sidebar-primary-foreground: hsl(0 0% 100%);
-	--sidebar-accent: hsl(209, 18%, 30%);
-	--sidebar-accent-foreground: hsl(214, 15%, 91%);
-	--sidebar-border: hsl(209, 18%, 30%);
-	--sidebar-ring: hsl(200, 66%, 69%);
 }

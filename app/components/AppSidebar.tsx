@@ -1,4 +1,3 @@
-import { LayoutDashboard, User } from "lucide-react";
 import { NavLink } from "react-router";
 import type { Job } from "~/services/db/dbService.server";
 import {
@@ -19,41 +18,40 @@ interface AppSidebarProps {
 		label: string;
 		badge?: number;
 		indicator?: boolean;
+		icon?: React.ReactNode;
 	}[];
 }
 
 export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
-	// Map paths to icons
-	const getIconForPath = (path: string) => {
-		if (path === "/dashboard")
-			return <LayoutDashboard className="mr-2 h-4 w-4" />;
-		if (path === "/settings") return <User className="mr-2 h-4 w-4" />;
-		return null;
-	};
-
 	return (
 		<Sidebar collapsible="offcanvas" variant="inset">
 			<SidebarHeader>
 				<SidebarGroup>
-					<SidebarGroupLabel>NAVIGATION</SidebarGroupLabel>
 					<SidebarMenu>
 						{navLinks.map((link) => (
-							<SidebarMenuItem key={link.to}>
-								<SidebarMenuButton asChild>
-									<NavLink to={link.to}>
-										<span className="flex items-center">
-											{getIconForPath(link.to)}
-											{link.label}
-											{link.indicator && (
-												<span className="ml-2 h-2 w-2 rounded-full bg-red-500" />
-											)}
-										</span>
-									</NavLink>
-								</SidebarMenuButton>
-								{link.badge && (
-									<SidebarMenuBadge>{link.badge}</SidebarMenuBadge>
+							<NavLink key={link.to} to={link.to}>
+								{({ isActive }) => (
+									<SidebarMenuItem variant="navigation">
+										<SidebarMenuButton
+											isActive={isActive}
+											variant="default"
+											size="lg"
+											asChild
+										>
+											<span className="flex items-center">
+												{link.icon}
+												{link.label}
+												{link.indicator && (
+													<span className="ml-2 h-2 w-2 rounded-full bg-red-500" />
+												)}
+											</span>
+										</SidebarMenuButton>
+										{link.badge && (
+											<SidebarMenuBadge>{link.badge}</SidebarMenuBadge>
+										)}
+									</SidebarMenuItem>
 								)}
-							</SidebarMenuItem>
+							</NavLink>
 						))}
 					</SidebarMenu>
 				</SidebarGroup>
@@ -71,7 +69,11 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 								<SidebarMenuItem key={job.id}>
 									<NavLink className="truncate" to={`/job/${job.id}`}>
 										{({ isActive }) => (
-											<SidebarMenuButton isActive={isActive}>
+											<SidebarMenuButton
+												isActive={isActive}
+												variant="default"
+												size="sm"
+											>
 												{job.title}
 											</SidebarMenuButton>
 										)}

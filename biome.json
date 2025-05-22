@@ -48,5 +48,13 @@
 		"formatter": {
 			"quoteStyle": "double"
 		}
+	},
+	"css": {
+		"formatter": {
+			"indentStyle": "tab"
+		},
+		"linter": {
+			"enabled": true
+		}
 	}
 }
