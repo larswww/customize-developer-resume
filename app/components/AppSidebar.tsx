@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
 import type { Job } from "~/services/db/dbService.server";
+import { DocumentIcon } from "./icons";
 import {
 	Sidebar,
 	SidebarContent,
@@ -11,6 +12,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "./ui/sidebar";
+
 interface AppSidebarProps {
 	jobs: Job[];
 	navLinks: {
@@ -24,8 +26,13 @@ interface AppSidebarProps {
 
 export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 	return (
-		<Sidebar collapsible="offcanvas" variant="inset">
+		<Sidebar collapsible="offcanvas" className="px-4 pb-4">
 			<SidebarHeader>
+				<NavLink to="/">
+					<div className="flex items-center h-[var(--header-height)] text-primary">
+						<span className="text-lg ">resume.com</span>
+					</div>
+				</NavLink>
 				<SidebarGroup>
 					<SidebarMenu>
 						{navLinks.map((link) => (
@@ -37,6 +44,7 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 											variant="default"
 											size="lg"
 											asChild
+											className="pl-2 mb-1"
 										>
 											<span className="flex items-center">
 												{link.icon}
@@ -73,6 +81,7 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 												isActive={isActive}
 												variant="default"
 												size="sm"
+												className={`text-xs px-2 py-1 mb-0.5 ${isActive ? "bg-yellow-50 text-yellow-700" : ""}`}
 											>
 												{job.title}
 											</SidebarMenuButton>
