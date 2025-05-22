@@ -24,7 +24,7 @@ export default function SettingsOther() {
 							description="Additional information you'd like to include on your resume"
 						>
 							<div className="flex items-start">
-								<div className="flex-grow">
+								<div className="grow">
 									<ClientMarkdownEditor
 										name={item.name}
 										markdown={item.value || ""}

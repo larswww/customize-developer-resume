@@ -37,7 +37,7 @@ export function PageLayout({
 			</div>
 
 			{/* Main Content Area */}
-			<div className="flex flex-grow max-w-7xl w-full mx-auto">
+			<div className="flex grow max-w-7xl w-full mx-auto">
 				{/* Left/Main Section */}
 				<div className="flex-1 flex flex-col p-4 sm:p-6 bg-white dark:bg-gray-850">
 					{mainContent}
