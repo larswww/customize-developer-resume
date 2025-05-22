@@ -98,7 +98,7 @@ function ArrayRendererBase<T>({
 								onClick={() => handleAdd(index)}
 								size="sm"
 								variant="default"
-								className="rounded-full !p-1 print:hidden"
+								className="rounded-full p-1! print:hidden"
 								aria-label="Add item"
 							>
 								<PlusIcon size="xs" />
@@ -108,10 +108,10 @@ function ArrayRendererBase<T>({
 								onClick={() => handleRemove(index)}
 								size="sm"
 								variant="destructive"
-								className="rounded-full !p-1"
+								className="rounded-full p-1!"
 								aria-label="Remove item"
 							>
-								<TrashIcon size="xs" className="!mr-0" />
+								<TrashIcon size="xs" className="mr-0!" />
 							</Button>
 						</div>
 					)}

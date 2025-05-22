@@ -1,8 +1,7 @@
 export default {
 	nav: {
-		dashboard: "Dashboard",
+		dashboard: "Resumes",
 		career: "Career",
-		info: "Me",
 	},
 	ui: {
 		cancel: "Cancel",

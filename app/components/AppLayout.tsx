@@ -1,3 +1,4 @@
+import { FileText, Briefcase } from "lucide-react";
 import { Outlet, useMatches } from "react-router";
 import { AppSidebar } from "~/components/AppSidebar";
 import { MainHeader } from "~/components/MainHeader";
@@ -7,9 +8,16 @@ import text from "~/text";
 import type { Route } from "./+types/AppLayout";
 
 const navLinks = [
-	{ to: "/dashboard", label: text.nav.dashboard },
-	{ to: "/career", label: text.nav.career },
-	{ to: "/settings", label: text.nav.info },
+	{
+		to: "/dashboard",
+		label: text.nav.dashboard,
+		icon: <FileText className="mr-2 h-4 w-4" />,
+	},
+	{
+		to: "/settings",
+		label: text.nav.career,
+		icon: <Briefcase className="mr-2 h-4 w-4" />,
+	},
 ];
 
 export async function loader() {
@@ -44,7 +52,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 		<SidebarProvider
 			style={
 				{
-					"--sidebar-width": "calc(var(--spacing) * 72)",
+					"--sidebar-width": "calc(var(--spacing) * 42)",
 					"--header-height": "calc(var(--spacing) * 12)",
 				} as React.CSSProperties
 			}

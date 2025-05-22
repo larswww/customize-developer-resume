@@ -17,7 +17,7 @@ const ResumeTemplate: FC<ResumeTemplateProps<DefaultResumeData>> = ({
 	return (
 		<div className="resume-container print:w-full print:h-auto flex flex-col bg-white shadow-lg print:shadow-none">
 			{/* Split layout with sidebar */}
-			<div className="flex flex-row h-full flex-grow">
+			<div className="flex flex-row h-full grow">
 				{/* Left sidebar */}
 				<div
 					className="w-[30%] bg-gray-50 flex flex-col"
@@ -263,7 +263,7 @@ const ResumeTemplate: FC<ResumeTemplateProps<DefaultResumeData>> = ({
 				</div>
 
 				{/* Right content area - Work Experience */}
-				<div className="w-[70%] p-8 overflow-y-auto flex-grow">
+				<div className="w-[70%] p-8 overflow-y-auto grow">
 					<h2 className="text-2xl font-bold uppercase mb-6 border-b pb-1">
 						<TextWrap
 							text="WORK EXPERIENCE"
@@ -286,7 +286,7 @@ const ResumeTemplate: FC<ResumeTemplateProps<DefaultResumeData>> = ({
 												label="Job Title"
 											/>
 										</span>
-										<span className="text-sm text-gray-600 text-right flex-shrink-0 ml-4">
+										<span className="text-sm text-gray-600 text-right shrink-0 ml-4">
 											<TextWrap
 												text={job.dates}
 												name={`workExperience[${jobIndex}].dates`}

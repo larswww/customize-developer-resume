@@ -24,7 +24,9 @@
 				"noUnusedFunctionParameters": "info",
 				"noUnusedLabels": "info",
 				"noUnusedPrivateClassMembers": "info",
-				"noUnusedVariables": "info"
+				"noUnusedVariables": "info",
+				"noUnusedImports": "info",
+				"useExhaustiveDependencies": "off"
 			},
 			"style": {
 				"noVar": "info",
@@ -45,6 +47,14 @@
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"formatter": {
+			"indentStyle": "tab"
+		},
+		"linter": {
+			"enabled": true
 		}
 	}
 }

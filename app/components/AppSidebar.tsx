@@ -1,6 +1,6 @@
-import { BookText, LayoutDashboard, User } from "lucide-react";
-import { NavLink } from "~/components/ui/NavLink";
+import { NavLink } from "react-router";
 import type { Job } from "~/services/db/dbService.server";
+import { DocumentIcon } from "./icons";
 import {
 	Sidebar,
 	SidebarContent,
@@ -8,48 +8,65 @@ import {
 	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
+	SidebarMenuBadge,
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "./ui/sidebar";
+
 interface AppSidebarProps {
 	jobs: Job[];
-	navLinks: { to: string; label: string }[];
+	navLinks: {
+		to: string;
+		label: string;
+		badge?: number;
+		indicator?: boolean;
+		icon?: React.ReactNode;
+	}[];
 }
 
 export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
-	// Map paths to icons
-	const getIconForPath = (path: string) => {
-		if (path === "/dashboard")
-			return <LayoutDashboard className="mr-2 h-4 w-4" />;
-		if (path === "/career") return <BookText className="mr-2 h-4 w-4" />;
-		if (path === "/settings") return <User className="mr-2 h-4 w-4" />;
-		return null;
-	};
-
 	return (
-		<Sidebar collapsible="offcanvas" variant="inset">
+		<Sidebar collapsible="offcanvas" className="px-4 pb-4">
 			<SidebarHeader>
+				<NavLink to="/">
+					<div className="flex items-center h-[var(--header-height)] text-primary">
+						<span className="text-lg ">resume.com</span>
+					</div>
+				</NavLink>
 				<SidebarGroup>
-					<SidebarGroupLabel>Navigation</SidebarGroupLabel>
 					<SidebarMenu>
 						{navLinks.map((link) => (
-							<SidebarMenuItem key={link.to}>
-								<SidebarMenuButton>
-									<NavLink to={link.to}>
-										<span className="flex items-center">
-											{getIconForPath(link.to)}
-											{link.label}
-										</span>
-									</NavLink>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
+							<NavLink key={link.to} to={link.to}>
+								{({ isActive }) => (
+									<SidebarMenuItem variant="navigation">
+										<SidebarMenuButton
+											isActive={isActive}
+											variant="default"
+											size="lg"
+											asChild
+											className="pl-2 mb-1"
+										>
+											<span className="flex items-center">
+												{link.icon}
+												{link.label}
+												{link.indicator && (
+													<span className="ml-2 h-2 w-2 rounded-full bg-red-500" />
+												)}
+											</span>
+										</SidebarMenuButton>
+										{link.badge && (
+											<SidebarMenuBadge>{link.badge}</SidebarMenuBadge>
+										)}
+									</SidebarMenuItem>
+								)}
+							</NavLink>
 						))}
 					</SidebarMenu>
 				</SidebarGroup>
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarGroupLabel>Jobs</SidebarGroupLabel>
+					<SidebarGroupLabel>JOBS</SidebarGroupLabel>
 					<SidebarMenu>
 						{jobs.length === 0 ? (
 							<div className="px-3 py-2 text-sm text-muted-foreground">
@@ -58,9 +75,18 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 						) : (
 							jobs.map((job) => (
 								<SidebarMenuItem key={job.id}>
-									<SidebarMenuButton>
-										<NavLink to={`/job/${job.id}`}>{job.title}</NavLink>
-									</SidebarMenuButton>
+									<NavLink className="truncate" to={`/job/${job.id}`}>
+										{({ isActive }) => (
+											<SidebarMenuButton
+												isActive={isActive}
+												variant="default"
+												size="sm"
+												className={`text-xs px-2 py-1 mb-0.5 ${isActive ? "bg-yellow-50 text-yellow-700" : ""}`}
+											>
+												{job.title}
+											</SidebarMenuButton>
+										)}
+									</NavLink>
 								</SidebarMenuItem>
 							))
 						)}
