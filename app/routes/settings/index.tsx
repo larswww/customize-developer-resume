@@ -24,6 +24,7 @@ function getSettingsKeyFromPath(pathname: string): SettingsKey {
 	if (pathname.endsWith("/education")) return "EDUCATION";
 	if (pathname.endsWith("/experience")) return "EXPERIENCE";
 	if (pathname.endsWith("/projects")) return "PROJECTS";
+	if (pathname.endsWith("/other")) return "OTHER";
 	return "CONTACT_INFO";
 }
 
@@ -147,6 +148,15 @@ export default function SettingsLayout({ loaderData }: Route.ComponentProps) {
 					}
 				>
 					Projects
+				</NavLink>
+				<NavLink
+					to="/settings/other"
+					prefetch="intent"
+					className={({ isActive }: { isActive: boolean }) =>
+						`py-2 px-4 ${isActive ? "border-b-2 border-blue-500 font-semibold" : "text-gray-500"}`
+					}
+				>
+					Other
 				</NavLink>
 			</nav>
 			<div className="mt-4">

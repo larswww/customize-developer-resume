@@ -33,6 +33,12 @@ export const ProjectsSchema = z.object({
 	projects: z.array(ProjectSchema),
 });
 
+export const OtherSchema = z.object({
+	items: z
+		.array(z.string())
+		.describe("Additional information in markdown format"),
+});
+
 export const ContactInfoSchema = z
 	.object({
 		firstName: z.string(),
@@ -41,9 +47,9 @@ export const ContactInfoSchema = z
 		location: z.string(),
 		phone: z.string(),
 		email: z.string(),
-		linkedin: z.string().url().describe("LinkedIn profile URL"),
-		portfolio: z.optional(z.string().url().describe("Portfolio website URL")),
-		github: z.optional(z.string().url().describe("GitHub profile URL")),
+		linkedin: z.string().describe("LinkedIn profile URL"),
+		portfolio: z.optional(z.string().describe("Portfolio website URL")),
+		github: z.optional(z.string().describe("GitHub profile URL")),
 		imageUrl: z.optional(z.string()),
 	})
 	.partial();
@@ -75,11 +81,15 @@ export const EducationSchema = z.object({
 export const CoreSchema = z.object({
 	contactInfo: ContactInfoSchema,
 	education: EducationSchema,
+	projects: ProjectsSchema,
+	other: OtherSchema,
 });
 
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;
 export type Education = z.infer<typeof EducationSchema>;
 export type Core = z.infer<typeof CoreSchema>;
+export type Other = z.infer<typeof OtherSchema>;
+
 export const defaultContactInfo: ContactInfo = {
 	firstName: "",
 	lastName: "",

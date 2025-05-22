@@ -23,13 +23,14 @@ export const SETTINGS_KEYS = {
 	CONTACT_INFO: "contactInfo",
 	EDUCATION: "education",
 	PROJECTS: "projects",
+	OTHER: "other",
 } as const;
 
-import { z } from "zod";
 import {
 	ContactInfoSchema,
 	EducationSchema,
 	ExperienceSchema,
+	OtherSchema,
 	ProjectsSchema,
 } from "./schemas/sharedTypes";
 
@@ -91,6 +92,11 @@ export const SETTINGS_SCHEMAS = {
 				},
 			],
 		}),
+	},
+	[SETTINGS_KEYS.OTHER]: {
+		hasStructuredData: true,
+		schema: OtherSchema,
+		emptyValue: OtherSchema.parse({ items: [""] }),
 	},
 };
 

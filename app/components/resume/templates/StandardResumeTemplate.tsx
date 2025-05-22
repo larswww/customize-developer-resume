@@ -5,10 +5,10 @@ import type { StandardResumeData } from "~/config/schemas/standardResume";
 import type { ResumeTemplateProps } from "./types";
 
 const marginSettings = {
-	header: "mb-6",
+	header: "mb-24",
 	section: "mb-24",
 	sectionTitle: "pb-1 mb-4",
-	workItem: "mb-4",
+	workItem: "mb-8",
 	workItemTitle: "mb-1",
 	workItemAccomplishments: "mt-2",
 	techCategory: "gap-4",
@@ -17,7 +17,10 @@ const marginSettings = {
 	projectSection: "mb-8",
 	projectItem: "mb-4",
 	projectTitle: "mt-1",
+	listIndent: "pl-12",
 };
+
+const linkClassName = "text-inherit underline hover:text-blue-500";
 
 const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 	data,
@@ -28,101 +31,96 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 		education,
 		technologyCategories,
 		projects,
+		other,
 	} = data;
 
 	return (
-		<div className="resume-container print:w-full print:h-auto print:block  bg-white shadow-lg print:shadow-none p-8 max-w-4xl mx-auto">
+		<div className="resume-container print:w-full print:h-auto print:block bg-white shadow-lg print:shadow-none p-8 max-w-4xl mx-auto leading-relaxed text-base">
 			{/* Header with name */}
 			<header className={marginSettings.header}>
-				<h1 className="text-4xl font-bold">
-					<TextWrap
-						text={contactInfo.firstName}
-						name="contactInfo.firstName"
-						label="First Name"
-					/>{" "}
-					<TextWrap
-						text={contactInfo.lastName}
-						name="contactInfo.lastName"
-						label="Last Name"
-					/>
-				</h1>
+				<div className="flex w-full items-center justify-between">
+					{/* Left: Name, vertically centered */}
 
-				{contactInfo.email && (
-					<div className="flex items-center text-sm mt-2">
-						<a href={`mailto:${contactInfo.email}`} className="hover:underline">
-							<TextWrap
-								text={contactInfo.email}
-								name="contactInfo.email"
-								label="Email"
-							/>
-						</a>
-						{contactInfo.phone && (
-							<>
-								<span className="mx-2">•</span>
-								<TextWrap
-									text={contactInfo.phone}
-									name="contactInfo.phone"
-									label="Phone"
-								/>
-							</>
-						)}
+					<h1 className="text-5xl font-bold ">
+						<TextWrap
+							text={contactInfo.firstName}
+							name="contactInfo.firstName"
+							label="First Name"
+						/>{" "}
+						<TextWrap
+							text={contactInfo.lastName}
+							name="contactInfo.lastName"
+							label="Last Name"
+						/>
+					</h1>
+
+					{/* Right: Location, Phone, Email, Links */}
+					<div className="flex flex-col items-end text-sm w-1/2 min-w-0">
 						{contactInfo.location && (
-							<>
-								<span className="mx-2">•</span>
+							<span className="mb-1">
 								<TextWrap
 									text={contactInfo.location}
 									name="contactInfo.location"
 									label="Location"
 								/>
-							</>
+							</span>
+						)}
+						{contactInfo.phone && (
+							<span className="mb-1">
+								<TextWrap
+									text={contactInfo.phone}
+									name="contactInfo.phone"
+									label="Phone"
+								/>
+							</span>
+						)}
+						{contactInfo.email && (
+							<a href={`mailto:${contactInfo.email}`} className={linkClassName}>
+								<TextWrap
+									text={contactInfo.email}
+									name="contactInfo.email"
+									label="Email"
+								/>
+							</a>
 						)}
 						{contactInfo.linkedin && (
-							<>
-								<span className="mx-2">•</span>
-								<a
-									href={contactInfo.linkedin}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="hover:underline"
-								>
-									LinkedIn
-								</a>
-							</>
+							<a
+								href={contactInfo.linkedin}
+								target="_blank"
+								rel="noopener noreferrer"
+								className={linkClassName}
+							>
+								LinkedIn
+							</a>
 						)}
 						{contactInfo.github && (
-							<>
-								<span className="mx-2">•</span>
-								<a
-									href={contactInfo.github}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="hover:underline"
-								>
-									GitHub
-								</a>
-							</>
+							<a
+								href={contactInfo.github}
+								target="_blank"
+								rel="noopener noreferrer"
+								className={linkClassName}
+							>
+								GitHub
+							</a>
 						)}
 						{contactInfo.portfolio && (
-							<>
-								<span className="mx-2">•</span>
-								<a
-									href={contactInfo.portfolio}
-									target="_blank"
-									rel="noopener noreferrer"
-									className="hover:underline"
-								>
-									Portfolio
-								</a>
-							</>
+							<a
+								href={contactInfo.portfolio}
+								target="_blank"
+								rel="noopener noreferrer"
+								className={linkClassName}
+							>
+								Portfolio
+							</a>
 						)}
 					</div>
-				)}
+				</div>
 			</header>
 
 			{/* Work Experience Section */}
 			<section className={marginSettings.section}>
 				<h2
-					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
 				>
 					<TextWrap
 						text="Work Experience"
@@ -139,23 +137,34 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 							<div
 								className={`flex justify-between items-center w-full ${marginSettings.workItemTitle}`}
 							>
-								<div className="font-bold text-lg">
-									<TextWrap
-										text={job.company}
-										name={`workExperience[${index}].company`}
-										label="Company"
-									/>
-								</div>
-								{job.location && (
-									<div className="flex-1 text-center text-xs text-gray-500">
+								<div className="flex flex-col">
+									<div className="font-bold text-lg">
+										<TextWrap
+											text={job.company}
+											name={`workExperience[${index}].company`}
+											label="Company"
+											linkClassName={linkClassName}
+										/>
+									</div>
+
+									<div className="flex-1 text-sm text-gray-500 col-span-1">
+										<TextWrap
+											text={job.title}
+											name={`workExperience[${index}].title`}
+											label="Job Title"
+											linkClassName={linkClassName}
+										/>
+										{" | "}
 										<TextWrap
 											text={job.location}
 											name={`workExperience[${index}].location`}
 											label="Location"
+											linkClassName={linkClassName}
 										/>
 									</div>
-								)}
-								<div className="text-sm text-right min-w-fit">
+								</div>
+
+								<div className="text-sm text-right min-w-fit text-gray-500 col-span-1">
 									<TextWrap
 										text={job.dates}
 										name={`workExperience[${index}].dates`}
@@ -163,16 +172,9 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 									/>
 								</div>
 							</div>
-							{/* Second row: Title */}
-							<div className=" text-base mb-1">
-								<TextWrap
-									text={job.title}
-									name={`workExperience[${index}].title`}
-									label="Job Title"
-								/>
-							</div>
+
 							<ul
-								className={`list-disc pl-5 ${marginSettings.workItemAccomplishments}`}
+								className={`list-disc leading-relaxed ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
 							>
 								<ArrayRenderer
 									items={job.accomplishments || []}
@@ -183,6 +185,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 												text={item}
 												name={`workExperience[${index}].accomplishments[${descIndex}]`}
 												label="Accomplishment Item"
+												linkClassName={linkClassName}
 											/>
 										</li>
 									)}
@@ -196,7 +199,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 			{/* Technologies and Languages Section */}
 			<section className={marginSettings.section}>
 				<h2
-					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
 				>
 					<TextWrap
 						text="Technologies and Languages"
@@ -204,36 +207,41 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 						label="Technologies Section Title"
 					/>
 				</h2>
-				<div className={`grid grid-cols-1 ${marginSettings.techCategory}`}>
+				<ul
+					className={`list-disc ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
+				>
 					<ArrayRenderer
 						items={technologyCategories || []}
 						getKey={(category, index) => `tech-${index}`}
 						renderItem={(category, index) => (
-							<div>
-								<h3 className="font-bold">
+							<li>
+								<span className="font-bold">
 									<TextWrap
 										text={category.category}
 										name={`technologyCategories[${index}].category`}
 										label="Category"
+										linkClassName={linkClassName}
 									/>
-								</h3>
-								<p>
+								</span>
+								{": "}
+								<span>
 									<TextWrap
 										text={category.item}
 										name={`technologyCategories[${index}].item`}
 										label="Technology Item"
+										linkClassName={linkClassName}
 									/>
-								</p>
-							</div>
+								</span>
+							</li>
 						)}
 					/>
-				</div>
+				</ul>
 			</section>
 
 			{/* Education Section */}
 			<section className={marginSettings.section}>
 				<h2
-					className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
 				>
 					<TextWrap
 						text="Education"
@@ -241,58 +249,62 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 						label="Education Section Title"
 					/>
 				</h2>
-				<ArrayRenderer
-					items={education?.educations || []}
-					getKey={(edu, index) => `edu-${index}`}
-					renderItem={(edu, index) => (
-						<div className={marginSettings.educationItem}>
-							<div className="flex justify-between items-start">
-								<div>
-									<h3 className="text-lg font-bold">
+				<ul
+					className={`list-disc ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
+				>
+					<ArrayRenderer
+						items={education?.educations || []}
+						getKey={(edu, index) => `edu-${index}`}
+						renderItem={(edu, index) => (
+							<li>
+								<div className="flex justify-between items-center">
+									<span>
+										<span className="font-bold">
+											<TextWrap
+												text={edu.degree}
+												name={`education.educations[${index}].degree`}
+												label="Degree"
+											/>
+										</span>
+										{", "}
+										<span>
+											<TextWrap
+												text={edu.institution}
+												name={`education.educations[${index}].institution`}
+												label="Institution"
+											/>
+											{edu.location && (
+												<>
+													{" ("}
+													<TextWrap
+														text={edu.location}
+														name={`education.educations[${index}].location`}
+														label="Location"
+													/>
+													{")"}
+												</>
+											)}
+										</span>
+									</span>
+									<span className="text-sm text-gray-500 min-w-fit text-right ml-2">
 										<TextWrap
-											text={edu.degree}
-											name={`education.educations[${index}].degree`}
-											label="Degree"
+											text={edu.dates}
+											name={`education.educations[${index}].dates`}
+											label="Dates"
 										/>
-									</h3>
-									<p>
-										<TextWrap
-											text={edu.institution}
-											name={`education.educations[${index}].institution`}
-											label="Institution"
-										/>
-										{edu.location && (
-											<>
-												{" "}
-												(
-												<TextWrap
-													text={edu.location}
-													name={`education.educations[${index}].location`}
-													label="Location"
-												/>
-												)
-											</>
-										)}
-									</p>
+									</span>
 								</div>
-								<p className="text-sm">
-									<TextWrap
-										text={edu.dates}
-										name={`education.educations[${index}].dates`}
-										label="Dates"
-									/>
-								</p>
-							</div>
-						</div>
-					)}
-				/>
+							</li>
+						)}
+					/>
+				</ul>
 			</section>
 
 			{/* Projects Section (if available) */}
-			{projects && projects.length > 0 && (
+			{projects.projects && projects.projects.length > 0 && (
 				<section className={marginSettings.projectSection}>
 					<h2
-						className={`text-2xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+						className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
 					>
 						<TextWrap
 							text="Projects"
@@ -300,52 +312,96 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 							label="Projects Section Title"
 						/>
 					</h2>
-					<ArrayRenderer
-						items={projects}
-						getKey={(project, index) => `project-${index}`}
-						renderItem={(project, index) => (
-							<div className={marginSettings.projectItem}>
-								<div className="flex justify-between items-start">
-									<h3 className="text-lg font-bold">
-										{project.link ? (
-											<a
-												href={project.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="hover:underline"
-											>
+					<ul
+						className={`list-disc pl-5 leading-relaxed ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
+					>
+						<ArrayRenderer
+							items={projects.projects}
+							getKey={(project, index) => `project-${index}`}
+							renderItem={(project, index) => (
+								<li>
+									<div className="flex justify-between items-start mt-1">
+										<span>
+											<span className="font-bold">
+												{project.link ? (
+													<a
+														href={project.link}
+														target="_blank"
+														rel="noopener noreferrer"
+														className={linkClassName}
+													>
+														<TextWrap
+															text={project.title}
+															name={`projects.projects[${index}].title`}
+															label="Project Title"
+														/>
+													</a>
+												) : (
+													<TextWrap
+														text={project.title}
+														name={`projects.projects[${index}].title`}
+														label="Project Title"
+													/>
+												)}
+											</span>
+											{project.description && (
+												<span className="ml-1">
+													<TextWrap
+														text={project.description}
+														name={`projects.projects[${index}].description`}
+														label="Description"
+														linkClassName={linkClassName}
+													/>
+												</span>
+											)}
+										</span>
+										{project.date && (
+											<span className="text-sm text-gray-500 min-w-fit text-right mt-1 ml-2">
 												<TextWrap
-													text={project.title}
-													name={`projects[${index}].title`}
-													label="Project Title"
+													text={project.date}
+													name={`projects.projects[${index}].date`}
+													label="Date"
 												/>
-											</a>
-										) : (
-											<TextWrap
-												text={project.title}
-												name={`projects[${index}].title`}
-												label="Project Title"
-											/>
+											</span>
 										)}
-									</h3>
-									<p className="text-sm">
-										<TextWrap
-											text={project.date}
-											name={`projects[${index}].date`}
-											label="Date"
-										/>
-									</p>
-								</div>
-								<p className="mt-1">
+									</div>
+								</li>
+							)}
+						/>
+					</ul>
+				</section>
+			)}
+
+			{/* Other Section (if available) */}
+			{other?.items && other.items.length > 0 && (
+				<section className={marginSettings.section}>
+					<h2
+						className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					>
+						<TextWrap
+							text="Other"
+							name="otherTitle"
+							label="Other Section Title"
+						/>
+					</h2>
+					<ul
+						className={`list-disc leading-relaxed ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
+					>
+						<ArrayRenderer
+							items={other.items}
+							getKey={(item, index) => `other-${index}`}
+							renderItem={(item, index) => (
+								<li>
 									<TextWrap
-										text={project.description}
-										name={`projects[${index}].description`}
-										label="Description"
+										text={item}
+										name={`other.items[${index}]`}
+										label="Other Item"
+										linkClassName={linkClassName}
 									/>
-								</p>
-							</div>
-						)}
-					/>
+								</li>
+							)}
+						/>
+					</ul>
 				</section>
 			)}
 		</div>

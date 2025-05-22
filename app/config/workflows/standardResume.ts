@@ -9,6 +9,9 @@ export const workflowSteps: WorkflowStep[] = [
 		description:
 			"Parse the job description to a format that can be used in the next step",
 		systemPrompt: `You are an expert resume writer. You receive job description prompts and adapt the candidates work history to the provided structure. 
+
+		- You preserve/include any markdown links provided in the format [link text](url), and you never change the URL, but you sometimes change the link text so that it naturally fits into the sentence.
+
 		
 		WORK HISTORY:
 		{workHistory}
@@ -21,10 +24,10 @@ export const workflowSteps: WorkflowStep[] = [
 			model: "gpt-4.1",
 			zodSchema: StandardResumeCoreDataSchema,
 		},
-		prompt: `Adapt the candidates work history to the provided structure. 
+		prompt: `Please structure my resume content for this job:
 		
-		WORK HISTORY:
-		{workHistory}
+		JOB DESCRIPTION:
+		{jobDescription}
 `,
 	},
 ];

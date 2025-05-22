@@ -1,7 +1,11 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
 import { ResumeTemplate } from "~/components/resume/templates/ResumeTemplate";
-import { CoreSchema, type ResumeTemplateConfig } from "./sharedTypes";
+import {
+	CoreSchema,
+	OtherSchema,
+	type ResumeTemplateConfig,
+} from "./sharedTypes";
 
 export const WorkExperienceSchema = z.object({
 	title: z.string().describe("The job title."),
@@ -39,6 +43,9 @@ export const SkillSchema = z.object({
 export const DefaultResumeCoreDataSchema = z.object({
 	workExperience: z.array(WorkExperienceSchema),
 	skills: z.array(SkillSchema),
+	other: OtherSchema.optional().describe(
+		"Additional information in markdown format",
+	),
 });
 
 export const DefaultResumeDataSchema =

@@ -14,6 +14,7 @@ import {
 	type Education,
 	EducationSchema,
 	ExperienceSchema,
+	OtherSchema,
 	ProjectsSchema,
 } from "~/config/schemas/sharedTypes";
 import type { SimpleConsultantCoreData } from "~/config/schemas/simple";
@@ -148,6 +149,11 @@ const SettingsSchema = z.discriminatedUnion("key", [
 		structuredData: ProjectsSchema,
 		value: z.string().nullable(),
 	}),
+	z.object({
+		key: z.literal(SETTINGS_KEYS.OTHER),
+		structuredData: OtherSchema,
+		value: z.string().nullable(),
+	}),
 ]);
 
 // Inferred Types
@@ -165,6 +171,7 @@ export type ResumeInput = {
 export type Resume = z.infer<typeof ResumeSchema>;
 export type Settings = z.infer<typeof SettingsSchema>;
 export type { ContactInfo };
+export type Other = z.infer<typeof OtherSchema>;
 
 /**
  * @param operation The database operation to execute
@@ -726,9 +733,11 @@ export class DbService {
 	getWorkHistory = () => {
 		const experience = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
 		const projects = this.getSetting(SETTINGS_KEYS.PROJECTS);
+		const other = this.getSetting(SETTINGS_KEYS.OTHER);
 		return {
 			experience: experience?.structuredData,
 			projects: projects?.structuredData,
+			other: other?.structuredData,
 		};
 	};
 

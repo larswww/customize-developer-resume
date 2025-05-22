@@ -38,8 +38,14 @@ export const handle = {
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
 	const savedResume = dbService.getResume(jobId, selectedTemplateId);
-	const { education, contactInfo, hasEmptyContactInfo, hasEducation } =
-		getSharedObjects();
+	const {
+		education,
+		contactInfo,
+		hasEmptyContactInfo,
+		hasEducation,
+		other,
+		projects,
+	} = getSharedObjects();
 	const hasResume = savedResume !== null && savedResume.structuredData !== null;
 
 	const resumeData = {
@@ -53,6 +59,14 @@ export async function loader(args: LoaderFunctionArgs) {
 		education: {
 			...education,
 			...savedResume?.structuredData?.education,
+		},
+		other: {
+			...other,
+			...savedResume?.structuredData?.other,
+		},
+		projects: {
+			...projects,
+			...savedResume?.structuredData?.projects,
 		},
 	};
 
@@ -111,8 +125,9 @@ export async function action(args: ActionFunctionArgs) {
 	const { selectedTemplateConfig, selectedTemplateId, jobId } =
 		extractRouteParams(args);
 	const { actionType } = Object.fromEntries(formData);
+	const schema = selectedTemplateConfig.componentSchema;
 	const submission = parseWithZod(formData, {
-		schema: selectedTemplateConfig.componentSchema,
+		schema,
 	});
 
 	updateEmptySettings(submission.payload);
@@ -133,16 +148,6 @@ export async function action(args: ActionFunctionArgs) {
 	}
 
 	if (actionType === "generate") {
-		const savedResume = dbService.getResume(jobId, selectedTemplateId);
-		if (!savedResume || !savedResume.structuredData) {
-			return {
-				success: false,
-				message: "Resume not found",
-			};
-		}
-
-		const { outputSchema } = selectedTemplateConfig;
-		const { structuredData } = savedResume;
 		const feedback = formData.get("feedback") as string | undefined;
 
 		if (!feedback) {
@@ -152,30 +157,31 @@ export async function action(args: ActionFunctionArgs) {
 			};
 		}
 
-		const currentData = outputSchema.safeParse(structuredData);
-		if (!currentData.success) {
-			return {
-				success: false,
-				message: "Invalid resume data",
-			};
+		if (submission.status === "success") {
+			const result = await reGenerateWithFeedback(
+				submission.value as any,
+				schema,
+				feedback,
+			);
+			dbService.saveResume({
+				jobId,
+				templateId: selectedTemplateId,
+				structuredData: result as any,
+			});
 		}
 
-		const result = await reGenerateWithFeedback(
-			currentData.data,
-			outputSchema,
-			feedback,
-		);
-		dbService.saveResume({
-			jobId,
-			templateId: selectedTemplateId,
-			structuredData: result as any,
-		});
+		return {
+			success: false,
+			message: "Fill out missing fields marked in red.",
+		};
 	}
 }
 
 function getSharedObjects() {
 	const education = dbService.getEducation();
 	const contactInfo = dbService.getContactInfo();
+	const other = dbService.getSetting("other");
+	const projects = dbService.getSetting("projects");
 
 	const hasEmptyContactInfo = Object.values(contactInfo).some(
 		(value) => !value,
@@ -188,6 +194,8 @@ function getSharedObjects() {
 		contactInfo,
 		hasEmptyContactInfo,
 		hasEducation,
+		other: other?.structuredData,
+		projects: projects?.structuredData,
 	};
 }
 
