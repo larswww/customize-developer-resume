@@ -126,13 +126,13 @@
 @layer base {
 	@font-face {
 		font-family: "Inter";
-		src: url("../public/inter.ttf") format("truetype");
+		src: url("/inter.ttf") format("truetype");
 		font-weight: 400;
 	}
 
 	@font-face {
 		font-family: "Nunito";
-		src: url("../public/nunito.ttf") format("truetype");
+		src: url("/nunito.ttf") format("truetype");
 		font-weight: 400;
 		font-feature-settings: normal;
 	}
