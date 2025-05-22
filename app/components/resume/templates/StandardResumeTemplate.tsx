@@ -5,7 +5,7 @@ import type { StandardResumeData } from "~/config/schemas/standardResume";
 import type { ResumeTemplateProps } from "./types";
 
 const marginSettings = {
-	header: "mb-0",
+	header: "mb-24",
 	section: "mb-24",
 	sectionTitle: "pb-1 mb-4",
 	workItem: "mb-8",
@@ -31,6 +31,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 		education,
 		technologyCategories,
 		projects,
+		other,
 	} = data;
 
 	return (
@@ -40,7 +41,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 				<div className="flex w-full items-center justify-between">
 					{/* Left: Name, vertically centered */}
 
-					<h1 className="text-3xl font-bold ">
+					<h1 className="text-5xl font-bold ">
 						<TextWrap
 							text={contactInfo.firstName}
 							name="contactInfo.firstName"
@@ -300,7 +301,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 			</section>
 
 			{/* Projects Section (if available) */}
-			{projects && projects.length > 0 && (
+			{projects.projects && projects.projects.length > 0 && (
 				<section className={marginSettings.projectSection}>
 					<h2
 						className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
@@ -315,7 +316,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 						className={`list-disc pl-5 leading-relaxed ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
 					>
 						<ArrayRenderer
-							items={projects}
+							items={projects.projects}
 							getKey={(project, index) => `project-${index}`}
 							renderItem={(project, index) => (
 								<li>
@@ -331,14 +332,14 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 													>
 														<TextWrap
 															text={project.title}
-															name={`projects[${index}].title`}
+															name={`projects.projects[${index}].title`}
 															label="Project Title"
 														/>
 													</a>
 												) : (
 													<TextWrap
 														text={project.title}
-														name={`projects[${index}].title`}
+														name={`projects.projects[${index}].title`}
 														label="Project Title"
 													/>
 												)}
@@ -347,7 +348,7 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 												<span className="ml-1">
 													<TextWrap
 														text={project.description}
-														name={`projects[${index}].description`}
+														name={`projects.projects[${index}].description`}
 														label="Description"
 														linkClassName={linkClassName}
 													/>
@@ -358,12 +359,45 @@ const StandardResumeTemplate: FC<ResumeTemplateProps<StandardResumeData>> = ({
 											<span className="text-sm text-gray-500 min-w-fit text-right mt-1 ml-2">
 												<TextWrap
 													text={project.date}
-													name={`projects[${index}].date`}
+													name={`projects.projects[${index}].date`}
 													label="Date"
 												/>
 											</span>
 										)}
 									</div>
+								</li>
+							)}
+						/>
+					</ul>
+				</section>
+			)}
+
+			{/* Other Section (if available) */}
+			{other?.items && other.items.length > 0 && (
+				<section className={marginSettings.section}>
+					<h2
+						className={`text-xl font-bold border-b-2 border-blue-500 ${marginSettings.sectionTitle}`}
+					>
+						<TextWrap
+							text="Other"
+							name="otherTitle"
+							label="Other Section Title"
+						/>
+					</h2>
+					<ul
+						className={`list-disc leading-relaxed ${marginSettings.workItemAccomplishments} ${marginSettings.listIndent}`}
+					>
+						<ArrayRenderer
+							items={other.items}
+							getKey={(item, index) => `other-${index}`}
+							renderItem={(item, index) => (
+								<li>
+									<TextWrap
+										text={item}
+										name={`other.items[${index}]`}
+										label="Other Item"
+										linkClassName={linkClassName}
+									/>
 								</li>
 							)}
 						/>

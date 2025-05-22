@@ -1,11 +1,7 @@
 import type { ComponentType } from "react";
 import { z } from "zod";
 import { StandardResumeTemplate } from "~/components/resume/templates/StandardResumeTemplate";
-import {
-	CoreSchema,
-	ProjectSchema,
-	type ResumeTemplateConfig,
-} from "./sharedTypes";
+import { CoreSchema, type ResumeTemplateConfig } from "./sharedTypes";
 
 export const WorkExperienceSchema = z
 	.object({
@@ -52,7 +48,6 @@ export const TechnologyCategorySchema = z
 
 export const StandardResumeCoreDataSchema = z.object({
 	workExperience: z.array(WorkExperienceSchema),
-	projects: z.array(ProjectSchema).optional(),
 	technologyCategories: z.array(TechnologyCategorySchema),
 });
 
@@ -74,7 +69,6 @@ export const templateConfig: ResumeTemplateConfig = {
 };
 
 export type WorkExperience = z.infer<typeof WorkExperienceSchema>;
-export type Project = z.infer<typeof ProjectSchema>;
 export type TechnologyCategory = z.infer<typeof TechnologyCategorySchema>;
 export type StandardResumeCoreData = z.infer<
 	typeof StandardResumeCoreDataSchema

@@ -47,9 +47,9 @@ export const ContactInfoSchema = z
 		location: z.string(),
 		phone: z.string(),
 		email: z.string(),
-		linkedin: z.string().url().describe("LinkedIn profile URL"),
-		portfolio: z.optional(z.string().url().describe("Portfolio website URL")),
-		github: z.optional(z.string().url().describe("GitHub profile URL")),
+		linkedin: z.string().describe("LinkedIn profile URL"),
+		portfolio: z.optional(z.string().describe("Portfolio website URL")),
+		github: z.optional(z.string().describe("GitHub profile URL")),
 		imageUrl: z.optional(z.string()),
 	})
 	.partial();
@@ -81,6 +81,8 @@ export const EducationSchema = z.object({
 export const CoreSchema = z.object({
 	contactInfo: ContactInfoSchema,
 	education: EducationSchema,
+	projects: ProjectsSchema,
+	other: OtherSchema,
 });
 
 export type ContactInfo = z.infer<typeof ContactInfoSchema>;

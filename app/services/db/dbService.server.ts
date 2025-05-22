@@ -733,9 +733,11 @@ export class DbService {
 	getWorkHistory = () => {
 		const experience = this.getSetting(SETTINGS_KEYS.EXPERIENCE);
 		const projects = this.getSetting(SETTINGS_KEYS.PROJECTS);
+		const other = this.getSetting(SETTINGS_KEYS.OTHER);
 		return {
 			experience: experience?.structuredData,
 			projects: projects?.structuredData,
+			other: other?.structuredData,
 		};
 	};
 

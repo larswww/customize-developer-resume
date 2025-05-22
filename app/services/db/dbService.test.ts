@@ -260,6 +260,12 @@ describe("DbService", () => {
 							],
 						},
 					],
+					projects: {
+						projects: [],
+					},
+					other: {
+						items: [],
+					},
 				} as DefaultResumeData,
 			};
 
@@ -318,6 +324,12 @@ describe("DbService", () => {
 							],
 						},
 					],
+					projects: {
+						projects: [],
+					},
+					other: {
+						items: [],
+					},
 				} as DefaultResumeData,
 			};
 
@@ -357,6 +369,12 @@ describe("DbService", () => {
 						educations: [],
 					},
 					skills: [],
+					projects: {
+						projects: [],
+					},
+					other: {
+						items: [],
+					},
 				} as DefaultResumeData,
 			};
 
@@ -380,6 +398,12 @@ describe("DbService", () => {
 						educations: [],
 					},
 					skills: [],
+					projects: {
+						projects: [],
+					},
+					other: {
+						items: [],
+					},
 				} as DefaultResumeData,
 			};
 
