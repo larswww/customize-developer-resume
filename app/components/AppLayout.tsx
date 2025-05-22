@@ -1,4 +1,4 @@
-import { FileText, Briefcase } from "lucide-react";
+import { Briefcase, FileText } from "lucide-react";
 import { Outlet, useMatches } from "react-router";
 import { AppSidebar } from "~/components/AppSidebar";
 import { MainHeader } from "~/components/MainHeader";
@@ -44,9 +44,17 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 		"rightSection" in lastMatch.handle
 			? lastMatch.handle.rightSection
 			: undefined;
+	const leftSection =
+		lastMatch &&
+		typeof lastMatch.handle === "object" &&
+		lastMatch.handle &&
+		"leftSection" in lastMatch.handle
+			? lastMatch.handle.leftSection
+			: undefined;
 
 	const safeTitle = title ? title(lastMatch, matches) : "";
 	const safeRightSection = rightSection as React.ReactNode | undefined;
+	const safeLeftSection = leftSection as React.ReactNode | undefined;
 
 	return (
 		<SidebarProvider
@@ -59,8 +67,12 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 		>
 			<AppSidebar jobs={jobs} navLinks={navLinks} />
 			<SidebarInset>
-				{(safeTitle || safeRightSection) && (
-					<MainHeader title={safeTitle} rightSection={safeRightSection} />
+				{(safeTitle || safeRightSection || safeLeftSection) && (
+					<MainHeader
+						title={safeTitle}
+						rightSection={safeRightSection}
+						leftSection={safeLeftSection}
+					/>
 				)}
 				<Outlet />
 			</SidebarInset>

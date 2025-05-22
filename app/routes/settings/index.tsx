@@ -11,12 +11,14 @@ import {
 	useActionData,
 	useNavigation,
 } from "react-router";
+import { MainHeader } from "~/components/MainHeader";
 import {
 	SETTINGS_KEYS,
 	SETTINGS_SCHEMAS,
 	type SettingsKey,
 } from "~/config/constants";
 import dbService from "~/services/db/dbService.server";
+import text from "~/text";
 import type { Route } from "./+types/index";
 
 // Helper to map pathname to settings key
@@ -75,6 +77,41 @@ export interface SettingsOutletContext {
 	key: string;
 }
 
+function SettingsTabs() {
+	const tabs = [
+		{ to: "/settings", end: true, label: text.settings.contactInfo.legend },
+		{ to: "/settings/education", label: text.settings.education.legend },
+		{ to: "/settings/experience", label: text.settings.workHistory.legend },
+		{ to: "/settings/projects", label: text.settings.projects.legend },
+		{ to: "/settings/other", label: text.settings.other.legend },
+	];
+
+	return (
+		<nav className="flex items-center gap-2 bg-transparent p-0">
+			{tabs.map(({ to, end, label }) => (
+				<NavLink key={to} to={to} end={end} prefetch="intent">
+					{({ isActive }: { isActive: boolean }) => (
+						<h1
+							className={`relative px-4 py-2 rounded-md text-base font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600 ${
+								isActive
+									? "text-yellow-700 font-bold after:absolute after:left-2 after:right-2 after:-bottom-1 after:h-1 after:bg-yellow-600 after:rounded-full after:content-['']"
+									: "text-gray-400 font-normal opacity-70 hover:text-yellow-700 hover:opacity-100 hover:bg-gray-100"
+							}`}
+						>
+							{label}
+						</h1>
+					)}
+				</NavLink>
+			))}
+		</nav>
+	);
+}
+
+export const handle = {
+	title: () => text.settings.contactInfo.legend,
+	leftSection: <SettingsTabs />,
+};
+
 export default function SettingsLayout({ loaderData }: Route.ComponentProps) {
 	const navigation = useNavigation();
 	const lastResult = useActionData();
@@ -101,65 +138,12 @@ export default function SettingsLayout({ loaderData }: Route.ComponentProps) {
 	const context = useMemo(() => ({ form, fields, key }), [form, fields, key]);
 
 	return (
-		<div className="p-4 space-y-4">
-			<h1 className="text-2xl font-bold">Settings</h1>
-			<nav className="flex space-x-4 border-b">
-				<NavLink
-					to="/settings"
-					end
-					prefetch="intent"
-					className={({ isActive }: { isActive: boolean }) =>
-						`py-2 px-4 ${
-							isActive
-								? "border-b-2 border-blue-500 font-semibold"
-								: "text-gray-500"
-						}`
-					}
-				>
-					Contact Info
-				</NavLink>
-				<NavLink
-					to="/settings/education"
-					prefetch="intent"
-					className={({ isActive }: { isActive: boolean }) =>
-						`py-2 px-4 ${
-							isActive
-								? "border-b-2 border-blue-500 font-semibold"
-								: "text-gray-500"
-						}`
-					}
-				>
-					Education
-				</NavLink>
-				<NavLink
-					to="/settings/experience"
-					prefetch="intent"
-					className={({ isActive }: { isActive: boolean }) =>
-						`py-2 px-4 ${isActive ? "border-b-2 border-blue-500 font-semibold" : "text-gray-500"}`
-					}
-				>
-					Experience
-				</NavLink>
-				<NavLink
-					to="/settings/projects"
-					prefetch="intent"
-					className={({ isActive }: { isActive: boolean }) =>
-						`py-2 px-4 ${isActive ? "border-b-2 border-blue-500 font-semibold" : "text-gray-500"}`
-					}
-				>
-					Projects
-				</NavLink>
-				<NavLink
-					to="/settings/other"
-					prefetch="intent"
-					className={({ isActive }: { isActive: boolean }) =>
-						`py-2 px-4 ${isActive ? "border-b-2 border-blue-500 font-semibold" : "text-gray-500"}`
-					}
-				>
-					Other
-				</NavLink>
-			</nav>
-			<div className="mt-4">
+		<div className="space-y-4">
+			<MainHeader
+				title={text.settings.contactInfo.legend}
+				leftSection={<SettingsTabs />}
+			/>
+			<div className="mt-4 px-4">
 				<Outlet context={context} />
 			</div>
 		</div>

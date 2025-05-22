@@ -192,6 +192,36 @@ function JobCard({ job }: { job: Job }) {
 	);
 }
 
+function DashboardHeaderRightSection() {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const showCreateForm = searchParams.get("createJob") === "yes";
+	const toggleCreateForm = () => {
+		showCreateForm
+			? searchParams.delete("createJob")
+			: searchParams.set("createJob", "yes");
+		setSearchParams(searchParams);
+	};
+	return (
+		<div className="flex gap-2">
+			<Link to="/settings/work-history" variant="secondary" size="md">
+				Edit Work History
+			</Link>
+			<Button
+				type="button"
+				className="bg-primary text-primary-foreground hover:bg-primary/90"
+				onClick={toggleCreateForm}
+			>
+				{showCreateForm ? text.ui.cancel : text.dashboard.createJob.ctaButton}
+			</Button>
+		</div>
+	);
+}
+
+export const handle = {
+	title: () => "Resume Generator Dashboard",
+	rightSection: <DashboardHeaderRightSection />,
+};
+
 export default function Dashboard({
 	loaderData,
 	actionData,
@@ -208,23 +238,7 @@ export default function Dashboard({
 
 	return (
 		<div className="max-w-6xl mx-auto p-6">
-			<div className="flex justify-between items-center mb-8">
-				<h1 className="text-3xl font-bold">Resume Generator Dashboard</h1>
-				<div className="flex gap-2">
-					<Link to="/settings/work-history" variant="secondary" size="md">
-						Edit Work History
-					</Link>
-					<Button
-						type="button"
-						className="bg-primary text-primary-foreground hover:bg-primary/90"
-						onClick={toggleCreateForm}
-					>
-						{showCreateForm
-							? text.ui.cancel
-							: text.dashboard.createJob.ctaButton}
-					</Button>
-				</div>
-			</div>
+			{/* Header moved to MainHeader via handle.title and handle.rightSection */}
 
 			{actionData?.error && (
 				<div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 text-destructive rounded">
