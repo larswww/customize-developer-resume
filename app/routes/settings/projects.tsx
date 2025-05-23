@@ -1,9 +1,8 @@
 import { getFormProps } from "@conform-to/react";
 import { Form, useOutletContext } from "react-router";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { PlusIcon, TrashIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
-import { FormField } from "~/components/ui/FormField";
+import { FormField, FormMarkdownEditor } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
@@ -49,12 +48,8 @@ export default function SettingsProjects() {
 										className="col-span-2"
 									/>
 								</FormGrid>
-								<ClientMarkdownEditor
-									name={projectFields.description.name}
-									markdown={projectFields.description.value || ""}
-									onChange={(markdown) => {
-										projectFields.description.value = markdown;
-									}}
+								<FormMarkdownEditor
+									meta={projectFields.description}
 									editorRef={projectFields.description.editorRef}
 								/>
 

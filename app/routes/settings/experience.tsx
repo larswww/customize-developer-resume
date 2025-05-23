@@ -1,9 +1,8 @@
 import { getFormProps } from "@conform-to/react";
 import { Form, useOutletContext } from "react-router";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { PlusIcon, TrashIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
-import { FormField } from "~/components/ui/FormField";
+import { FormField, FormMarkdownEditor } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
@@ -66,12 +65,8 @@ export default function SettingsExperience() {
 													type="text"
 												/>
 
-												<ClientMarkdownEditor
-													name={roleFields.content.name}
-													markdown={roleFields.content.value || ""}
-													onChange={(markdown) => {
-														roleFields.content.value = markdown;
-													}}
+												<FormMarkdownEditor
+													meta={roleFields.content}
 													editorRef={roleFields.content.editorRef}
 												/>
 

@@ -6,6 +6,8 @@ import { expect, test } from "./fixtures/job-fixtures";
 test.describe("Resume Generation E2E Flow", () => {
 	const jobTitle = `E2E Test Job ${Date.now()}`;
 
+	test.setTimeout(20000);
+
 	test.beforeEach(async ({ page }) => {
 		await page.goto("/dashboard");
 	});

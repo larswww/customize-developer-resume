@@ -5,6 +5,6 @@ alwaysApply: true
 ---
 # IMPORTANT AI RULES
 - pnpm is using for installing packages and running the app
-- use 'pnpm playwright test  --reporter=line' to test your work, and update test cases when functionality is added
 - use 'pnpm test' to run vitest unit tests.
+- use 'pnpm test:e2e' to run playwright end to end
 - do not add comments to code

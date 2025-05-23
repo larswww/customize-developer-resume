@@ -1,18 +1,13 @@
 import { useForm } from "@conform-to/react";
-import {
-	getFormProps,
-	getInputProps,
-	getTextareaProps,
-} from "@conform-to/react";
+import { getFormProps } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { getZodConstraint } from "@conform-to/zod";
 import { useRef, useState } from "react";
 import { Form } from "react-router";
 import { z } from "zod";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { ExternalLinkIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
-import { FormField, FormTextArea } from "~/components/ui/FormField";
+import { FormField, FormMarkdownEditor } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
 import {
@@ -124,18 +119,9 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 									</div>
 
 									<div className="space-y-2">
-										<label
-											htmlFor={fields.jobDescription.name}
-											className="block text-sm font-medium text-gray-700"
-										>
-											Job Description
-										</label>
-										<ClientMarkdownEditor
-											name={fields.jobDescription.name}
-											markdown={fields.jobDescription.value || ""}
-											onChange={(markdown) => {
-												fields.jobDescription.value = markdown;
-											}}
+										<FormMarkdownEditor
+											meta={fields.jobDescription}
+											label="Job Description"
 											editorRef={editorRef}
 										/>
 									</div>

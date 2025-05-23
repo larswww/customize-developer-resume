@@ -1,3 +1,4 @@
+import { TEST_IDS } from "~/config/testIds";
 import text from "~/text";
 import { expect, test } from "./fixtures/job-fixtures";
 import { fillForm, submitForm, verifyInputValues } from "./utils";
@@ -15,9 +16,9 @@ test.describe("Global Setup", () => {
 		await fillForm(page, workExperienceData);
 
 		await page.getByRole("textbox", { name: "Title" }).fill("Test role title");
-		const workHistoryTextbox = await page.getByRole("textbox", {
-			name: "editable markdown",
-		});
+		const workHistoryTextbox = page
+			.getByTestId(TEST_IDS.markdownEditor)
+			.locator('[contenteditable="true"]');
 		await workHistoryTextbox.pressSequentially("Test Work History");
 		await page
 			.getByRole("button", { name: text.settings.workHistory.buttonText })
@@ -26,7 +27,11 @@ test.describe("Global Setup", () => {
 		await page.waitForLoadState("networkidle");
 		await page.reload();
 
-		await expect(workHistoryTextbox).toContainText("Test Work History");
+		// Re-locate the element after page reload since DOM is recreated
+		const reloadedWorkHistoryTextbox = page
+			.getByTestId(TEST_IDS.markdownEditor)
+			.locator('[contenteditable="true"]');
+		await expect(reloadedWorkHistoryTextbox).toContainText("Test Work History");
 	});
 
 	test("should update contact info", async ({ page }) => {

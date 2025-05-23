@@ -30,6 +30,7 @@ interface MarkdownEditorProps {
 // Base editor component that requires explicit isClient prop
 export function MarkdownEditor({
 	markdown,
+	name,
 	onChange,
 	editorRef,
 	isClient = true,
@@ -37,8 +38,8 @@ export function MarkdownEditor({
 }: MarkdownEditorProps) {
 	return (
 		<div
-			className="flex flex-col grow border rounded-md bg-white border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 mb-20"
 			data-testid={TEST_IDS.markdownEditor}
+			className="flex flex-col grow border rounded-md bg-white border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 mb-20"
 		>
 			{isClient ? (
 				<MDXEditor

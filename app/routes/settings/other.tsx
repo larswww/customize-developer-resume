@@ -1,8 +1,8 @@
 import { getFormProps } from "@conform-to/react";
 import { Form, useOutletContext } from "react-router";
-import { ClientMarkdownEditor } from "~/components/MarkdownEditor";
 import { PlusIcon, TrashIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
+import { FormMarkdownEditor } from "~/components/ui/FormField";
 import { Button } from "~/components/ui/button";
 import { SETTINGS_KEYS } from "~/config/constants";
 import text from "~/text";
@@ -25,14 +25,7 @@ export default function SettingsOther() {
 						>
 							<div className="flex items-start">
 								<div className="grow">
-									<ClientMarkdownEditor
-										name={item.name}
-										markdown={item.value || ""}
-										onChange={(markdown) => {
-											item.value = markdown;
-										}}
-										editorRef={item.editorRef}
-									/>
+									<FormMarkdownEditor meta={item} editorRef={item.editorRef} />
 								</div>
 								<Button
 									{...form.remove.getButtonProps({

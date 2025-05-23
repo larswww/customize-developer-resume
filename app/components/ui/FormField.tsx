@@ -1,5 +1,9 @@
 import { type FieldMetadata, useInputControl } from "@conform-to/react";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
 import { cn } from "~/utils/cn";
+import { ClientMarkdownEditor } from "../MarkdownEditor";
+import { Input } from "./input";
+import { Textarea } from "./textarea";
 
 export interface FormFieldProps
 	extends Omit<
@@ -17,6 +21,13 @@ export interface FormTextAreaProps
 	> {
 	meta: FieldMetadata<string>;
 	label?: string;
+}
+
+export interface FormMarkdownEditorProps {
+	meta: FieldMetadata<string>;
+	label?: string;
+	editorRef: React.RefObject<MDXEditorMethods | null>;
+	placeholder?: string;
 }
 
 const FormField = ({
@@ -39,7 +50,7 @@ const FormField = ({
 					{label}
 				</label>
 			)}
-			<input
+			<Input
 				id={meta.id}
 				name={meta.name}
 				type={type}
@@ -48,9 +59,6 @@ const FormField = ({
 				onFocus={control.focus}
 				onBlur={control.blur}
 				className={cn(
-					"block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-					"py-2 px-3",
-					"transition-colors duration-200",
 					hasError && "border-red-300 focus:border-red-500 focus:ring-red-500",
 					className,
 				)}
@@ -58,11 +66,19 @@ const FormField = ({
 				aria-describedby={hasError ? meta.errorId : undefined}
 				{...props}
 			/>
-			{hasError && (
-				<div id={meta.errorId} className="text-sm text-red-600">
-					{Array.isArray(meta.errors) ? meta.errors.join(", ") : meta.errors}
-				</div>
-			)}
+			<div
+				id={meta.errorId}
+				className={cn(
+					"text-xs min-h-[1.25rem]",
+					hasError ? "text-red-600" : "text-transparent",
+				)}
+			>
+				{hasError
+					? Array.isArray(meta.errors)
+						? meta.errors.join(", ")
+						: meta.errors
+					: "\u00A0"}
+			</div>
 		</div>
 	);
 };
@@ -86,7 +102,7 @@ const FormTextArea = ({
 					{label}
 				</label>
 			)}
-			<textarea
+			<Textarea
 				id={meta.id}
 				name={meta.name}
 				value={control.value ?? ""}
@@ -94,9 +110,6 @@ const FormTextArea = ({
 				onFocus={control.focus}
 				onBlur={control.blur}
 				className={cn(
-					"block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm",
-					"py-2 px-3",
-					"transition-colors duration-200",
 					hasError && "border-red-300 focus:border-red-500 focus:ring-red-500",
 					className,
 				)}
@@ -104,16 +117,70 @@ const FormTextArea = ({
 				aria-describedby={hasError ? meta.errorId : undefined}
 				{...props}
 			/>
-			{hasError && (
-				<div id={meta.errorId} className="text-sm text-red-600">
-					{Array.isArray(meta.errors) ? meta.errors.join(", ") : meta.errors}
-				</div>
+			<div
+				id={meta.errorId}
+				className={cn(
+					"text-xs min-h-[1.25rem]",
+					hasError ? "text-red-600" : "text-transparent",
+				)}
+			>
+				{hasError
+					? Array.isArray(meta.errors)
+						? meta.errors.join(", ")
+						: meta.errors
+					: "\u00A0"}
+			</div>
+		</div>
+	);
+};
+
+const FormMarkdownEditor = ({
+	meta,
+	label,
+	editorRef,
+	placeholder,
+}: FormMarkdownEditorProps) => {
+	const control = useInputControl(meta);
+	const hasError = meta.errors && meta.errors.length > 0;
+
+	return (
+		<div className="space-y-2">
+			{label && (
+				<label
+					htmlFor={meta.id}
+					className="block text-sm font-medium text-gray-700"
+				>
+					{label}
+				</label>
 			)}
+			<ClientMarkdownEditor
+				name={meta.name}
+				markdown={control.value ?? ""}
+				onChange={(markdown) => {
+					control.change(markdown);
+				}}
+				editorRef={editorRef}
+				placeholder={placeholder}
+			/>
+			<div
+				id={meta.errorId}
+				className={cn(
+					"text-xs min-h-[1.25rem]",
+					hasError ? "text-red-600" : "text-transparent",
+				)}
+			>
+				{hasError
+					? Array.isArray(meta.errors)
+						? meta.errors.join(", ")
+						: meta.errors
+					: "\u00A0"}
+			</div>
 		</div>
 	);
 };
 
 FormField.displayName = "FormField";
 FormTextArea.displayName = "FormTextArea";
+FormMarkdownEditor.displayName = "FormMarkdownEditor";
 
-export { FormField, FormTextArea };
+export { FormField, FormTextArea, FormMarkdownEditor };
