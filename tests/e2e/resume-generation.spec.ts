@@ -1,7 +1,7 @@
+import { availableTemplates } from "~/config/schemas";
 import { TEST_IDS } from "~/config/testIds";
 import text from "../../app/text";
 import { expect, test } from "./fixtures/job-fixtures";
-import { availableTemplates } from "~/config/schemas";
 
 test.describe("Resume Generation E2E Flow", () => {
 	const jobTitle = `E2E Test Job ${Date.now()}`;
@@ -38,12 +38,17 @@ test.describe("Resume Generation E2E Flow", () => {
 		});
 
 		await test.step("Generate and Verify Structured Resume Content", async () => {
-			await page
-				.getByPlaceholder(text.resume.feedbackPlaceholder)
-				.fill("This is a test feedback");
+			await page.hover(`[data-testid="${TEST_IDS.feedbackBarButton}"]`);
 			await page
 				.getByRole("button", { name: text.resume.generateButton, exact: true })
 				.click();
+			await page
+				.getByPlaceholder(text.resume.feedbackPlaceholder)
+				.fill("This is a test feedback");
+			const isMac = process.platform === "darwin";
+			await page
+				.getByPlaceholder(text.resume.feedbackPlaceholder)
+				.press(isMac ? "Meta+Enter" : "Control+Enter");
 			await expect(
 				page.getByText(text.ui.generating).first(),
 			).not.toBeVisible();
@@ -86,8 +91,8 @@ test.describe("Resume Generation E2E Flow", () => {
 		await test.step("Changing template", async () => {
 			await expect(page.url()).toContain(availableTemplates.default.id);
 			await page.getByText(availableTemplates.consultantOnePager.name).click();
-			await expect(page.url()).toContain(
-				availableTemplates.consultantOnePager.id,
+			await expect(page).toHaveURL(
+				new RegExp(availableTemplates.consultantOnePager.id),
 			);
 		});
 

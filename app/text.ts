@@ -67,7 +67,7 @@ export default {
 	resume: {
 		feedbackPlaceholder: "Enter feedback for the resume",
 		saveChanges: "Save Changes",
-		generateButton: "Re-Generate",
+		generateButton: "Assistant",
 		regenerateButton: "Regenerate",
 		editButton: "Edit Resume",
 		downloadButton: "Download as PDF",

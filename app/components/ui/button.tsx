@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -20,6 +20,8 @@ const buttonVariants = cva(
 				ghost:
 					"hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
 				link: "text-primary underline-offset-4 hover:underline",
+				action:
+					"bg-[var(--color-yellow-500)] text-[var(--color-yellow-900)] shadow-xs font-bold hover:bg-[var(--color-yellow-400)] hover:text-[var(--color-yellow-900)] focus-visible:ring-[var(--color-yellow-400)] active:bg-[var(--color-yellow-600)] dark:bg-[var(--color-yellow-400)] dark:text-[var(--color-yellow-900)] dark:hover:bg-[var(--color-yellow-300)] dark:hover:text-[var(--color-yellow-900)] border-2 border-[var(--color-yellow-700)]",
 			},
 			size: {
 				default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -27,10 +29,53 @@ const buttonVariants = cva(
 				lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
 				icon: "size-9",
 			},
+			active: {
+				true: "",
+				false: "",
+			},
 		},
+		compoundVariants: [
+			{
+				variant: "default",
+				active: true,
+				className: "bg-primary/80",
+			},
+			{
+				variant: "destructive",
+				active: true,
+				className: "bg-destructive/80",
+			},
+			{
+				variant: "outline",
+				active: true,
+				className: "border-primary bg-accent/20 text-primary",
+			},
+			{
+				variant: "secondary",
+				active: true,
+				className: "bg-secondary/70",
+			},
+			{
+				variant: "ghost",
+				active: true,
+				className: "bg-accent/30 text-accent-foreground",
+			},
+			{
+				variant: "link",
+				active: true,
+				className: "underline text-primary/80",
+			},
+			{
+				variant: "action",
+				active: true,
+				className:
+					"bg-[var(--color-yellow-400)] text-[var(--color-yellow-900)] border-[var(--color-yellow-800)]",
+			},
+		],
 		defaultVariants: {
 			variant: "default",
 			size: "default",
+			active: false,
 		},
 	},
 );
@@ -39,18 +84,26 @@ function Button({
 	className,
 	variant,
 	size,
+	isActive = false,
+	disabled = false,
 	asChild = false,
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
+		isActive?: boolean;
+		disabled?: boolean;
 	}) {
 	const Comp = asChild ? Slot : "button";
 
 	return (
 		<Comp
 			data-slot="button"
-			className={cn(buttonVariants({ variant, size, className }))}
+			className={cn(
+				buttonVariants({ variant, size, active: isActive, className }),
+			)}
+			disabled={disabled}
+			aria-pressed={typeof isActive === "boolean" ? isActive : undefined}
 			{...props}
 		/>
 	);
