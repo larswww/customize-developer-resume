@@ -91,8 +91,8 @@ test.describe("Resume Generation E2E Flow", () => {
 		await test.step("Changing template", async () => {
 			await expect(page.url()).toContain(availableTemplates.default.id);
 			await page.getByText(availableTemplates.consultantOnePager.name).click();
-			await expect(page.url()).toContain(
-				availableTemplates.consultantOnePager.id,
+			await expect(page).toHaveURL(
+				new RegExp(availableTemplates.consultantOnePager.id),
 			);
 		});
 
