@@ -1,4 +1,5 @@
 import { test as base, expect } from "@playwright/test";
+import { TEST_IDS } from "../../../app/config/testIds";
 import text from "../../../app/text";
 
 type JobFixtures = {
@@ -29,10 +30,33 @@ export const test = base.extend<JobFixtures>({
 
 			await page.locator('input[name="title"]').waitFor({ state: "visible" });
 			await page.locator('input[name="title"]').fill(title);
-			if (link) {
-				await page.locator('input[name="link"]').fill(link);
+
+			// Open the Job Details collapsible section if we need to fill link or description
+			if (link || description) {
+				await page.getByRole("button", { name: /Job Details/ }).click();
+
+				if (link) {
+					await page
+						.locator('input[name="link"]')
+						.waitFor({ state: "visible" });
+					await page.locator('input[name="link"]').fill(link);
+				}
+
+				if (description) {
+					// Job description is now a markdown editor, use the container test ID
+					const markdownEditorContainer = page
+						.getByTestId(TEST_IDS.markdownEditor)
+						.first();
+					await markdownEditorContainer.waitFor({ state: "visible" });
+
+					// Find the content editable area within the markdown editor
+					const editableArea = markdownEditorContainer.locator(
+						'[contenteditable="true"]',
+					);
+					await editableArea.waitFor({ state: "visible" });
+					await editableArea.fill(description);
+				}
 			}
-			await page.locator('textarea[name="jobDescription"]').fill(description);
 
 			await Promise.all([
 				page.waitForURL(/\/job\/(\d+)/),

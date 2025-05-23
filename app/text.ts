@@ -48,7 +48,7 @@ export default {
 	dashboard: {
 		createJob: {
 			ctaButton: "Create New Job",
-			confirmButton: "Create Job",
+			confirmButton: "Create custom Resume",
 			link: "Job Link (Optional)",
 			jobDescription: "Job Description",
 		},

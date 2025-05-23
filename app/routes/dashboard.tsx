@@ -1,5 +1,6 @@
 import { Form, redirect, useSearchParams } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
+import { CreateJobForm } from "~/components/CreateJobForm";
 import { DocumentIcon, ExternalLinkIcon, TrashIcon } from "~/components/icons";
 import { Link } from "~/components/ui/Link";
 import { Button } from "~/components/ui/button";
@@ -68,67 +69,6 @@ export async function action({ request }: ActionFunctionArgs) {
 		success: false,
 		error: "Invalid action",
 	};
-}
-
-function CreateJobForm({ onCancel }: { onCancel: () => void }) {
-	return (
-		<div className="mb-8 p-6 bg-card border rounded">
-			<h2 className="text-xl font-semibold mb-4">
-				{text.dashboard.createJob.ctaButton}
-			</h2>
-			<Form method="post">
-				<input type="hidden" name="action" value="create" />
-				<div className="mb-4">
-					<label htmlFor="title" className="block mb-2 font-medium">
-						Job Title
-					</label>
-					<input
-						type="text"
-						id="title"
-						name="title"
-						className="w-full px-3 py-2 border rounded"
-						placeholder="Enter a title for this job"
-						required
-					/>
-				</div>
-				<div className="mb-4">
-					<label htmlFor="link" className="block mb-2 font-medium">
-						Job Link (Optional)
-					</label>
-					<input
-						type="url"
-						id="link"
-						name="link"
-						className="w-full px-3 py-2 border rounded"
-						placeholder="https://example.com/job-posting"
-					/>
-				</div>
-				<div className="mb-4">
-					<label htmlFor="jobDescription" className="block mb-2 font-medium">
-						Job Description
-					</label>
-					<textarea
-						id="jobDescription"
-						name="jobDescription"
-						rows={5}
-						className="w-full px-3 py-2 border rounded"
-						placeholder="Paste the job description here"
-					/>
-				</div>
-				<div className="flex gap-2">
-					<Button
-						type="submit"
-						className="bg-primary hover:bg-primary/90 text-primary-foreground"
-					>
-						{text.dashboard.createJob.confirmButton}
-					</Button>
-					<Button type="button" variant="secondary" onClick={onCancel}>
-						Cancel
-					</Button>
-				</div>
-			</Form>
-		</div>
-	);
 }
 
 function JobCard({ job }: { job: Job }) {

@@ -15,6 +15,7 @@ import {
 	toolbarPlugin,
 } from "@mdxeditor/editor";
 import { useEffect, useState } from "react";
+import { TEST_IDS } from "~/config/testIds";
 import "@mdxeditor/editor/style.css";
 
 interface MarkdownEditorProps {
@@ -35,7 +36,10 @@ export function MarkdownEditor({
 	placeholder,
 }: MarkdownEditorProps) {
 	return (
-		<div className="flex flex-col grow border rounded-md bg-white border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 mb-20">
+		<div
+			className="flex flex-col grow border rounded-md bg-white border-gray-300 shadow-sm dark:bg-gray-900 dark:border-gray-700 mb-20"
+			data-testid={TEST_IDS.markdownEditor}
+		>
 			{isClient ? (
 				<MDXEditor
 					ref={editorRef}
@@ -98,6 +102,7 @@ export function ClientMarkdownEditor(
 				name={props.name}
 				id={props.name}
 				value={props.markdown}
+				data-testid={TEST_IDS.markdownEditorInput}
 			/>
 			<MarkdownEditor {...props} onChange={handleChange} isClient={isClient} />
 		</>

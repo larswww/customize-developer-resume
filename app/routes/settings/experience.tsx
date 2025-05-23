@@ -32,27 +32,21 @@ export default function SettingsExperience() {
 							>
 								<FormGrid columns={2}>
 									<FormField
-										name={expFields.company.name}
-										defaultValue={expFields.company.value}
+										meta={expFields.company}
 										label="Company"
-										error={expFields.company.errors}
-										errorId={expFields.company.errorId}
+										type="text"
 										className="col-span-2 sm:col-span-1"
 									/>
 									<FormField
-										name={expFields.location.name}
-										defaultValue={expFields.location.value}
+										meta={expFields.location}
 										label="Location"
-										error={expFields.location.errors}
-										errorId={expFields.location.errorId}
+										type="text"
 										className="col-span-2 sm:col-span-1"
 									/>
 									<FormField
-										name={expFields.dates.name}
-										defaultValue={expFields.dates.value}
+										meta={expFields.dates}
 										label="Dates"
-										error={expFields.dates.errors}
-										errorId={expFields.dates.errorId}
+										type="text"
 										className="col-span-2"
 									/>
 								</FormGrid>
@@ -67,11 +61,9 @@ export default function SettingsExperience() {
 												description="Title, description, achievements, responsibilities, and skills for this role"
 											>
 												<FormField
-													name={roleFields.title.name}
-													defaultValue={roleFields.title.value}
+													meta={roleFields.title}
 													placeholder="Title"
-													error={roleFields.title.errors}
-													errorId={roleFields.title.errorId}
+													type="text"
 												/>
 
 												<ClientMarkdownEditor

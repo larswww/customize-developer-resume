@@ -31,27 +31,21 @@ export default function SettingsProjects() {
 							>
 								<FormGrid columns={2}>
 									<FormField
-										name={projectFields.title.name}
-										defaultValue={projectFields.title.value}
+										meta={projectFields.title}
 										label={text.settings.projects.project.title}
-										error={projectFields.title.errors}
-										errorId={projectFields.title.errorId}
+										type="text"
 										className="col-span-2 sm:col-span-1"
 									/>
 									<FormField
-										name={projectFields.date.name}
-										defaultValue={projectFields.date.value}
+										meta={projectFields.date}
 										label={text.settings.projects.project.date}
-										error={projectFields.date.errors}
-										errorId={projectFields.date.errorId}
+										type="text"
 										className="col-span-2 sm:col-span-1"
 									/>
 									<FormField
-										name={projectFields.link.name}
-										defaultValue={projectFields.link.value}
+										meta={projectFields.link}
 										label={text.settings.projects.project.link}
-										error={projectFields.link.errors}
-										errorId={projectFields.link.errorId}
+										type="url"
 										className="col-span-2"
 									/>
 								</FormGrid>

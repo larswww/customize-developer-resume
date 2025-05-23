@@ -25,25 +25,14 @@ export default function SettingsContact() {
 					>
 						<FormGrid columns={2}>
 							<FormField
-								{...getInputProps(fields.firstName, { type: "text" })}
+								meta={fields.firstName}
 								label="First Name"
-								error={fields.firstName.errors}
-								errorId={fields.firstName.errorId}
+								type="text"
 							/>
 
-							<FormField
-								{...getInputProps(fields.lastName, { type: "text" })}
-								label="Last Name"
-								error={fields.lastName.errors}
-								errorId={fields.lastName.errorId}
-							/>
+							<FormField meta={fields.lastName} label="Last Name" type="text" />
 
-							<FormField
-								{...getInputProps(fields.title, { type: "text" })}
-								label="Title"
-								error={fields.title.errors}
-								errorId={fields.title.errorId}
-							/>
+							<FormField meta={fields.title} label="Title" type="text" />
 						</FormGrid>
 					</FieldsetSection>
 
@@ -52,25 +41,14 @@ export default function SettingsContact() {
 						description="How potential employers can reach you"
 					>
 						<FormGrid columns={2}>
-							<FormField
-								{...getInputProps(fields.email, { type: "email" })}
-								label="Email"
-								error={fields.email.errors}
-								errorId={fields.email.errorId}
-							/>
+							<FormField meta={fields.email} label="Email" type="email" />
+
+							<FormField meta={fields.phone} label="Phone" type="tel" />
 
 							<FormField
-								{...getInputProps(fields.phone, { type: "tel" })}
-								label="Phone"
-								error={fields.phone.errors}
-								errorId={fields.phone.errorId}
-							/>
-
-							<FormField
-								{...getInputProps(fields.location, { type: "text" })}
+								meta={fields.location}
 								label="Location"
-								error={fields.location.errors}
-								errorId={fields.location.errorId}
+								type="text"
 								className="sm:col-span-2"
 							/>
 						</FormGrid>
@@ -82,25 +60,18 @@ export default function SettingsContact() {
 					>
 						<FormGrid columns={1}>
 							<FormField
-								{...getInputProps(fields.linkedin, { type: "url" })}
+								meta={fields.linkedin}
 								label="LinkedIn URL"
-								error={fields.linkedin.errors}
-								errorId={fields.linkedin.errorId}
+								type="url"
 							/>
 
 							<FormField
-								{...getInputProps(fields.portfolio, { type: "url" })}
+								meta={fields.portfolio}
 								label="Portfolio URL"
-								error={fields.portfolio.errors}
-								errorId={fields.portfolio.errorId}
+								type="url"
 							/>
 
-							<FormField
-								{...getInputProps(fields.github, { type: "url" })}
-								label="GitHub URL"
-								error={fields.github.errors}
-								errorId={fields.github.errorId}
-							/>
+							<FormField meta={fields.github} label="GitHub URL" type="url" />
 						</FormGrid>
 					</FieldsetSection>
 

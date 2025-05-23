@@ -29,35 +29,23 @@ export default function SettingsEducation() {
 							>
 								<FormGrid columns={2}>
 									<FormField
-										name={eduFields.degree.name}
-										defaultValue={eduFields.degree.value}
+										meta={eduFields.degree}
 										label="Degree"
-										error={eduFields.degree.errors}
-										errorId={eduFields.degree.errorId}
+										type="text"
 									/>
 
 									<FormField
-										name={eduFields.institution.name}
-										defaultValue={eduFields.institution.value}
+										meta={eduFields.institution}
 										label="Institution"
-										error={eduFields.institution.errors}
-										errorId={eduFields.institution.errorId}
+										type="text"
 									/>
 
-									<FormField
-										name={eduFields.dates.name}
-										defaultValue={eduFields.dates.value}
-										label="Dates"
-										error={eduFields.dates.errors}
-										errorId={eduFields.dates.errorId}
-									/>
+									<FormField meta={eduFields.dates} label="Dates" type="text" />
 
 									<FormField
-										name={eduFields.location.name}
-										defaultValue={eduFields.location.value}
+										meta={eduFields.location}
 										label="Location"
-										error={eduFields.location.errors}
-										errorId={eduFields.location.errorId}
+										type="text"
 									/>
 								</FormGrid>
 								<Button
@@ -87,7 +75,6 @@ export default function SettingsEducation() {
 							name="intent"
 							value={SETTINGS_KEYS.EDUCATION}
 							type="submit"
-							variant="default"
 							className="w-full sm:w-auto"
 						>
 							{text.settings.education.buttonText}
