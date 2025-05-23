@@ -1,6 +1,6 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -27,10 +27,47 @@ const buttonVariants = cva(
 				lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
 				icon: "size-9",
 			},
+			active: {
+				true: "",
+				false: "",
+			},
 		},
+		compoundVariants: [
+			{
+				variant: "default",
+				active: true,
+				className: "bg-primary/80",
+			},
+			{
+				variant: "destructive",
+				active: true,
+				className: "bg-destructive/80",
+			},
+			{
+				variant: "outline",
+				active: true,
+				className: "border-primary bg-accent/20 text-primary",
+			},
+			{
+				variant: "secondary",
+				active: true,
+				className: "bg-secondary/70",
+			},
+			{
+				variant: "ghost",
+				active: true,
+				className: "bg-accent/30 text-accent-foreground",
+			},
+			{
+				variant: "link",
+				active: true,
+				className: "underline text-primary/80",
+			},
+		],
 		defaultVariants: {
 			variant: "default",
 			size: "default",
+			active: false,
 		},
 	},
 );
@@ -39,18 +76,26 @@ function Button({
 	className,
 	variant,
 	size,
+	isActive = false,
+	disabled = false,
 	asChild = false,
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
+		isActive?: boolean;
+		disabled?: boolean;
 	}) {
 	const Comp = asChild ? Slot : "button";
 
 	return (
 		<Comp
 			data-slot="button"
-			className={cn(buttonVariants({ variant, size, className }))}
+			className={cn(
+				buttonVariants({ variant, size, active: isActive, className }),
+			)}
+			disabled={disabled}
+			aria-pressed={typeof isActive === "boolean" ? isActive : undefined}
 			{...props}
 		/>
 	);

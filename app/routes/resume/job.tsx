@@ -12,6 +12,7 @@ import {
 import type { Route } from "./+types/job";
 
 import { CheckIcon, LoadingSpinnerIcon } from "~/components/icons";
+import { Button } from "~/components/ui/button";
 import text from "~/text";
 import type { TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
@@ -74,22 +75,22 @@ export default function JobLayout({
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
 			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto p-2 lg:p-3 bg-white relative h-[50vh] lg:h-full">
 				{/* Job Description Placeholder */}
-				<button
-					type="button"
-					className="w-full mb-3 py-2 px-2 rounded border border-blue-100 bg-blue-50 text-blue-600 font-medium hover:bg-blue-100 transition text-base"
-				>
+				<Button variant="outline" className="w-full mb-3" type="button">
 					{text.dashboard.createJob.jobDescription}
-				</button>
+				</Button>
 
 				{/* All Templates Link */}
-				<NavLink
-					to={`/job/${job.id}`}
-					className={({ isActive }) =>
-						`block w-full mb-2 py-1.5 px-2 rounded text-base font-semibold border transition
-						${isActive ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-gray-50 text-gray-700 border-transparent hover:bg-gray-100"}`
-					}
-				>
-					All Templates
+				<NavLink to={`/job/${job.id}`} viewTransition end>
+					{({ isActive }) => (
+						<Button
+							asChild
+							variant="outline"
+							isActive={isActive}
+							className="w-full mb-2 text-base font-semibold justify-start"
+						>
+							<span>All Templates</span>
+						</Button>
+					)}
 				</NavLink>
 
 				{/* Template List */}
@@ -142,24 +143,24 @@ function TemplateStatusItem({
 	jobId,
 }: { template: TemplateStatus; jobId: number }) {
 	return (
-		<NavLink
-			viewTransition
-			to={`/job/${jobId}/${template.templateId}`}
-			className={({ isActive }) =>
-				`flex items-center justify-between px-2 py-1.5 text-base border-b last:border-b-0 transition
-				${
-					isActive
-						? "bg-blue-50 text-blue-700 font-semibold border-l-2 border-l-blue-500"
-						: "bg-white text-gray-700 hover:bg-gray-50 border-l-2 border-l-transparent"
-				}`
-			}
-		>
-			<span>{template.name}</span>
-			{template.status === "completed" ? (
-				<StatusCompleted />
-			) : template.status === "pending" ? (
-				<StatusPending />
-			) : null}
+		<NavLink to={`/job/${jobId}/${template.templateId}`} viewTransition end>
+			{({ isActive }) => (
+				<Button
+					asChild
+					variant="outline"
+					isActive={isActive}
+					className="flex items-center justify-between px-2 py-1.5 text-base border-b last:border-b-0 transition"
+				>
+					<span className="flex items-center w-full">
+						<span>{template.name}</span>
+						{template.status === "completed" ? (
+							<StatusCompleted />
+						) : template.status === "pending" ? (
+							<StatusPending />
+						) : null}
+					</span>
+				</Button>
+			)}
 		</NavLink>
 	);
 }
