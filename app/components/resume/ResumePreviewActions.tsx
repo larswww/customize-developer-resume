@@ -1,5 +1,5 @@
 import { SaveIcon } from "lucide-react";
-import React, { useCallback } from "react";
+import { useCallback } from "react";
 import { DownloadIcon, PrintIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import text from "~/text";

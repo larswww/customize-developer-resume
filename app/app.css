@@ -45,6 +45,65 @@
 	--radius: 0.625rem;
 	--sidebar-bg: hsl(0, 0%, 92%);
 	--header-bg: hsl(0, 0%, 96%);
+	/* Yellow (Vivid) */
+	--color-yellow-900: hsl(15, 86%, 30%);
+	--color-yellow-800: hsl(22, 82%, 39%);
+	--color-yellow-700: hsl(29, 80%, 44%);
+	--color-yellow-600: hsl(36, 77%, 49%);
+	--color-yellow-500: hsl(42, 87%, 55%);
+	--color-yellow-400: hsl(44, 92%, 63%);
+	--color-yellow-300: hsl(48, 94%, 68%);
+	--color-yellow-200: hsl(48, 95%, 76%);
+	--color-yellow-100: hsl(48, 100%, 88%);
+	--color-yellow-50: hsl(49, 100%, 96%);
+
+	/* Light Blue (Vivid) */
+	--color-blue-900: hsl(204, 96%, 27%);
+	--color-blue-800: hsl(203, 87%, 34%);
+	--color-blue-700: hsl(202, 83%, 41%);
+	--color-blue-600: hsl(201, 79%, 46%);
+	--color-blue-500: hsl(199, 84%, 55%);
+	--color-blue-400: hsl(197, 92%, 61%);
+	--color-blue-300: hsl(196, 94%, 67%);
+	--color-blue-200: hsl(195, 97%, 75%);
+	--color-blue-100: hsl(195, 100%, 85%);
+	--color-blue-50: hsl(195, 100%, 95%);
+
+	/* Grey (Neutrals) */
+	--color-grey-900: hsl(0, 0%, 13%);
+	--color-grey-800: hsl(0, 0%, 23%);
+	--color-grey-700: hsl(0, 0%, 32%);
+	--color-grey-600: hsl(0, 0%, 38%);
+	--color-grey-500: hsl(0, 0%, 49%);
+	--color-grey-400: hsl(0, 0%, 62%);
+	--color-grey-300: hsl(0, 0%, 69%);
+	--color-grey-200: hsl(0, 0%, 81%);
+	--color-grey-100: hsl(0, 0%, 88%);
+	--color-grey-50: hsl(0, 0%, 97%);
+
+	/* Red (Vivid) */
+	--color-red-900: hsl(348, 94%, 20%);
+	--color-red-800: hsl(350, 94%, 28%);
+	--color-red-700: hsl(352, 90%, 35%);
+	--color-red-600: hsl(354, 85%, 44%);
+	--color-red-500: hsl(356, 75%, 53%);
+	--color-red-400: hsl(360, 83%, 62%);
+	--color-red-300: hsl(360, 91%, 69%);
+	--color-red-200: hsl(360, 100%, 80%);
+	--color-red-100: hsl(360, 100%, 87%);
+	--color-red-50: hsl(360, 100%, 95%);
+
+	/* Teal */
+	--color-teal-900: hsl(170, 97%, 15%);
+	--color-teal-800: hsl(168, 80%, 23%);
+	--color-teal-700: hsl(166, 72%, 28%);
+	--color-teal-600: hsl(164, 71%, 34%);
+	--color-teal-500: hsl(162, 63%, 41%);
+	--color-teal-400: hsl(160, 51%, 49%);
+	--color-teal-300: hsl(158, 58%, 62%);
+	--color-teal-200: hsl(156, 73%, 74%);
+	--color-teal-100: hsl(154, 75%, 87%);
+	--color-teal-50: hsl(152, 68%, 96%);
 }
 
 .dark {

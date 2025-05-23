@@ -382,6 +382,52 @@ const FailedIconBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 	</svg>
 );
 
+const WandSparklesBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={`lucide lucide-wand-sparkles-icon lucide-wand-sparkles ${props.className || ""}`}
+		aria-hidden="true"
+		{...props}
+	>
+		<title>Wand Sparkles</title>
+		<path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72" />
+		<path d="m14 7 3 3" />
+		<path d="M5 6v4" />
+		<path d="M19 14v4" />
+		<path d="M10 2v2" />
+		<path d="M7 8H3" />
+		<path d="M21 16h-4" />
+		<path d="M11 3H9" />
+	</svg>
+);
+
+const CloseBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={props.className}
+		aria-hidden="true"
+		{...props}
+	>
+		<title>Close</title>
+		<line x1="18" y1="6" x2="6" y2="18" />
+		<line x1="6" y1="6" x2="18" y2="18" />
+	</svg>
+);
+
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
 export const DownloadIcon = withIconSize(DownloadBase);
@@ -401,3 +447,5 @@ export const EmailIcon = withIconSize(EmailBase);
 export const GitHubIcon = withIconSize(GitHubBase);
 export const PlusIcon = withIconSize(PlusBase);
 export const FailedIcon = withIconSize(FailedIconBase);
+export const WandSparklesIcon = withIconSize(WandSparklesBase);
+export const CloseIcon = withIconSize(CloseBase);

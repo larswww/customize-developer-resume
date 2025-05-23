@@ -20,6 +20,8 @@ const buttonVariants = cva(
 				ghost:
 					"hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
 				link: "text-primary underline-offset-4 hover:underline",
+				action:
+					"bg-[var(--color-yellow-500)] text-[var(--color-yellow-900)] shadow-xs font-bold hover:bg-[var(--color-yellow-400)] hover:text-[var(--color-yellow-900)] focus-visible:ring-[var(--color-yellow-400)] active:bg-[var(--color-yellow-600)] dark:bg-[var(--color-yellow-400)] dark:text-[var(--color-yellow-900)] dark:hover:bg-[var(--color-yellow-300)] dark:hover:text-[var(--color-yellow-900)] border-2 border-[var(--color-yellow-700)]",
 			},
 			size: {
 				default: "h-9 px-4 py-2 has-[>svg]:px-3",
@@ -62,6 +64,12 @@ const buttonVariants = cva(
 				variant: "link",
 				active: true,
 				className: "underline text-primary/80",
+			},
+			{
+				variant: "action",
+				active: true,
+				className:
+					"bg-[var(--color-yellow-400)] text-[var(--color-yellow-900)] border-[var(--color-yellow-800)]",
 			},
 		],
 		defaultVariants: {
