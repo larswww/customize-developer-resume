@@ -6,6 +6,7 @@ import {
 	useOutletContext,
 } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
+import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
 import { FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { TemplatePreview } from "~/components/resume/TemplatePreview";
 import { availableTemplates } from "~/config/schemas";
@@ -170,7 +171,8 @@ export default function Templates() {
 								</div>
 								{/* Title */}
 								<div className="p-6">
-									<h3 className="text-xl font-semibold text-gray-900 text-center">
+									<h3 className="text-xl font-semibold text-gray-900 text-center flex items-center justify-center gap-2">
+										<TemplateStatusIcon status={template.status} />
 										{template.name}
 									</h3>
 								</div>

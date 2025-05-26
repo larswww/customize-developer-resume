@@ -1,3 +1,4 @@
+import { TEST_IDS } from "~/config/testIds";
 import text from "../../app/text";
 import { expect, test } from "./fixtures/job-fixtures";
 
@@ -72,18 +73,21 @@ test.describe("Dashboard Functionality", () => {
 		});
 
 		await test.step("Update job details in the sheet", async () => {
+			const sheetContent = page.getByTestId(TEST_IDS.sheetContent);
+			await expect(sheetContent).toBeVisible();
+
 			// Update the job title
-			const titleInput = page.locator('input[name="title"]');
+			const titleInput = sheetContent.locator('input[name="title"]');
 			await titleInput.fill(updatedTitle);
 
 			// Update the job description
-			const descriptionEditor = page
+			const descriptionEditor = sheetContent
 				.getByRole("textbox", { name: "editable markdown" })
 				.first();
 			await descriptionEditor.fill(updatedDescription);
 
 			// Submit the form
-			await page.getByRole("button", { name: "Update Job" }).click();
+			await sheetContent.getByRole("button", { name: "Update Job" }).click();
 
 			// TODO
 			// await expect(page.getByText("Job updated successfully")).toBeVisible();

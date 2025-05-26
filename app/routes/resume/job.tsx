@@ -14,6 +14,7 @@ import type { Route } from "./+types/job";
 import { parseWithZod } from "@conform-to/zod";
 import { useEffect, useState } from "react";
 import { JobDetailsForm, JobFormSchema } from "~/components/JobForm";
+import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
 import { CheckIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import {
@@ -227,37 +228,13 @@ function TemplateStatusItem({
 					className="flex items-center justify-between px-2 py-1.5 text-base border-b last:border-b-0 transition"
 				>
 					<span className="flex items-center w-full">
-						<span>{template.name}</span>
-						{template.status === "completed" ? (
-							<StatusCompleted />
-						) : template.status === "pending" ? (
-							<StatusPending />
-						) : null}
+						<TemplateStatusIcon status={template.status} />
+						<span className="ml-2">{template.name}</span>
 					</span>
 				</Button>
 			)}
 		</NavLink>
 	);
-}
-
-function StatusCompleted() {
-	return (
-		<span className="text-green-600 flex items-center">
-			<CheckIcon size="md" />
-		</span>
-	);
-}
-
-function StatusPending() {
-	return (
-		<span className="text-blue-600">
-			<LoadingSpinnerIcon size="md" />
-		</span>
-	);
-}
-
-function JobContent() {
-	return null;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
