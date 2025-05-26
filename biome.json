@@ -30,6 +30,7 @@
 			},
 			"style": {
 				"noVar": "info",
+				"noUnusedTemplateLiteral": "off",
 				"useConsistentArrayType": "info",
 				"useConst": "info",
 				"useDefaultParameterLast": "info",

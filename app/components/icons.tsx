@@ -1,6 +1,6 @@
 import type React from "react";
 
-type IconSize = "xs" | "sm" | "md" | "lg" | "xl";
+export type IconSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 interface IconProps {
 	size?: IconSize;
@@ -428,6 +428,168 @@ const CloseBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 	</svg>
 );
 
+const LinkBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<title>Link</title>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+			d="M10.59 13.41a2 2 0 0 1 0-2.82l3.18-3.18a2 2 0 0 1 2.82 2.82l-1.06 1.06m-4.24 4.24-1.06 1.06a2 2 0 0 1-2.82-2.82l3.18-3.18a2 2 0 0 1 2.82 2.82l-1.06 1.06"
+		/>
+	</svg>
+);
+
+const ResumeBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 48 48"
+		fill="none"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<rect
+			x="8"
+			y="6"
+			width="32"
+			height="36"
+			rx="4"
+			fill="var(--color-yellow-100)"
+		/>
+		<rect
+			x="12"
+			y="10"
+			width="24"
+			height="28"
+			rx="2"
+			fill="var(--color-blue-100)"
+		/>
+		<rect
+			x="16"
+			y="16"
+			width="16"
+			height="2.5"
+			rx="1.25"
+			fill="var(--color-blue-700)"
+		/>
+		<rect
+			x="16"
+			y="21"
+			width="10"
+			height="2"
+			rx="1"
+			fill="var(--color-blue-400)"
+		/>
+		<rect
+			x="16"
+			y="26"
+			width="14"
+			height="2"
+			rx="1"
+			fill="var(--color-blue-400)"
+		/>
+		<rect
+			x="16"
+			y="31"
+			width="8"
+			height="2"
+			rx="1"
+			fill="var(--color-blue-400)"
+		/>
+	</svg>
+);
+
+const CalendarFoldBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={`lucide lucide-calendar-fold-icon lucide-calendar-fold ${props.className || ""}`}
+		aria-hidden="true"
+	>
+		<title>Calendar Fold</title>
+		<path d="M8 2v4" />
+		<path d="M16 2v4" />
+		<path d="M21 17V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11Z" />
+		<path d="M3 10h18" />
+		<path d="M15 22v-4a2 2 0 0 1 2-2h4" />
+	</svg>
+);
+
+const LocationBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={`lucide lucide-map-pin-icon lucide-map-pin ${props.className || ""}`}
+		aria-hidden="true"
+	>
+		<title>Location</title>
+		<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" />
+		<circle cx="12" cy="10" r="3" />
+	</svg>
+);
+
+const PhoneBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={`lucide lucide-phone-icon lucide-phone ${props.className || ""}`}
+		aria-hidden="true"
+	>
+		<title>Phone</title>
+		<path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+	</svg>
+);
+
+const MinusBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<title>Remove</title>
+		<line
+			x1="4"
+			y1="12"
+			x2="20"
+			y2="12"
+			strokeWidth={2}
+			strokeLinecap="round"
+		/>
+	</svg>
+);
+
+export const ResumeIcon = withIconSize(ResumeBase);
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
 export const DownloadIcon = withIconSize(DownloadBase);
@@ -449,3 +611,9 @@ export const PlusIcon = withIconSize(PlusBase);
 export const FailedIcon = withIconSize(FailedIconBase);
 export const WandSparklesIcon = withIconSize(WandSparklesBase);
 export const CloseIcon = withIconSize(CloseBase);
+export const LinkIcon = withIconSize(LinkBase);
+
+export const CalendarFoldIcon = withIconSize(CalendarFoldBase);
+export const LocationIcon = withIconSize(LocationBase);
+export const PhoneIcon = withIconSize(PhoneBase);
+export const MinusIcon = withIconSize(MinusBase);

@@ -221,3 +221,232 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+/* MDXEditor Theming Overrides */
+.mdxeditor-theme {
+	--accentBase: var(--primary);
+	--accentBgSubtle: var(--color-blue-50);
+	--accentBg: var(--color-blue-100);
+	--accentBgHover: var(--color-blue-200);
+	--accentBgActive: var(--color-blue-300);
+	--accentLine: var(--color-blue-400);
+	--accentBorder: var(--color-blue-500);
+	--accentBorderHover: var(--color-blue-600);
+	--accentSolid: var(--color-blue-700);
+	--accentSolidHover: var(--color-blue-800);
+	--accentText: var(--color-blue-900);
+	--accentTextContrast: var(--primary-foreground);
+
+	--baseBase: var(--background);
+	--baseBgSubtle: var(--color-grey-50);
+	--baseBg: var(--color-grey-100);
+	--baseBgHover: var(--color-grey-200);
+	--baseBgActive: var(--color-grey-300);
+	--baseLine: var(--color-grey-400);
+	--baseBorder: var(--color-grey-200);
+	--baseBorderHover: var(--color-grey-300);
+	--baseSolid: var(--color-grey-700);
+	--baseSolidHover: var(--color-grey-800);
+	--baseText: var(--foreground);
+	--baseTextContrast: var(--background);
+
+	--admonitionTipBg: var(--color-teal-100);
+	--admonitionTipBorder: var(--color-teal-500);
+	--admonitionInfoBg: var(--color-blue-100);
+	--admonitionInfoBorder: var(--color-blue-500);
+	--admonitionCautionBg: var(--color-yellow-100);
+	--admonitionCautionBorder: var(--color-yellow-500);
+	--admonitionDangerBg: var(--color-red-100);
+	--admonitionDangerBorder: var(--color-red-500);
+	--admonitionNoteBg: var(--color-grey-100);
+	--admonitionNoteBorder: var(--color-grey-400);
+
+	font-family: var(--font-sans);
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+	color: var(--baseText);
+	background: var(--baseBase);
+	border-radius: var(--radius, 16px);
+	box-shadow: 0 2px 16px 0 rgba(60, 60, 67, 0.07);
+}
+
+.dark .mdxeditor-theme {
+	--accentBase: var(--primary);
+	--accentBgSubtle: var(--color-blue-900);
+	--accentBg: var(--color-blue-800);
+	--accentBgHover: var(--color-blue-700);
+	--accentBgActive: var(--color-blue-600);
+	--accentLine: var(--color-blue-500);
+	--accentBorder: var(--color-blue-400);
+	--accentBorderHover: var(--color-blue-300);
+	--accentSolid: var(--color-blue-200);
+	--accentSolidHover: var(--color-blue-100);
+	--accentText: var(--color-blue-50);
+	--accentTextContrast: var(--primary-foreground);
+
+	--baseBase: var(--background);
+	--baseBgSubtle: var(--color-grey-900);
+	--baseBg: var(--color-grey-800);
+	--baseBgHover: var(--color-grey-700);
+	--baseBgActive: var(--color-grey-600);
+	--baseLine: var(--color-grey-500);
+	--baseBorder: var(--color-grey-700);
+	--baseBorderHover: var(--color-grey-600);
+	--baseSolid: var(--color-grey-200);
+	--baseSolidHover: var(--color-grey-100);
+	--baseText: var(--foreground);
+	--baseTextContrast: var(--background);
+
+	--admonitionTipBg: var(--color-teal-900);
+	--admonitionTipBorder: var(--color-teal-500);
+	--admonitionInfoBg: var(--color-blue-900);
+	--admonitionInfoBorder: var(--color-blue-500);
+	--admonitionCautionBg: var(--color-yellow-900);
+	--admonitionCautionBorder: var(--color-yellow-500);
+	--admonitionDangerBg: var(--color-red-900);
+	--admonitionDangerBorder: var(--color-red-500);
+	--admonitionNoteBg: var(--color-grey-900);
+	--admonitionNoteBorder: var(--color-grey-700);
+
+	font-family: var(--font-sans);
+	--font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		"Liberation Mono", "Courier New", monospace;
+	color: var(--baseText);
+	background: var(--baseBase);
+	border-radius: var(--radius, 16px);
+	box-shadow: 0 2px 16px 0 rgba(60, 60, 67, 0.07);
+}
+
+.mdxeditor-theme .mdxeditor-toolbar {
+	background: var(--baseBg);
+	border-bottom: 1px solid var(--baseBorder);
+	color: var(--baseText);
+	border-radius: var(--radius, 16px) var(--radius, 16px) 0 0;
+	min-height: 48px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 0 12px;
+}
+
+.mdxeditor-theme .mdxeditor-root-contenteditable {
+	background: var(--baseBase);
+	color: var(--baseText);
+	font-family: var(--font-sans);
+	padding: 24px;
+	border-radius: 0 0 var(--radius, 16px) var(--radius, 16px);
+}
+
+.mdxeditor-theme .mdxeditor-popup-container {
+	z-index: 50;
+}
+
+/* Custom Prose Styles for MDXEditor (Tailwind v4 compatible) */
+.prose {
+	font-family: var(--font-sans);
+	color: var(--baseText, #1a202c);
+	font-size: 1rem;
+	line-height: 1.75;
+}
+.prose h1 {
+	font-size: 2.25rem;
+	font-weight: 700;
+	margin-top: 2rem;
+	margin-bottom: 1rem;
+}
+.prose h2 {
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin-top: 1.5rem;
+	margin-bottom: 1rem;
+}
+.prose h3 {
+	font-size: 1.25rem;
+	font-weight: 600;
+	margin-top: 1.25rem;
+	margin-bottom: 0.75rem;
+}
+.prose h4,
+.prose h5,
+.prose h6 {
+	font-size: 1.125rem;
+	font-weight: 600;
+	margin-top: 1rem;
+	margin-bottom: 0.5rem;
+}
+.prose p {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.prose ul {
+	list-style-type: disc;
+	margin-left: 1.5em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.prose ol {
+	list-style-type: decimal;
+	margin-left: 1.5em;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.prose li {
+	margin-top: 0.25em;
+	margin-bottom: 0.25em;
+}
+.prose a {
+	color: var(--accent, #2563eb);
+	text-decoration: underline;
+}
+.prose strong {
+	font-weight: 700;
+}
+.prose em {
+	font-style: italic;
+}
+.prose u {
+	text-decoration: underline;
+}
+.prose code {
+	font-family: var(--font-mono, monospace);
+	background: var(--baseBg, #f3f4f6);
+	padding: 0.2em 0.4em;
+	border-radius: 0.25rem;
+	font-size: 0.95em;
+}
+.prose pre {
+	font-family: var(--font-mono, monospace);
+	background: var(--baseBg, #f3f4f6);
+	padding: 1em;
+	border-radius: 0.375rem;
+	overflow-x: auto;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.prose blockquote {
+	border-left: 4px solid var(--accent, #2563eb);
+	padding-left: 1em;
+	color: var(--muted-foreground, #6b7280);
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+.prose hr {
+	border: none;
+	border-top: 1px solid var(--baseBorder, #e5e7eb);
+	margin: 2em 0;
+}
+
+.dark .prose {
+	color: var(--baseText, #f3f4f6);
+}
+.dark .prose a {
+	color: var(--accent, #93c5fd);
+}
+.dark .prose code,
+.dark .prose pre {
+	background: var(--baseBg, #1f2937);
+}
+.dark .prose blockquote {
+	color: var(--muted-foreground, #9ca3af);
+	border-left-color: var(--accent, #93c5fd);
+}

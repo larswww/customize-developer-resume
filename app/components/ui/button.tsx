@@ -1,6 +1,8 @@
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
+import { MinusIcon, PlusIcon } from "../icons";
+import { LoadingSpinnerIcon } from "../icons";
 
 import { cn } from "~/lib/utils";
 
@@ -85,14 +87,18 @@ function Button({
 	variant,
 	size,
 	isActive = false,
+	isLoading,
 	disabled = false,
 	asChild = false,
+	children,
 	...props
 }: React.ComponentProps<"button"> &
 	VariantProps<typeof buttonVariants> & {
 		asChild?: boolean;
 		isActive?: boolean;
+		isLoading?: boolean;
 		disabled?: boolean;
+		children?: React.ReactNode;
 	}) {
 	const Comp = asChild ? Slot : "button";
 
@@ -101,12 +107,39 @@ function Button({
 			data-slot="button"
 			className={cn(
 				buttonVariants({ variant, size, active: isActive, className }),
+				isLoading !== undefined ? "min-w-[120px]" : undefined,
+				"relative",
 			)}
-			disabled={disabled}
+			disabled={disabled || isLoading}
 			aria-pressed={typeof isActive === "boolean" ? isActive : undefined}
 			{...props}
-		/>
+		>
+			<span className="flex items-center justify-center gap-2 w-full">
+				{isLoading && (
+					<LoadingSpinnerIcon size={size === "icon" ? "sm" : undefined} />
+				)}
+				{children}
+			</span>
+		</Comp>
 	);
 }
+
+export const AddRemoveButton = React.forwardRef<
+	HTMLButtonElement,
+	Omit<React.ComponentProps<typeof Button>, "type"> & { type: "add" | "remove" }
+>(({ type, children, ...props }, ref) => (
+	<Button
+		ref={ref}
+		variant="outline"
+		className="justify-between text-left"
+		{...props}
+	>
+		<span className="flex items-center gap-2">
+			{type === "add" ? <PlusIcon size="sm" /> : <MinusIcon size="sm" />}
+			{children}
+		</span>
+	</Button>
+));
+AddRemoveButton.displayName = "AddRemoveButton";
 
 export { Button, buttonVariants };

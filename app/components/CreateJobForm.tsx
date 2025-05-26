@@ -7,9 +7,13 @@ import { Form } from "react-router";
 import { z } from "zod";
 import { ExternalLinkIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
-import { FormField, FormMarkdownEditor } from "~/components/ui/FormField";
+import {
+	FormField,
+	FormFieldWithLinkButton,
+	FormMarkdownEditor,
+} from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
-import { Button } from "~/components/ui/button";
+import { AddRemoveButton, Button } from "~/components/ui/button";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -74,48 +78,27 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 					<div className="space-y-4 mt-6">
 						<Collapsible open={jobDetailsOpen} onOpenChange={setJobDetailsOpen}>
 							<CollapsibleTrigger asChild>
-								<Button
-									type="button"
-									variant="outline"
+								<AddRemoveButton
+									type={jobDetailsOpen ? "remove" : "add"}
 									className="w-full justify-between text-left"
+									onClick={() => setJobDetailsOpen((open) => !open)}
 								>
-									<span className="flex items-center gap-2">
+									<span className="flex text-left gap-2">
 										<span className="font-medium">Job Details</span>
 										<span className="text-sm text-muted-foreground">
 											Do you have context from a particular job posting? Add it!
 										</span>
 									</span>
-									<span className="text-xs">{jobDetailsOpen ? "−" : "+"}</span>
-								</Button>
+								</AddRemoveButton>
 							</CollapsibleTrigger>
 							<CollapsibleContent className="mt-4">
 								<div className="p-4 border rounded-lg bg-gray-50 space-y-4">
 									<div className="flex gap-2 items-center">
-										<div className="flex-1">
-											<FormField
-												meta={fields.link}
-												type="url"
-												placeholder="Adding a link will help you find it later."
-											/>
-										</div>
-										{isLinkValid && (
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												className="px-3"
-												onClick={() =>
-													window.open(
-														fields.link.value,
-														"_blank",
-														"noopener,noreferrer",
-													)
-												}
-												title="Open link in new tab"
-											>
-												<ExternalLinkIcon className="h-4 w-4" />
-											</Button>
-										)}
+										<FormFieldWithLinkButton
+											meta={fields.link}
+											type="url"
+											placeholder="Adding a link will help you find it later."
+										/>
 									</div>
 
 									<div className="space-y-2">
@@ -123,6 +106,7 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 											meta={fields.jobDescription}
 											label="Job Description"
 											editorRef={editorRef}
+											placeholder={`Add a job description, job posting, or any other context about a particular job for which you need a resume.`}
 										/>
 									</div>
 								</div>
@@ -131,10 +115,10 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 
 						<Collapsible open={aboutYouOpen} onOpenChange={setAboutYouOpen}>
 							<CollapsibleTrigger asChild>
-								<Button
-									type="button"
-									variant="outline"
+								<AddRemoveButton
+									type={aboutYouOpen ? "remove" : "add"}
 									className="w-full justify-between text-left"
+									onClick={() => setAboutYouOpen((open) => !open)}
 								>
 									<span className="flex items-center gap-2">
 										<span className="font-medium">About You</span>
@@ -143,8 +127,7 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 											in this role? Add it!
 										</span>
 									</span>
-									<span className="text-xs">{aboutYouOpen ? "−" : "+"}</span>
-								</Button>
+								</AddRemoveButton>
 							</CollapsibleTrigger>
 							<CollapsibleContent className="mt-4">
 								<div className="p-4 border rounded-lg bg-gray-50">

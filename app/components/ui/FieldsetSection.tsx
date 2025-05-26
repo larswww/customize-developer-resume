@@ -1,7 +1,22 @@
+import { type VariantProps, cva } from "class-variance-authority";
 import { cn } from "~/utils/cn";
 import { FormSectionHeader } from "./FormSectionHeader";
 
-export interface FieldsetSectionProps {
+const fieldsetSectionVariants = cva("rounded-lg border p-6 mb-6", {
+	variants: {
+		variant: {
+			default: "border-gray-200",
+			subtle:
+				"bg-gray-50 dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 shadow-sm p-4 mb-2",
+		},
+	},
+	defaultVariants: {
+		variant: "default",
+	},
+});
+
+export interface FieldsetSectionProps
+	extends VariantProps<typeof fieldsetSectionVariants> {
 	title?: string;
 	description?: string;
 	children: React.ReactNode;
@@ -13,11 +28,10 @@ export function FieldsetSection({
 	description,
 	children,
 	className,
+	variant,
 }: FieldsetSectionProps) {
 	return (
-		<fieldset
-			className={cn("rounded-lg border border-gray-200 p-6 mb-6", className)}
-		>
+		<fieldset className={cn(fieldsetSectionVariants({ variant, className }))}>
 			<legend className="px-2">
 				<FormSectionHeader title={title} description={description} />
 			</legend>
@@ -25,3 +39,5 @@ export function FieldsetSection({
 		</fieldset>
 	);
 }
+
+export { fieldsetSectionVariants };

@@ -9,6 +9,7 @@ export default {
 		generating: "Generating...",
 		complete: "Complete",
 		failed: "Failed",
+		save: "Save",
 	},
 	settings: {
 		workHistory: {
@@ -55,6 +56,14 @@ export default {
 		viewJob: {
 			viewJobButton: "View Job",
 			resumeButton: "Resume",
+		},
+		sections: {
+			createJob: "Create a New Resume Job",
+			starred: "Starred Resumes",
+			all: "All Resumes",
+			starredEmpty: "You have no starred resumes yet.",
+			allEmpty: "You don't have any resume jobs yet.",
+			createPrompt: "Start by creating your first resume job.",
 		},
 	},
 	template: {
