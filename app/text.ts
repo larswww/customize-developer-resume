@@ -9,23 +9,20 @@ export default {
 		generating: "Generating...",
 		complete: "Complete",
 		failed: "Failed",
+		save: "Save",
 	},
 	settings: {
 		workHistory: {
 			legend: "Work Experience",
-			buttonText: "Save Work Experience",
 		},
 		contactInfo: {
 			legend: "Contact Information",
-			buttonText: "Save Contact Info",
 		},
 		education: {
 			legend: "Education",
-			buttonText: "Save Education",
 		},
 		projects: {
 			legend: "Projects",
-			buttonText: "Save Projects",
 			project: {
 				legend: "Project",
 				description: "Details about the project",
@@ -38,7 +35,6 @@ export default {
 		},
 		other: {
 			legend: "Other Information",
-			buttonText: "Save Other Information",
 		},
 		nav: {
 			contactInfo: "Contact Info",
@@ -48,13 +44,21 @@ export default {
 	dashboard: {
 		createJob: {
 			ctaButton: "Create New Job",
-			confirmButton: "Create Job",
+			confirmButton: "Create custom Resume",
 			link: "Job Link (Optional)",
 			jobDescription: "Job Description",
 		},
 		viewJob: {
 			viewJobButton: "View Job",
 			resumeButton: "Resume",
+		},
+		sections: {
+			createJob: "Create a New Resume Job",
+			starred: "Starred Resumes",
+			all: "All Resumes",
+			starredEmpty: "You have no starred resumes yet.",
+			allEmpty: "You don't have any resume jobs yet.",
+			createPrompt: "Start by creating your first resume job.",
 		},
 	},
 	template: {

@@ -26,11 +26,11 @@ interface AppSidebarProps {
 
 export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 	return (
-		<Sidebar collapsible="offcanvas" className="px-4 pb-4">
+		<Sidebar collapsible="offcanvas" className="px-1 pb-4 pt-1">
 			<SidebarHeader>
 				<NavLink to="/">
 					<div className="flex items-center h-[var(--header-height)] text-primary">
-						<span className="text-lg ">resume.com</span>
+						<span className="text-3xl underline">📄 resumé &nbsp;</span>
 					</div>
 				</NavLink>
 				<SidebarGroup>

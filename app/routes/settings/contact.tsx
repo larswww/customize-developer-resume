@@ -1,121 +1,100 @@
-import { getFormProps, getInputProps } from "@conform-to/react";
-import { Form, useOutletContext } from "react-router";
+import { useOutletContext } from "react-router";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
-import { FormField } from "~/components/ui/FormField";
+import { FormField, FormFieldWithLinkButton } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
-import { Button } from "~/components/ui/button";
-import { SETTINGS_KEYS } from "~/config/constants";
-import text from "~/text";
 import type { SettingsOutletContext } from ".";
 
 export default function SettingsContact() {
-	const { form, fields } = useOutletContext<SettingsOutletContext>();
+	const { fields } = useOutletContext<SettingsOutletContext>();
 
 	return (
-		<div className="py-4 px-4 sm:px-6 max-w-4xl mx-auto">
-			<h1 className="text-2xl font-bold mb-6">
-				{text.settings.contactInfo.legend}
-			</h1>
+		<>
+			<FieldsetSection
+				description="Your basic information that will appear at the top of your resume"
+				variant="subtle"
+			>
+				<FormGrid columns={2} className="gap-2">
+					<FormField
+						meta={fields.firstName}
+						label="First Name"
+						type="text"
+						variant="inset"
+					/>
 
-			<Form method="post" action="/settings" {...getFormProps(form)}>
-				<div className="space-y-8">
-					<FieldsetSection
-						title="Personal Information"
-						description="Your basic information that will appear at the top of your resume"
-					>
-						<FormGrid columns={2}>
-							<FormField
-								{...getInputProps(fields.firstName, { type: "text" })}
-								label="First Name"
-								error={fields.firstName.errors}
-								errorId={fields.firstName.errorId}
-							/>
+					<FormField
+						meta={fields.lastName}
+						label="Last Name"
+						type="text"
+						variant="inset"
+					/>
 
-							<FormField
-								{...getInputProps(fields.lastName, { type: "text" })}
-								label="Last Name"
-								error={fields.lastName.errors}
-								errorId={fields.lastName.errorId}
-							/>
+					<FormField
+						meta={fields.title}
+						label="Title"
+						type="text"
+						variant="inset"
+						className="sm:col-span-2"
+					/>
+				</FormGrid>
+			</FieldsetSection>
 
-							<FormField
-								{...getInputProps(fields.title, { type: "text" })}
-								label="Title"
-								error={fields.title.errors}
-								errorId={fields.title.errorId}
-							/>
-						</FormGrid>
-					</FieldsetSection>
+			<FieldsetSection
+				description="How potential employers can reach you"
+				variant="subtle"
+			>
+				<FormGrid columns={2} className="gap-2">
+					<FormField
+						meta={fields.email}
+						label="Email"
+						type="email"
+						variant="inset"
+					/>
 
-					<FieldsetSection
-						title="Contact Information"
-						description="How potential employers can reach you"
-					>
-						<FormGrid columns={2}>
-							<FormField
-								{...getInputProps(fields.email, { type: "email" })}
-								label="Email"
-								error={fields.email.errors}
-								errorId={fields.email.errorId}
-							/>
+					<FormField
+						meta={fields.phone}
+						label="Phone"
+						type="phone"
+						variant="inset"
+					/>
 
-							<FormField
-								{...getInputProps(fields.phone, { type: "tel" })}
-								label="Phone"
-								error={fields.phone.errors}
-								errorId={fields.phone.errorId}
-							/>
+					<FormField
+						meta={fields.location}
+						label="Location"
+						type="location"
+						className="sm:col-span-2"
+						variant="inset"
+					/>
+				</FormGrid>
+			</FieldsetSection>
 
-							<FormField
-								{...getInputProps(fields.location, { type: "text" })}
-								label="Location"
-								error={fields.location.errors}
-								errorId={fields.location.errorId}
-								className="sm:col-span-2"
-							/>
-						</FormGrid>
-					</FieldsetSection>
+			<FieldsetSection
+				description="Links to your online presence and work"
+				variant="subtle"
+			>
+				<FormGrid columns={1} className="gap-2">
+					<FormFieldWithLinkButton
+						meta={fields.linkedin}
+						label="LinkedIn URL"
+						type="url"
+						variant="inset"
+					/>
 
-					<FieldsetSection
-						title="Professional Profiles"
-						description="Links to your online presence and work"
-					>
-						<FormGrid columns={1}>
-							<FormField
-								{...getInputProps(fields.linkedin, { type: "url" })}
-								label="LinkedIn URL"
-								error={fields.linkedin.errors}
-								errorId={fields.linkedin.errorId}
-							/>
+					<FormFieldWithLinkButton
+						meta={fields.portfolio}
+						label="Portfolio URL"
+						type="url"
+						variant="inset"
+					/>
 
-							<FormField
-								{...getInputProps(fields.portfolio, { type: "url" })}
-								label="Portfolio URL"
-								error={fields.portfolio.errors}
-								errorId={fields.portfolio.errorId}
-							/>
-
-							<FormField
-								{...getInputProps(fields.github, { type: "url" })}
-								label="GitHub URL"
-								error={fields.github.errors}
-								errorId={fields.github.errorId}
-							/>
-						</FormGrid>
-					</FieldsetSection>
-
-					<div className="pt-4 pb-6 flex justify-end">
-						<Button
-							name="intent"
-							value={SETTINGS_KEYS.CONTACT_INFO}
-							type="submit"
-							className="w-full sm:w-auto"
-						>
-							{text.settings.contactInfo.buttonText}
-						</Button>
-					</div>
-				</div>
-			</Form>
-		</div>
+					<FormFieldWithLinkButton
+						meta={fields.github}
+						label="GitHub URL"
+						placeholder="GitHub URL"
+						type="url"
+						variant="inset"
+					/>
+				</FormGrid>
+			</FieldsetSection>
+		</>
 	);
 }

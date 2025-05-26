@@ -126,7 +126,7 @@ export async function reGenerateWithFeedback<T extends z.ZodTypeAny>(
 			{ role: "user", content: feedback },
 		],
 		response_format: zodResponseFormat(outputSchema, "feedback-resume"),
-		temperature: 0.1,
+		temperature: 0.2,
 	});
 
 	return completion.choices[0].message.parsed as T;

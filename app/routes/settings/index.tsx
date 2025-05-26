@@ -1,9 +1,11 @@
 import { useForm } from "@conform-to/react";
+import { getFormProps } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { getZodConstraint } from "@conform-to/zod";
 import { useMemo } from "react";
 import {
 	type ActionFunctionArgs,
+	Form,
 	type LoaderFunctionArgs,
 	NavLink,
 	Outlet,
@@ -12,6 +14,7 @@ import {
 	useNavigation,
 } from "react-router";
 import { MainHeader } from "~/components/MainHeader";
+import { Button } from "~/components/ui/button";
 import {
 	SETTINGS_KEYS,
 	SETTINGS_SCHEMAS,
@@ -138,14 +141,40 @@ export default function SettingsLayout({ loaderData }: Route.ComponentProps) {
 	const context = useMemo(() => ({ form, fields, key }), [form, fields, key]);
 
 	return (
-		<div className="space-y-4">
+		<div className="min-h-screen pb-1 bg-gradient-to-br from-gray-50 to-gray-200">
 			<MainHeader
 				title={text.settings.contactInfo.legend}
 				leftSection={<SettingsTabs />}
 			/>
-			<div className="mt-4 px-4">
-				<Outlet context={context} />
-			</div>
+			<Form
+				method="post"
+				action="/settings"
+				{...getFormProps(form)}
+				className="relative min-h-screen"
+				preventScrollReset
+			>
+				<div className=" mt-4 px-4">
+					<div className="w-full max-w-3xl bg-white rounded-xl shadow-lg p-6 sm:p-10 text-left">
+						<div className="py-2 px-2 sm:px-4 max-w-4xl mx-auto">
+							<div className="flex flex-col gap-4">
+								<Outlet context={context} />
+							</div>
+						</div>
+					</div>
+				</div>
+				<div className="fixed bottom-8 right-8 z-50">
+					<Button
+						isLoading={navigation.state === "submitting"}
+						name="intent"
+						value={key}
+						type="submit"
+						size="lg"
+						className="w-full sm:w-auto"
+					>
+						{text.ui.save}
+					</Button>
+				</div>
+			</Form>
 		</div>
 	);
 }

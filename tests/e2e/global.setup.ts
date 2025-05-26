@@ -1,3 +1,4 @@
+import { TEST_IDS } from "~/config/testIds";
 import text from "~/text";
 import { expect, test } from "./fixtures/job-fixtures";
 import { fillForm, submitForm, verifyInputValues } from "./utils";
@@ -15,25 +16,24 @@ test.describe("Global Setup", () => {
 		await fillForm(page, workExperienceData);
 
 		await page.getByRole("textbox", { name: "Title" }).fill("Test role title");
-		const workHistoryTextbox = await page.getByRole("textbox", {
+		const workHistoryTextbox = page.getByRole("textbox", {
 			name: "editable markdown",
 		});
 		await workHistoryTextbox.pressSequentially("Test Work History");
-		await page
-			.getByRole("button", { name: text.settings.workHistory.buttonText })
-			.click();
+		await page.getByRole("button", { name: text.ui.save }).click();
 
 		await page.waitForLoadState("networkidle");
 		await page.reload();
 
-		await expect(workHistoryTextbox).toContainText("Test Work History");
+		// Re-locate the element after page reload since DOM is recreated
+		const reloadedWorkHistoryTextbox = page.getByRole("textbox", {
+			name: "editable markdown",
+		});
+		await expect(reloadedWorkHistoryTextbox).toContainText("Test Work History");
 	});
 
 	test("should update contact info", async ({ page }) => {
 		await page.goto("/settings");
-		await expect(
-			page.locator(`legend:has-text("${text.settings.contactInfo.legend}")`),
-		).toBeVisible();
 
 		const contactData = {
 			firstName: `Test User ${Date.now()}`,
@@ -48,7 +48,7 @@ test.describe("Global Setup", () => {
 		};
 
 		await fillForm(page, contactData);
-		await submitForm(page, text.settings.contactInfo.buttonText);
+		await submitForm(page, text.ui.save);
 
 		await page.waitForLoadState("networkidle");
 		await page.reload();
@@ -58,9 +58,6 @@ test.describe("Global Setup", () => {
 
 	test("should update education info", async ({ page }) => {
 		await page.goto("/settings/education");
-		await expect(
-			page.locator(`legend:has-text("${text.settings.education.legend}")`),
-		).toBeVisible();
 
 		const educationData = {
 			"educations[0].degree": `Test Degree ${Date.now()}`,
@@ -70,7 +67,7 @@ test.describe("Global Setup", () => {
 		};
 
 		await fillForm(page, educationData);
-		await submitForm(page, text.settings.education.buttonText);
+		await submitForm(page, text.ui.save);
 
 		await page.waitForLoadState("networkidle");
 		await page.waitForTimeout(100);

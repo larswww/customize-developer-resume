@@ -318,12 +318,9 @@ function FloatingFeedbackBar({
 						disabled={isDisabled}
 						aria-label={text.resume.generateButton}
 						tabIndex={0}
+						isLoading={isBusy}
 					>
-						{isBusy ? (
-							<span className="animate-spin w-4 h-4 border-2 border-yellow-500 border-t-transparent rounded-full" />
-						) : (
-							<WandSparklesIcon size="md" />
-						)}
+						<WandSparklesIcon size="md" />
 					</Button>
 				</div>
 			</div>
