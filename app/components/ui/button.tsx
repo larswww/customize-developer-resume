@@ -130,6 +130,7 @@ export const AddRemoveButton = React.forwardRef<
 >(({ type, children, ...props }, ref) => (
 	<Button
 		ref={ref}
+		type="button"
 		variant="outline"
 		className="justify-between text-left"
 		{...props}

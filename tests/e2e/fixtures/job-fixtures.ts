@@ -18,15 +18,7 @@ export const test = base.extend<JobFixtures>({
 			description: string,
 			link?: string,
 		): Promise<string> => {
-			await page.goto("/dashboard");
-
-			await page
-				.getByRole("button", {
-					name: text.dashboard.createJob.ctaButton,
-				})
-				.click({ force: true });
-
-			await page.waitForURL(/createJob=yes/);
+			await page.goto("/dashboard?createJob=yes");
 
 			await page.locator('input[name="title"]').waitFor({ state: "visible" });
 			await page.locator('input[name="title"]').fill(title);
@@ -44,17 +36,10 @@ export const test = base.extend<JobFixtures>({
 
 				if (description) {
 					// Job description is now a markdown editor, use the container test ID
-					const markdownEditorContainer = page
-						.getByTestId(TEST_IDS.markdownEditor)
-						.first();
-					await markdownEditorContainer.waitFor({ state: "visible" });
-
-					// Find the content editable area within the markdown editor
-					const editableArea = markdownEditorContainer.locator(
-						'[contenteditable="true"]',
-					);
-					await editableArea.waitFor({ state: "visible" });
-					await editableArea.fill(description);
+					const markdownEditorContainer = page.getByRole("textbox", {
+						name: "editable markdown",
+					});
+					await markdownEditorContainer.fill(description);
 				}
 			}
 

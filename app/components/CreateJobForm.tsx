@@ -2,10 +2,9 @@ import { useForm } from "@conform-to/react";
 import { getFormProps } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { getZodConstraint } from "@conform-to/zod";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Form } from "react-router";
 import { z } from "zod";
-import { ExternalLinkIcon } from "~/components/icons";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import {
 	FormField,
@@ -13,13 +12,10 @@ import {
 	FormMarkdownEditor,
 } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
-import { AddRemoveButton, Button } from "~/components/ui/button";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+import { Button } from "~/components/ui/button";
+
 import text from "~/text";
+import CollapsibleSection from "./ui/CollapsibleSection";
 
 const CreateJobSchema = z.object({
 	title: z
@@ -35,8 +31,6 @@ interface CreateJobFormProps {
 }
 
 export function CreateJobForm({ onCancel }: CreateJobFormProps) {
-	const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
-	const [aboutYouOpen, setAboutYouOpen] = useState(false);
 	const editorRef = useRef(null);
 
 	const [form, fields] = useForm({
@@ -76,68 +70,53 @@ export function CreateJobForm({ onCancel }: CreateJobFormProps) {
 					</FormGrid>
 
 					<div className="space-y-4 mt-6">
-						<Collapsible open={jobDetailsOpen} onOpenChange={setJobDetailsOpen}>
-							<CollapsibleTrigger asChild>
-								<AddRemoveButton
-									type={jobDetailsOpen ? "remove" : "add"}
-									className="w-full justify-between text-left"
-									onClick={() => setJobDetailsOpen((open) => !open)}
-								>
-									<span className="flex text-left gap-2">
-										<span className="font-medium">Job Details</span>
-										<span className="text-sm text-muted-foreground">
-											Do you have context from a particular job posting? Add it!
-										</span>
+						<CollapsibleSection
+							buttonContent={
+								<span className="flex text-left gap-2">
+									<span className="font-medium">Job Details</span>
+									<span className="text-sm text-muted-foreground">
+										Do you have context from a particular job posting? Add it!
 									</span>
-								</AddRemoveButton>
-							</CollapsibleTrigger>
-							<CollapsibleContent className="mt-4">
-								<div className="p-4 border rounded-lg bg-gray-50 space-y-4">
-									<div className="flex gap-2 items-center">
-										<FormFieldWithLinkButton
-											meta={fields.link}
-											type="url"
-											placeholder="Adding a link will help you find it later."
-										/>
-									</div>
-
-									<div className="space-y-2">
-										<FormMarkdownEditor
-											meta={fields.jobDescription}
-											label="Job Description"
-											editorRef={editorRef}
-											placeholder={`Add a job description, job posting, or any other context about a particular job for which you need a resume.`}
-										/>
-									</div>
+								</span>
+							}
+						>
+							<div className="p-4 border rounded-lg bg-gray-50 space-y-4">
+								<div className="flex gap-2 items-center">
+									<FormFieldWithLinkButton
+										meta={fields.link}
+										type="url"
+										placeholder="Adding a link will help you find it later."
+									/>
 								</div>
-							</CollapsibleContent>
-						</Collapsible>
 
-						<Collapsible open={aboutYouOpen} onOpenChange={setAboutYouOpen}>
-							<CollapsibleTrigger asChild>
-								<AddRemoveButton
-									type={aboutYouOpen ? "remove" : "add"}
-									className="w-full justify-between text-left"
-									onClick={() => setAboutYouOpen((open) => !open)}
-								>
-									<span className="flex items-center gap-2">
-										<span className="font-medium">About You</span>
-										<span className="text-sm text-muted-foreground">
-											Do you have an existing resume or other context about you
-											in this role? Add it!
-										</span>
+								<div className="space-y-2">
+									<FormMarkdownEditor
+										meta={fields.jobDescription}
+										label="Job Description"
+										editorRef={editorRef}
+									/>
+								</div>
+							</div>
+						</CollapsibleSection>
+
+						<CollapsibleSection
+							buttonContent={
+								<span className="flex items-center gap-2">
+									<span className="font-medium">About You</span>
+									<span className="text-sm text-muted-foreground">
+										Do you have an existing resume or other context about you in
+										this role? Add it!
 									</span>
-								</AddRemoveButton>
-							</CollapsibleTrigger>
-							<CollapsibleContent className="mt-4">
-								<div className="p-4 border rounded-lg bg-gray-50">
-									<p className="text-sm text-muted-foreground">
-										Additional context options will be available here in the
-										future.
-									</p>
-								</div>
-							</CollapsibleContent>
-						</Collapsible>
+								</span>
+							}
+						>
+							<div className="p-4 border rounded-lg bg-gray-50">
+								<p className="text-sm text-muted-foreground">
+									Additional context options will be available here in the
+									future.
+								</p>
+							</div>
+						</CollapsibleSection>
 					</div>
 
 					<div className="flex gap-2 justify-end pt-6">

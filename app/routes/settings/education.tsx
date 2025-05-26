@@ -2,9 +2,7 @@ import { useOutletContext } from "react-router";
 import { FieldsetSection } from "~/components/ui/FieldsetSection";
 import { FormField } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
-import { AddRemoveButton, Button } from "~/components/ui/button";
-import { SETTINGS_KEYS } from "~/config/constants";
-import text from "~/text";
+import { AddRemoveButton } from "~/components/ui/button";
 import type { SettingsOutletContext } from ".";
 
 export default function SettingsEducation() {

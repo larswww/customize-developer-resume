@@ -138,34 +138,8 @@ function JobCard({ job }: { job: Job }) {
 	);
 }
 
-function DashboardHeaderRightSection() {
-	const [searchParams, setSearchParams] = useSearchParams();
-	const showCreateForm = searchParams.get("createJob") === "yes";
-	const toggleCreateForm = () => {
-		showCreateForm
-			? searchParams.delete("createJob")
-			: searchParams.set("createJob", "yes");
-		setSearchParams(searchParams);
-	};
-	return (
-		<div className="flex gap-2">
-			<Link to="/settings/work-history" variant="secondary" size="md">
-				Edit Work History
-			</Link>
-			<Button
-				type="button"
-				className="bg-primary text-primary-foreground hover:bg-primary/90"
-				onClick={toggleCreateForm}
-			>
-				{showCreateForm ? text.ui.cancel : text.dashboard.createJob.ctaButton}
-			</Button>
-		</div>
-	);
-}
-
 export const handle = {
 	title: () => "Resume Generator Dashboard",
-	rightSection: <DashboardHeaderRightSection />,
 };
 
 function PostItNoteBox({ children }: { children: React.ReactNode }) {
