@@ -58,6 +58,7 @@ export default function SettingsExperience() {
 										<FormMarkdownEditor
 											meta={roleFields.content}
 											editorRef={roleFields.content.editorRef}
+											hideToolbar={false}
 										/>
 										<AddRemoveButton
 											type="remove"

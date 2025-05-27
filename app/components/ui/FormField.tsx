@@ -277,6 +277,7 @@ export interface FormMarkdownEditorProps {
 	editorRef: React.RefObject<MDXEditorMethods | null>;
 	placeholder?: string;
 	variant?: "default" | "inset";
+	hideToolbar?: boolean;
 }
 
 const FormMarkdownEditor = ({
@@ -285,6 +286,7 @@ const FormMarkdownEditor = ({
 	editorRef,
 	placeholder,
 	variant: variantProp = "default",
+	hideToolbar = false,
 }: FormMarkdownEditorProps) => {
 	const control = useInputControl(meta);
 	const hasError = meta.errors && meta.errors.length > 0;
@@ -308,6 +310,7 @@ const FormMarkdownEditor = ({
 				}}
 				editorRef={editorRef}
 				placeholder={placeholder}
+				hideToolbar={hideToolbar}
 			/>
 			<FormFieldError errorId={meta.errorId} errors={meta.errors} />
 		</div>

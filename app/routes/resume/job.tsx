@@ -15,7 +15,9 @@ import { parseWithZod } from "@conform-to/zod";
 import { useEffect, useState } from "react";
 import { JobDetailsForm, JobFormSchema } from "~/components/JobForm";
 import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
+import { ChevronRightIcon, PanelRightIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
 import {
 	Sheet,
 	SheetContent,
@@ -23,6 +25,7 @@ import {
 	SheetTrigger,
 } from "~/components/ui/sheet";
 import dbService from "~/services/db/dbService.server";
+import text from "~/text";
 import type { TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
 
@@ -130,75 +133,83 @@ export default function JobLayout({
 
 	return (
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
-			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto p-2 lg:p-3 bg-white relative h-[50vh] lg:h-full">
-				{/* Job Description Placeholder */}
-				<Sheet open={openSheet} onOpenChange={setOpenSheet}>
-					<SheetTitle className="sr-only">Job Details</SheetTitle>
-					<SheetTrigger asChild>
-						<Button variant="outline" className="w-full mb-3" type="button">
-							Edit Job Details
-						</Button>
-					</SheetTrigger>
-					<SheetContent
-						side="left"
-						className="w-xl max-w-full min-w-0 p-6 bg-white rounded-r-2xl border-l shadow-2xl overflow-y-auto overflow-x-hidden"
-					>
-						<JobDetailsForm job={job} onCancel={() => setOpenSheet(false)} />
-					</SheetContent>
-				</Sheet>
-
-				{/* All Templates Link */}
-				<NavLink to={`/job/${job.id}`} viewTransition end>
-					{({ isActive }) => (
-						<Button
-							asChild
-							variant="outline"
-							isActive={isActive}
-							className="w-full mb-2 text-base font-semibold justify-start"
+			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto bg-white relative h-[50vh] lg:h-full">
+				{/* Top Action Area */}
+				<div className="flex items-center justify-between px-4 py-4 border-b bg-white">
+					<Sheet open={openSheet} onOpenChange={setOpenSheet}>
+						<SheetTitle className="sr-only">Job Details</SheetTitle>
+						<SheetTrigger asChild>
+							<Button
+								variant="outline"
+								className=" gap-2 font-medium"
+								type="button"
+							>
+								<PanelRightIcon size="sm" />
+								<span>{text.dashboard.contextButton}</span>
+							</Button>
+						</SheetTrigger>
+						<SheetContent
+							side="left"
+							className="w-xl max-w-full min-w-0 p-6 bg-white rounded-r-2xl border-l shadow-2xl overflow-y-auto overflow-x-hidden"
 						>
-							<span>All Templates</span>
-						</Button>
-					)}
-				</NavLink>
+							<JobDetailsForm job={job} onCancel={() => setOpenSheet(false)} />
+						</SheetContent>
+					</Sheet>
 
-				{/* Template List */}
-				<div>
-					{hasTemplates ? (
-						<div className="flex flex-col border rounded overflow-hidden">
-							{templateStatuses.map((template) => {
-								if (template.status === "not-started") {
-									return null;
-								}
-								return (
-									<TemplateStatusItem
-										key={template.templateId}
-										template={template}
-										jobId={job.id}
-									/>
-								);
-							})}
-						</div>
-					) : (
-						<div className="text-center text-gray-400 py-6 border rounded bg-gray-50 mt-2 text-sm">
-							No templates available yet
-						</div>
-					)}
+					<NavLink to={`/job/${job.id}`} viewTransition end>
+						{({ isActive }) => (
+							<Button
+								asChild
+								variant="ghost"
+								isActive={isActive}
+								className="flex items-center gap-2 font-medium"
+							>
+								<span>All Templates</span>
+								<ChevronRightIcon size="sm" />
+							</Button>
+						)}
+					</NavLink>
 				</div>
 
-				{/* TODO replace with sonner {actionData?.error ? (
-					<div className="mt-4 p-3 border rounded bg-red-50 text-red-700 text-sm">
-						Error: {actionData.error}
+				<div className="text-xs font-semibold text-muted-foreground my-2 p-2">
+					Created Versions
+				</div>
+				{hasTemplates ? (
+					<ul className="flex flex-col gap-1">
+						{templateStatuses.map((template) => {
+							if (template.status === "not-started") {
+								return null;
+							}
+							return (
+								<li key={template.templateId}>
+									<NavLink
+										to={`/job/${job.id}/${template.templateId}`}
+										viewTransition
+										end
+									>
+										{({ isActive }) => (
+											<Button
+												asChild
+												variant="outline"
+												isActive={isActive}
+												className={`w-full flex items-center px-3 py-2 text-base transition justify-start rounded-none border-0 border-r-0 ${isActive ? "bg-white text-primary font-bold shadow-none z-10 border-r-4 border-r-[var(--color-yellow-500)]" : "text-muted-foreground bg-transparent hover:bg-gray-50"}`}
+											>
+												<span className="flex items-center w-full">
+													<TemplateStatusIcon status={template.status} />
+													<span className="ml-2">{template.name}</span>
+												</span>
+											</Button>
+										)}
+									</NavLink>
+								</li>
+							);
+						})}
+					</ul>
+				) : (
+					<div className="text-center text-gray-400 py-6 border rounded bg-gray-50 mt-2 text-sm">
+						No templates available yet
 					</div>
-				) : null}
-
-				{actionData?.success
-					? "message" in actionData &&
-						actionData.message && (
-							<div className="mt-4 p-3 border rounded bg-green-50 text-green-700 text-sm">
-								{actionData.message}
-							</div>
-						)
-					: null} */}
+				)}
 			</div>
 
 			<div className="w-full h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
@@ -212,29 +223,6 @@ export default function JobLayout({
 				/>
 			</div>
 		</div>
-	);
-}
-
-function TemplateStatusItem({
-	template,
-	jobId,
-}: { template: TemplateStatus; jobId: number }) {
-	return (
-		<NavLink to={`/job/${jobId}/${template.templateId}`} viewTransition end>
-			{({ isActive }) => (
-				<Button
-					asChild
-					variant="outline"
-					isActive={isActive}
-					className="flex items-center justify-between px-2 py-1.5 text-base border-b last:border-b-0 transition"
-				>
-					<span className="flex items-center w-full">
-						<TemplateStatusIcon status={template.status} />
-						<span className="ml-2">{template.name}</span>
-					</span>
-				</Button>
-			)}
-		</NavLink>
 	);
 }
 

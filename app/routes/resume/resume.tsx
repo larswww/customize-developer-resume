@@ -274,7 +274,11 @@ export default function JobResume({
 						<FeedbackMessage type="info">
 							Your contact information is incomplete. Please add your details in
 							the{" "}
-							<Link to="/settings" className="underline font-medium">
+							<Link
+								to="/settings"
+								className="underline font-medium"
+								viewTransition
+							>
 								Contact Info settings
 							</Link>
 							.
@@ -285,7 +289,11 @@ export default function JobResume({
 						<FeedbackMessage type="info">
 							Your education information is incomplete. Please add your
 							education details in the{" "}
-							<Link to="/settings/education" className="underline font-medium">
+							<Link
+								to="/settings/education"
+								className="underline font-medium"
+								viewTransition
+							>
 								Education settings
 							</Link>
 							.

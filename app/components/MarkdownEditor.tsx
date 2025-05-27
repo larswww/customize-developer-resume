@@ -49,6 +49,7 @@ interface MarkdownEditorProps {
 	editorRef: React.RefObject<MDXEditorMethods | null>; // Allow null for initial ref value
 	isClient?: boolean;
 	placeholder?: string;
+	hideToolbar?: boolean;
 }
 
 type ToolbarAction =
@@ -216,9 +217,13 @@ export function ClientMarkdownEditor(
 							linkPlugin(),
 							linkDialogPlugin(),
 							thematicBreakPlugin(),
-							toolbarPlugin({
-								toolbarContents: () => <CustomToolbar />,
-							}),
+							...(props.hideToolbar
+								? []
+								: [
+										toolbarPlugin({
+											toolbarContents: () => <CustomToolbar />,
+										}),
+									]),
 						]}
 						contentEditableClassName="prose"
 						placeholder={props.placeholder}

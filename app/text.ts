@@ -70,6 +70,7 @@ export default {
 			delete: "Remove",
 			view: "Open",
 		},
+		contextButton: "Context",
 	},
 	template: {
 		title: "Choose a template",

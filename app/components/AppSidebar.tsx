@@ -26,17 +26,23 @@ interface AppSidebarProps {
 
 export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 	return (
-		<Sidebar collapsible="offcanvas" className="px-1 pb-4 pt-1">
+		<Sidebar collapsible="offcanvas" className="px-2 pb-4 pt-1">
 			<SidebarHeader>
-				<NavLink to="/">
+				<NavLink
+					to="/"
+					viewTransition
+					className="w-full pt-1 flex justify-center"
+				>
 					<div className="flex items-center h-[var(--header-height)] text-primary">
-						<span className="text-3xl underline">📄 resumé &nbsp;</span>
+						<span className="text-3xl underline">
+							&nbsp;&nbsp;&nbsp;📄 resumé &nbsp;&nbsp;&nbsp;
+						</span>
 					</div>
 				</NavLink>
 				<SidebarGroup>
 					<SidebarMenu>
 						{navLinks.map((link) => (
-							<NavLink key={link.to} to={link.to}>
+							<NavLink key={link.to} to={link.to} viewTransition>
 								{({ isActive }) => (
 									<SidebarMenuItem variant="navigation">
 										<SidebarMenuButton
@@ -75,7 +81,11 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 						) : (
 							jobs.map((job) => (
 								<SidebarMenuItem key={job.id}>
-									<NavLink className="truncate" to={`/job/${job.id}`}>
+									<NavLink
+										className="truncate"
+										to={`/job/${job.id}`}
+										viewTransition
+									>
 										{({ isActive }) => (
 											<SidebarMenuButton
 												isActive={isActive}

@@ -246,7 +246,7 @@ function JobsTable({ jobs }: { jobs: Job[] }) {
 									</a>
 								)}
 							</TableCell>
-							<TableCell>
+							<TableCell className="text-right">
 								<Form method="post">
 									<input type="hidden" name="action" value="delete" />
 									<input type="hidden" name="jobId" value={job.id} />

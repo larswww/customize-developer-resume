@@ -92,7 +92,7 @@ function SettingsTabs() {
 	return (
 		<nav className="flex items-center gap-2 bg-transparent p-0">
 			{tabs.map(({ to, end, label }) => (
-				<NavLink key={to} to={to} end={end} prefetch="intent">
+				<NavLink key={to} to={to} end={end} prefetch="intent" viewTransition>
 					{({ isActive }: { isActive: boolean }) => (
 						<h1
 							className={`relative px-4 py-2 rounded-md text-base font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-600 ${
