@@ -1,9 +1,13 @@
+import { TEST_IDS } from "~/config/testIds";
 import { CheckIcon, FailedIcon, LoadingSpinnerIcon } from "./icons";
 
 // Component for displaying compact status (icon only)
 export function StatusCompletedIcon() {
 	return (
-		<span className="text-green-600 flex items-center">
+		<span
+			className="text-green-600 flex items-center"
+			data-testid={TEST_IDS.completedIcon}
+		>
 			<CheckIcon size="md" />
 		</span>
 	);

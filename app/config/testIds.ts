@@ -5,4 +5,6 @@ export const TEST_IDS = {
 	markdownEditor: "markdown-editor",
 	markdownEditorInput: "markdown-editor-input",
 	sheetContent: "sheet-content",
+	generateButton: "generate-button",
+	completedIcon: "completed-icon",
 } as const;

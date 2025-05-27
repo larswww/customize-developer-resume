@@ -21,18 +21,13 @@ test.describe("Resume Generation E2E Flow", () => {
 		await createJob(jobTitle, jobDescription);
 
 		await test.step("Generates all resumes and redirects to default template page", async () => {
-			const buttonCount = await page
-				.getByRole("button", { name: text.content.generateButton })
-				.count();
-			for (let i = 0; i < buttonCount; i++) {
-				await page
-					.getByRole("button", { name: text.content.generateButton })
-					.first()
-					.click();
+			const buttons = await page.getByTestId(TEST_IDS.generateButton).all();
+			for (const button of buttons) {
+				await button.click();
 			}
 
 			await page
-				.getByText(`Check mark${text.ui.complete}`, { exact: true })
+				.getByTestId(TEST_IDS.completedIcon)
 				.first()
 				.waitFor({ state: "visible" });
 

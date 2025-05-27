@@ -14,6 +14,7 @@ import dbService from "~/services/db/dbService.server";
 import { queueService } from "~/services/queue/queueService.server";
 import text from "~/text";
 import type { PendingTemplate, TemplateStatus } from "./templateStatus";
+import { TEST_IDS } from "~/config/testIds";
 
 export const handle = {
 	title: () => text.template.title,
@@ -147,6 +148,7 @@ export default function Templates() {
 								type="submit"
 								disabled={isSubmitting || isGenerating}
 								className="group text-left"
+								data-testid={TEST_IDS.generateButton}
 							>
 								<div className="preview-wrapper">
 									<TemplatePreview
