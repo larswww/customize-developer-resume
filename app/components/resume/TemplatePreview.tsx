@@ -9,12 +9,20 @@ import { getSampleDataForTemplate } from "./templates/sampleData";
 
 interface TemplatePreviewProps {
 	templateId: string;
+	fixedWidth?: number;
+	data?:
+		| DefaultResumeData
+		| SimpleConsultantComponentData
+		| ConsultantOnePagerData
+		| StandardResumeData;
 	className?: string;
 }
 
 export function TemplatePreview({
 	templateId,
+	data,
 	className = "",
+	fixedWidth = 320,
 }: TemplatePreviewProps) {
 	const templateConfig = availableTemplates[templateId];
 	if (!templateConfig) {
@@ -35,7 +43,7 @@ export function TemplatePreview({
 			| StandardResumeData;
 	}>;
 
-	const sampleData = getSampleDataForTemplate(templateId);
+	const previewData = data ?? getSampleDataForTemplate(templateId);
 	const isLandscape = templateConfig.orientation === "landscape";
 	const pageWidthMM = isLandscape ? 297 : 210;
 	const pageHeightMM = isLandscape ? 210 : 297;
@@ -44,7 +52,6 @@ export function TemplatePreview({
 	const pageWidthPx = pageWidthMM * MM_TO_PX;
 	const pageHeightPx = pageHeightMM * MM_TO_PX;
 
-	const fixedWidth = 320;
 	const scale = fixedWidth / pageWidthPx;
 
 	return (
@@ -64,7 +71,7 @@ export function TemplatePreview({
 					pointerEvents: "none",
 				}}
 			>
-				<TemplateComponent data={sampleData} />
+				<TemplateComponent data={previewData} />
 			</div>
 		</div>
 	);

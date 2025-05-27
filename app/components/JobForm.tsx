@@ -81,18 +81,20 @@ function JobForm(props: JobFormProps) {
 	if (isCreateMode) {
 		return (
 			<div className="mb-8">
-				<Form method="post" action={formAction} {...getFormProps(form)}>
+				<Form
+					method="post"
+					action={formAction}
+					{...getFormProps(form)}
+					className="text-left"
+				>
 					<input type="hidden" name="action" value={actionValue} />
 
-					<FieldsetSection title={title} description="">
-						<FormGrid columns={1}>
-							<FormField
-								meta={fields.title}
-								label="Job Title"
-								type="text"
-								placeholder="What title or role do you need a resume for?"
-							/>
-						</FormGrid>
+					<FieldsetSection title="" description="context">
+						<FormField
+							meta={fields.title}
+							type="text"
+							placeholder="What title or role do you need a resume for?"
+						/>
 
 						<div className="space-y-4 mt-6">
 							<CollapsibleSection

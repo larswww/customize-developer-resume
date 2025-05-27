@@ -4,20 +4,35 @@ import {
 	useActionData,
 	useNavigation,
 	useOutletContext,
+	useParams,
 } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
 import { FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { TemplatePreview } from "~/components/resume/TemplatePreview";
+import { Button } from "~/components/ui/button";
 import { availableTemplates } from "~/config/schemas";
+import { TEST_IDS } from "~/config/testIds";
 import dbService from "~/services/db/dbService.server";
 import { queueService } from "~/services/queue/queueService.server";
 import text from "~/text";
 import type { TemplateStatus } from "./templateStatus";
-import { TEST_IDS } from "~/config/testIds";
 
+function RightSection() {
+	const { jobId } = useParams();
+	return (
+		<Form method="post" action="/dashboard" style={{ marginLeft: 8 }}>
+			<input type="hidden" name="action" value="delete" />
+			<input type="hidden" name="jobId" value={jobId} />
+			<Button variant="ghost" size="sm" type="submit">
+				{text.ui.delete}
+			</Button>
+		</Form>
+	);
+}
 export const handle = {
 	title: () => text.template.title,
+	rightSection: <RightSection />,
 };
 
 interface TemplatesOutletContext {
