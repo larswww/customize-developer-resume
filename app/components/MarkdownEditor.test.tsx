@@ -117,7 +117,12 @@ describe("FormMarkdownEditor", () => {
 		const root = createRoot(container);
 
 		root.render(
-			<FormMarkdownEditor meta={mockMeta} label="Content" editorRef={ref} />,
+			<FormMarkdownEditor
+				meta={mockMeta}
+				label="Content"
+				editorRef={ref}
+				hideToolbar={false}
+			/>,
 		);
 
 		await new Promise((r) => setTimeout(r, 100));
@@ -134,7 +139,13 @@ describe("FormMarkdownEditor", () => {
 		const ref = { current: null };
 		const root = createRoot(container);
 
-		root.render(<FormMarkdownEditor meta={mockMeta} editorRef={ref} />);
+		root.render(
+			<FormMarkdownEditor
+				meta={mockMeta}
+				editorRef={ref}
+				hideToolbar={false}
+			/>,
+		);
 
 		await new Promise((r) => setTimeout(r, 100));
 
@@ -158,6 +169,7 @@ describe("FormMarkdownEditor", () => {
 				meta={metaWithErrors}
 				label="Content"
 				editorRef={ref}
+				hideToolbar={false}
 			/>,
 		);
 
@@ -184,6 +196,7 @@ describe("FormMarkdownEditor", () => {
 				meta={metaWithMultipleErrors}
 				label="Content"
 				editorRef={ref}
+				hideToolbar={false}
 			/>,
 		);
 
@@ -206,6 +219,7 @@ describe("FormMarkdownEditor", () => {
 				meta={mockMeta}
 				editorRef={ref}
 				placeholder={TEST_PLACEHOLDER}
+				hideToolbar={false}
 			/>,
 		);
 
@@ -233,7 +247,13 @@ describe("FormMarkdownEditor", () => {
 		const ref = { current: null };
 		const root = createRoot(container);
 
-		root.render(<FormMarkdownEditor meta={mockMeta} editorRef={ref} />);
+		root.render(
+			<FormMarkdownEditor
+				meta={mockMeta}
+				editorRef={ref}
+				hideToolbar={false}
+			/>,
+		);
 
 		await new Promise((r) => setTimeout(r, 100));
 

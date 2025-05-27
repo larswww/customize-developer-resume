@@ -60,7 +60,9 @@ test.describe("Dashboard Functionality", () => {
 			await page.goto(`/job/${jobId}`);
 
 			// Click the "Edit Job Details" button to open the sheet
-			await page.getByRole("button", { name: "Edit Job Details" }).click();
+			await page
+				.getByRole("button", { name: text.dashboard.contextButton })
+				.click();
 
 			// Verify the sheet is open by checking for the form title
 			await expect(

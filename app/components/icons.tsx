@@ -589,6 +589,64 @@ const MinusBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 	</svg>
 );
 
+const ChevronRightBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<title>Chevron Right</title>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+			d="M9 5l7 7-7 7"
+		/>
+	</svg>
+);
+
+const ChevronLeftBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none"
+		viewBox="0 0 24 24"
+		stroke="currentColor"
+		className={props.className}
+		aria-hidden="true"
+	>
+		<title>Chevron Left</title>
+		<path
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			strokeWidth={2}
+			d="M15 19l-7-7 7-7"
+		/>
+	</svg>
+);
+
+const PanelRightBase: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		className={`lucide lucide-panel-right-icon lucide-panel-right ${props.className || ""}`}
+		aria-hidden="true"
+		{...props}
+	>
+		<rect width="18" height="18" x="3" y="3" rx="2" />
+		<path d="M15 3v18" />
+	</svg>
+);
+
 export const ResumeIcon = withIconSize(ResumeBase);
 export const LoadingSpinnerIcon = withIconSize(LoadingSpinnerBase);
 export const PrintIcon = withIconSize(PrintBase);
@@ -617,3 +675,8 @@ export const CalendarFoldIcon = withIconSize(CalendarFoldBase);
 export const LocationIcon = withIconSize(LocationBase);
 export const PhoneIcon = withIconSize(PhoneBase);
 export const MinusIcon = withIconSize(MinusBase);
+
+export const ChevronRightIcon = withIconSize(ChevronRightBase);
+export const ChevronLeftIcon = withIconSize(ChevronLeftBase);
+
+export const PanelRightIcon = withIconSize(PanelRightBase);

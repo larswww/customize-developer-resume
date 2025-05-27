@@ -60,7 +60,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
 		<SidebarProvider
 			style={
 				{
-					"--sidebar-width": "calc(var(--spacing) * 42)",
+					"--sidebar-width": "calc(var(--spacing) * 52)",
 					"--header-height": "calc(var(--spacing) * 12)",
 				} as React.CSSProperties
 			}

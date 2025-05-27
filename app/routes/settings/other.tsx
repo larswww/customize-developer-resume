@@ -16,7 +16,11 @@ export default function SettingsOther() {
 					description="Additional information you'd like to include on your resume"
 					variant="subtle"
 				>
-					<FormMarkdownEditor meta={item} editorRef={item.editorRef} />
+					<FormMarkdownEditor
+						meta={item}
+						editorRef={item.editorRef}
+						hideToolbar={false}
+					/>
 					<AddRemoveButton
 						type="remove"
 						{...form.remove.getButtonProps({

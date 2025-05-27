@@ -16,6 +16,7 @@ export default function Index() {
 				and generate content effortlessly.
 			</p>
 			<Link
+				viewTransition
 				to="/dashboard"
 				variant="primary"
 				size="lg"

@@ -43,6 +43,7 @@ export default function SettingsProjects() {
 						<FormMarkdownEditor
 							meta={projectFields.description}
 							editorRef={projectFields.description.editorRef}
+							hideToolbar={false}
 						/>
 						<AddRemoveButton
 							type="remove"
