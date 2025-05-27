@@ -35,7 +35,7 @@ export function AppSidebar({ jobs, navLinks }: AppSidebarProps) {
 				>
 					<div className="flex items-center h-[var(--header-height)] text-primary">
 						<span className="text-3xl underline">
-							&nbsp;&nbsp;&nbsp;📄 resumé &nbsp;&nbsp;&nbsp;
+							&nbsp;&nbsp;&nbsp;📄 résumé &nbsp;&nbsp;&nbsp;
 						</span>
 					</div>
 				</NavLink>

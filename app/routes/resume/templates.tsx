@@ -115,7 +115,7 @@ export default function Templates() {
 	const isSubmitting = navigation.state === "submitting";
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-gray-50 flex flex-col min-h-0">
 			{/* Header Section */}
 			<div className="bg-white border-b border-gray-200">
 				<div className="max-w-7xl mx-auto px-6 py-8">
@@ -134,62 +134,64 @@ export default function Templates() {
 			</div>
 
 			{/* Templates Grid */}
-			<div className="preview-grid py-6">
-				{templateStatuses.map((template) => {
-					const wasJustSubmitted =
-						actionData?.success &&
-						actionData.templateId === template.templateId;
-					const isGenerating =
-						template.status === "pending" ||
-						(wasJustSubmitted && !!actionData.completionPromise);
+			<div className="flex-1 min-h-0">
+				<div className="preview-grid py-6 h-full flex-1 overflow-y-auto">
+					{templateStatuses.map((template) => {
+						const wasJustSubmitted =
+							actionData?.success &&
+							actionData.templateId === template.templateId;
+						const isGenerating =
+							template.status === "pending" ||
+							(wasJustSubmitted && !!actionData.completionPromise);
 
-					return (
-						<Form key={template.templateId} method="post">
-							<input type="hidden" name="jobId" value={job.id} />
-							<input
-								type="hidden"
-								name="templateId"
-								value={template.templateId}
-							/>
+						return (
+							<Form key={template.templateId} method="post">
+								<input type="hidden" name="jobId" value={job.id} />
+								<input
+									type="hidden"
+									name="templateId"
+									value={template.templateId}
+								/>
 
-							<button
-								type="submit"
-								disabled={isSubmitting || isGenerating}
-								className="group text-left"
-								data-testid={TEST_IDS.generateButton}
-							>
-								<div className="preview-wrapper">
-									<TemplatePreview
-										templateId={template.templateId}
-										className="mx-auto"
-									/>
-									{/* Loading overlay */}
-									<div
-										className={`pointer-events-none absolute inset-0 bg-transparent flex items-center justify-center ${isGenerating ? "bg-white/80" : "bg-transparent"}`}
-									>
-										{isGenerating && (
-											<div className="flex items-center space-x-2 text-blue-600">
-												<LoadingSpinnerIcon size="md" />
-												<span className="font-medium">
-													{text.ui.generating}
-												</span>
-											</div>
-										)}
+								<button
+									type="submit"
+									disabled={isSubmitting || isGenerating}
+									className="group text-left"
+									data-testid={TEST_IDS.generateButton}
+								>
+									<div className="preview-wrapper">
+										<TemplatePreview
+											templateId={template.templateId}
+											className="mx-auto"
+										/>
+										{/* Loading overlay */}
+										<div
+											className={`pointer-events-none absolute inset-0 bg-transparent flex items-center justify-center ${isGenerating ? "bg-white/80" : "bg-transparent"}`}
+										>
+											{isGenerating && (
+												<div className="flex items-center space-x-2 text-blue-600">
+													<LoadingSpinnerIcon size="md" />
+													<span className="font-medium">
+														{text.ui.generating}
+													</span>
+												</div>
+											)}
+										</div>
+										{/* Hover overlay */}
+										<div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 									</div>
-									{/* Hover overlay */}
-									<div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
-								</div>
-								{/* Title */}
-								<div className="p-6">
-									<h3 className="text-xl font-semibold text-gray-900 text-center flex items-center justify-center gap-2">
-										<TemplateStatusIcon status={template.status} />
-										{template.name}
-									</h3>
-								</div>
-							</button>
-						</Form>
-					);
-				})}
+									{/* Title */}
+									<div className="p-6">
+										<h3 className="text-xl font-semibold text-gray-900 text-center flex items-center justify-center gap-2">
+											<TemplateStatusIcon status={template.status} />
+											{template.name}
+										</h3>
+									</div>
+								</button>
+							</Form>
+						);
+					})}
+				</div>
 			</div>
 
 			{/* Error Message */}

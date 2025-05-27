@@ -5,6 +5,7 @@ import type { ConsultantOnePagerCoreData } from "./consultantOnePager";
 import type { DefaultResumeCoreData } from "./default";
 import type { SimpleConsultantCoreData } from "./simple";
 import type { StandardResumeCoreData } from "./standardResume";
+import type { MarkdownData } from "./markdown";
 
 export const ExperienceSchema = z.object({
 	experience: z.array(
@@ -106,7 +107,8 @@ export type ResumeCoreData =
 	| DefaultResumeCoreData
 	| SimpleConsultantCoreData
 	| ConsultantOnePagerCoreData
-	| StandardResumeCoreData;
+	| StandardResumeCoreData
+	| MarkdownData;
 
 export interface ResumeTemplateConfig {
 	id: string;

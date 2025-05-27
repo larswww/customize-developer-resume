@@ -1,5 +1,4 @@
 import { Worker } from "bullmq";
-
 import { availableTemplates } from "~/config/schemas";
 import { workflows } from "~/config/workflows";
 import type { WorkflowStep } from "~/services/ai/types";
@@ -62,10 +61,12 @@ const resumeWorker = new Worker(
 				throw new Error(`Workflow ${workflowId} not found`);
 			}
 
-			const { jobDescription } = jobData;
+			const { jobDescription, title, relevantDescription } = jobData;
 			const templateDescription = templateConfig.description;
 
 			const workflowResult = await executeWorkflow(
+				title,
+				relevantDescription || "",
 				jobDescription,
 				jobId,
 				workflowId,

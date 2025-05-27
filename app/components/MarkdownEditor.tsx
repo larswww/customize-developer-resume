@@ -1,9 +1,6 @@
 import type { MDXEditorMethods } from "@mdxeditor/editor";
 import {
-	BlockTypeSelect,
-	BoldItalicUnderlineToggles,
 	CreateLink,
-	ListsToggle,
 	MDXEditor,
 	Separator,
 	headingsPlugin,
@@ -14,9 +11,8 @@ import {
 	thematicBreakPlugin,
 	toolbarPlugin,
 } from "@mdxeditor/editor";
-import { useEffect, useState } from "react";
-import { TEST_IDS } from "~/config/testIds";
-import "@mdxeditor/editor/style.css";
+import { useEffect } from "react";
+// import "@mdxeditor/editor/style.css";
 import {
 	Button,
 	applyBlockType$,

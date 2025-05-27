@@ -321,12 +321,15 @@
 	background: var(--baseBg);
 	border-bottom: 1px solid var(--baseBorder);
 	color: var(--baseText);
-	border-radius: var(--radius, 16px) var(--radius, 16px) 0 0;
+	border-radius: 0;
 	min-height: 48px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 	padding: 0 12px;
+	position: sticky;
+	top: 0;
+	z-index: 10;
 }
 
 .mdxeditor-theme .mdxeditor-root-contenteditable {
@@ -334,7 +337,7 @@
 	color: var(--baseText);
 	font-family: var(--font-sans);
 	padding: 24px;
-	border-radius: 0 0 var(--radius, 16px) var(--radius, 16px);
+	border-radius: 0;
 }
 
 .mdxeditor-theme .mdxeditor-popup-container {
