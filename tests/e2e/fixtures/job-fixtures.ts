@@ -20,8 +20,12 @@ export const test = base.extend<JobFixtures>({
 		): Promise<string> => {
 			await page.goto("/dashboard?createJob=yes");
 
-			await page.locator('input[name="title"]').waitFor({ state: "visible" });
-			await page.locator('input[name="title"]').fill(title);
+			await page
+				.getByRole("textbox", { name: text.dashboard.createJob.jobTitle })
+				.waitFor({ state: "visible" });
+			await page
+				.getByRole("textbox", { name: text.dashboard.createJob.jobTitle })
+				.fill(title);
 
 			// Open the Job Details collapsible section if we need to fill link or description
 			if (link || description) {
@@ -68,21 +72,17 @@ export const test = base.extend<JobFixtures>({
 		const deleteJobFn = async (title: string): Promise<void> => {
 			await page.goto("/dashboard");
 
-			const jobCard = page.locator("div.border.rounded-lg").filter({
-				has: page.getByRole("heading", { name: title, level: 3 }),
+			const jobRow = page.getByRole("row").filter({
+				has: page.getByText(title),
 			});
 
-			await expect(jobCard).toBeVisible();
+			await expect(jobRow).toBeVisible();
 
-			// Handle the confirmation dialog
-			page.on("dialog", (dialog) => dialog.accept());
+			await jobRow
+				.getByRole("button", { name: text.dashboard.jobsTable.delete })
+				.click();
 
-			await jobCard.getByRole("button", { name: text.ui.delete }).click();
-
-			// Verify the job card is removed
-			await expect(
-				page.getByRole("heading", { name: title, level: 3 }),
-			).not.toBeVisible();
+			await expect(jobRow).not.toBeVisible();
 		};
 
 		await use(deleteJobFn);

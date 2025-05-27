@@ -1,5 +1,4 @@
 import { parseWithZod } from "@conform-to/zod";
-import pickBy from "lodash/pickBy";
 import { useRef } from "react";
 import React from "react";
 import {
@@ -22,7 +21,12 @@ import { ResumePreview } from "~/components/resume/ResumePreview";
 import { ResumePreviewActions } from "~/components/resume/ResumePreviewActions";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
-import { extractRouteParams } from "~/routes/resume/utils";
+import {
+	combineResumeData,
+	extractRouteParams,
+	getSharedObjects,
+	updateEmptySettings,
+} from "~/routes/resume/utils";
 import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataService";
 import text from "~/text";
 import { availableTemplates } from "../../config/schemas";
@@ -42,93 +46,14 @@ export const handle = {
 export async function loader(args: LoaderFunctionArgs) {
 	const { jobId, selectedTemplateId } = extractRouteParams(args);
 	const savedResume = dbService.getResume(jobId, selectedTemplateId);
-	const {
-		education,
-		contactInfo,
-		hasEmptyContactInfo,
-		hasEducation,
-		other,
-		projects,
-	} = getSharedObjects();
+	const shared = getSharedObjects();
+	const resumeData = combineResumeData(savedResume, shared);
 	const hasResume = savedResume !== null && savedResume.structuredData !== null;
-
-	const resumeData = {
-		hasEmptyContactInfo,
-		hasEducation,
-		...savedResume?.structuredData,
-		contactInfo: {
-			...contactInfo,
-			...savedResume?.structuredData?.contactInfo,
-		},
-		education: {
-			...education,
-			...savedResume?.structuredData?.education,
-		},
-		other: {
-			...other,
-			...savedResume?.structuredData?.other,
-		},
-		projects: {
-			...projects,
-			...savedResume?.structuredData?.projects,
-		},
-	};
 
 	return {
 		resumeData,
 		hasResume,
 	};
-}
-
-function updateEmptySettings(payload: any) {
-	const { education, contactInfo } = getSharedObjects();
-	const predicate = (v: any) => v != null && v !== "";
-	const filteredContactInfo = pickBy(payload.contactInfo, predicate);
-	const filteredExistingContactInfo = pickBy(contactInfo, predicate);
-
-	const updatedContacts = {
-		...filteredContactInfo,
-		...filteredExistingContactInfo,
-	};
-
-	const filteredExistingEducations = education.educations.map((edu) =>
-		pickBy(edu, predicate),
-	);
-
-	const filteredNewEducations = (payload.education?.educations || []).map(
-		(edu: any) => pickBy(edu, predicate),
-	);
-
-	// Merge each education object by index, only filling empty fields
-	const mergedEducations = filteredExistingEducations.map((edu, idx) => ({
-		...edu,
-		...filteredNewEducations[idx],
-	}));
-
-	const updatedEducation = {
-		...education,
-		educations: mergedEducations,
-	};
-
-	if (Object.keys(filteredContactInfo).length > 0) {
-		dbService.saveSetting({
-			key: "contactInfo",
-			structuredData: updatedContacts,
-			value: null,
-		});
-	}
-
-	const hasNonEmptyEducation = filteredNewEducations.some(
-		(edu: any) => Object.keys(edu).length > 0,
-	);
-
-	if (hasNonEmptyEducation) {
-		dbService.saveSetting({
-			key: "education",
-			structuredData: updatedEducation,
-			value: null,
-		});
-	}
 }
 
 export async function action(args: ActionFunctionArgs) {
@@ -188,28 +113,6 @@ export async function action(args: ActionFunctionArgs) {
 			message: "Fill out missing fields marked in red.",
 		};
 	}
-}
-
-function getSharedObjects() {
-	const education = dbService.getEducation();
-	const contactInfo = dbService.getContactInfo();
-	const other = dbService.getSetting("other");
-	const projects = dbService.getSetting("projects");
-
-	const hasEmptyContactInfo = Object.values(contactInfo).some(
-		(value) => !value,
-	);
-
-	const hasEducation = education?.educations?.length;
-
-	return {
-		education,
-		contactInfo,
-		hasEmptyContactInfo,
-		hasEducation,
-		other: other?.structuredData,
-		projects: projects?.structuredData,
-	};
 }
 
 type FloatingFeedbackBarProps = {

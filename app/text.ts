@@ -43,22 +43,32 @@ export default {
 	},
 	dashboard: {
 		createJob: {
-			ctaButton: "Create New Job",
+			ctaButton: "Start Making",
 			confirmButton: "Create custom Resume",
 			link: "Job Link (Optional)",
 			jobDescription: "Job Description",
+			jobTitle: "Job Title",
 		},
 		viewJob: {
 			viewJobButton: "View Job",
 			resumeButton: "Resume",
 		},
 		sections: {
-			createJob: "Create a New Resume Job",
-			starred: "Starred Resumes",
-			all: "All Resumes",
-			starredEmpty: "You have no starred resumes yet.",
+			createJob: "Create a new resumé",
+			starred: "Most Recent Resumes",
+			all: "All Jobs",
+			starredEmpty: "You have no recent resumes yet.",
 			allEmpty: "You don't have any resume jobs yet.",
-			createPrompt: "Start by creating your first resume job.",
+			createPrompt:
+				"Customize for different jobs, employers or any other context.",
+		},
+		jobsTable: {
+			title: "Title",
+			created: "Created",
+			updated: "Updated",
+			link: "Link",
+			delete: "Remove",
+			view: "Open",
 		},
 	},
 	template: {

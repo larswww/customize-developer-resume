@@ -15,7 +15,6 @@ import { parseWithZod } from "@conform-to/zod";
 import { useEffect, useState } from "react";
 import { JobDetailsForm, JobFormSchema } from "~/components/JobForm";
 import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
-import { CheckIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
 import {
 	Sheet,
@@ -24,7 +23,6 @@ import {
 	SheetTrigger,
 } from "~/components/ui/sheet";
 import dbService from "~/services/db/dbService.server";
-import text from "~/text";
 import type { TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
 

@@ -267,3 +267,114 @@ export const getResumeText = (
 
 	return combinedSourceText;
 };
+
+export function getSharedObjects() {
+	const education = dbService.getEducation();
+	const contactInfo = dbService.getContactInfo();
+	const other = dbService.getSetting("other");
+	const projects = dbService.getSetting("projects");
+
+	const hasEmptyContactInfo = Object.values(contactInfo).some(
+		(value) => !value,
+	);
+
+	const hasEducation = education?.educations?.length;
+
+	return {
+		education,
+		contactInfo,
+		hasEmptyContactInfo,
+		hasEducation,
+		other: other?.structuredData,
+		projects: projects?.structuredData,
+	};
+}
+
+import pickBy from "lodash/pickBy";
+
+export function updateEmptySettings(payload: any) {
+	const { education, contactInfo } = getSharedObjects();
+	const predicate = (v: any) => v != null && v !== "";
+	const filteredContactInfo = pickBy(payload.contactInfo, predicate);
+	const filteredExistingContactInfo = pickBy(contactInfo, predicate);
+
+	const updatedContacts = {
+		...filteredContactInfo,
+		...filteredExistingContactInfo,
+	};
+
+	const filteredExistingEducations = education.educations.map((edu: any) =>
+		pickBy(edu, predicate),
+	);
+
+	const filteredNewEducations = (payload.education?.educations || []).map(
+		(edu: any) => pickBy(edu, predicate),
+	);
+
+	const mergedEducations = filteredExistingEducations.map(
+		(edu: any, idx: number) => ({
+			...edu,
+			...filteredNewEducations[idx],
+		}),
+	);
+
+	const updatedEducation = {
+		...education,
+		educations: mergedEducations,
+	};
+
+	if (Object.keys(filteredContactInfo).length > 0) {
+		dbService.saveSetting({
+			key: "contactInfo",
+			structuredData: updatedContacts,
+			value: null,
+		});
+	}
+
+	const hasNonEmptyEducation = filteredNewEducations.some(
+		(edu: any) => Object.keys(edu).length > 0,
+	);
+
+	if (hasNonEmptyEducation) {
+		dbService.saveSetting({
+			key: "education",
+			structuredData: updatedEducation,
+			value: null,
+		});
+	}
+}
+
+export function combineResumeData(
+	savedResume: any,
+	shared: ReturnType<typeof getSharedObjects>,
+) {
+	const {
+		education,
+		contactInfo,
+		hasEmptyContactInfo,
+		hasEducation,
+		other,
+		projects,
+	} = shared;
+	return {
+		hasEmptyContactInfo,
+		hasEducation,
+		...savedResume?.structuredData,
+		contactInfo: {
+			...contactInfo,
+			...savedResume?.structuredData?.contactInfo,
+		},
+		education: {
+			...education,
+			...savedResume?.structuredData?.education,
+		},
+		other: {
+			...other,
+			...savedResume?.structuredData?.other,
+		},
+		projects: {
+			...projects,
+			...savedResume?.structuredData?.projects,
+		},
+	};
+}
