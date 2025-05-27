@@ -16,7 +16,7 @@ const SimpleTemplate: FC<
 	} = data;
 
 	return (
-		<div className="p-8 font-sans text-sm bg-white">
+		<div className="p-8 font-sans text-sm bg-white ">
 			<header className="mb-6 text-center pb-2">
 				<h1 className="text-3xl font-bold text-gray-800">
 					<TextWrap

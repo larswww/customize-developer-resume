@@ -55,7 +55,7 @@ export const test = base.extend<JobFixtures>({
 			const match = url.match(/\/job\/(\d+)/);
 			const jobId = match?.[1] || "";
 			await expect(
-				page.getByRole("heading", { name: text.template.title }),
+				page.getByRole("heading", { name: text.template.title }).first(),
 			).toBeVisible();
 
 			return jobId;

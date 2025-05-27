@@ -1,82 +1,44 @@
-import { Suspense } from "react";
-import { Await } from "react-router";
+import { TEST_IDS } from "~/config/testIds";
 import { CheckIcon, FailedIcon, LoadingSpinnerIcon } from "./icons";
-
-// Display a completed status with a checkmark
-export function StatusCompleted() {
-	return (
-		<span className="text-green-600 flex items-center">
-			<CheckIcon size="md" className="mr-1" />
-			Generated
-		</span>
-	);
-}
-
-// Display a loading status for pending jobs
-export function StatusPending({ promise }: { promise: Promise<any> }) {
-	return (
-		<Suspense
-			fallback={
-				<span className="text-blue-600 flex items-center">
-					<LoadingSpinnerIcon size="md" className="mr-1" />
-					Processing...
-				</span>
-			}
-		>
-			<Await
-				resolve={promise}
-				errorElement={
-					<span className="text-red-600 flex items-center">
-						<FailedIcon size="md" className="mr-1" />
-						Failed
-					</span>
-				}
-			>
-				{(result) => <StatusCompleted />}
-			</Await>
-		</Suspense>
-	);
-}
 
 // Component for displaying compact status (icon only)
 export function StatusCompletedIcon() {
 	return (
-		<span className="text-green-600 flex items-center">
+		<span
+			className="text-green-600 flex items-center"
+			data-testid={TEST_IDS.completedIcon}
+		>
 			<CheckIcon size="md" />
 		</span>
 	);
 }
 
-// Component for displaying compact pending status (icon only)
-export function StatusPendingIcon({ promise }: { promise: Promise<any> }) {
+export function TemplateStatusIcon({
+	status,
+}: { status: "completed" | "pending" | "not-started" | "failed" }) {
+	if (status === "completed") {
+		return <StatusCompletedIcon />;
+	}
+	if (status === "pending") {
+		return (
+			<span className="flex items-center">
+				<LoadingSpinnerIcon size="md" />
+			</span>
+		);
+	}
+	if (status === "failed") {
+		return (
+			<span className="text-red-600">
+				<FailedIcon size="md" />
+			</span>
+		);
+	}
 	return (
-		<Suspense
-			fallback={
-				<span className="text-blue-600">
-					<LoadingSpinnerIcon size="md" />
-				</span>
-			}
-		>
-			<Await
-				resolve={promise}
-				errorElement={
-					<span className="text-red-600">
-						<FailedIcon size="md" />
-					</span>
-				}
-			>
-				{(result) => <StatusCompletedIcon />}
-			</Await>
-		</Suspense>
-	);
-}
-
-// Component for displaying error status
-export function StatusError() {
-	return (
-		<span className="text-red-600 flex items-center">
-			<FailedIcon size="md" className="mr-1" />
-			Failed
+		<span className="text-gray-400 flex items-center">
+			<svg width="20" height="20" fill="none" viewBox="0 0 20 20">
+				<title>Not started</title>
+				<circle cx="10" cy="10" r="8" stroke="currentColor" strokeWidth="2" />
+			</svg>
 		</span>
 	);
 }

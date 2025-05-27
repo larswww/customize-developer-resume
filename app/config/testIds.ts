@@ -4,4 +4,7 @@ export const TEST_IDS = {
 	feedbackBarButton: "feedback-bar-button",
 	markdownEditor: "markdown-editor",
 	markdownEditorInput: "markdown-editor-input",
+	sheetContent: "sheet-content",
+	generateButton: "generate-button",
+	completedIcon: "completed-icon",
 } as const;

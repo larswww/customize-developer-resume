@@ -1,3 +1,4 @@
+import "./templates.css";
 import {
 	Form,
 	useActionData,
@@ -5,12 +6,15 @@ import {
 	useOutletContext,
 } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { CheckIcon, FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
+import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
+import { FailedIcon, LoadingSpinnerIcon } from "~/components/icons";
+import { TemplatePreview } from "~/components/resume/TemplatePreview";
 import { availableTemplates } from "~/config/schemas";
 import dbService from "~/services/db/dbService.server";
 import { queueService } from "~/services/queue/queueService.server";
 import text from "~/text";
 import type { PendingTemplate, TemplateStatus } from "./templateStatus";
+import { TEST_IDS } from "~/config/testIds";
 
 export const handle = {
 	title: () => text.template.title,
@@ -103,102 +107,97 @@ export default function Templates() {
 	const isSubmitting = navigation.state === "submitting";
 
 	return (
-		<div className="p-6">
-			<p className="mb-6">
-				Select a template to generate a tailored resume for job #{job.id}:{" "}
-				{job.title}
-			</p>
+		<div className="min-h-screen bg-gray-50">
+			{/* Header Section */}
+			<div className="bg-white border-b border-gray-200">
+				<div className="max-w-7xl mx-auto px-6 py-8">
+					<div className="text-center">
+						<h1 className="text-3xl font-semibold text-gray-900 mb-2">
+							Choose a Template
+						</h1>
+						<p className="text-lg text-gray-600 max-w-2xl mx-auto">
+							Select a template to generate a tailored resume for{" "}
+							<span className="font-medium text-gray-900">
+								Job #{job.id}: {job.title}
+							</span>
+						</p>
+					</div>
+				</div>
+			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			{/* Templates Grid */}
+			<div className="preview-grid py-6">
 				{templateStatuses.map((template) => {
 					const wasJustSubmitted =
 						actionData?.success &&
 						actionData.templateId === template.templateId;
+					const isGenerating =
+						template.status === "pending" ||
+						(wasJustSubmitted && !!actionData.completionPromise);
 
 					return (
-						<div
-							key={template.templateId}
-							className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-						>
-							<div className="p-4">
-								<h3 className="text-lg font-semibold">{template.name}</h3>
-								<p className="text-gray-600 mb-4">{template.description}</p>
+						<Form key={template.templateId} method="post">
+							<input type="hidden" name="jobId" value={job.id} />
+							<input
+								type="hidden"
+								name="templateId"
+								value={template.templateId}
+							/>
 
-								<div className="flex items-center justify-between">
-									{/* Show status based on template state */}
-									{template.status === "pending" ? (
-										<TemplateStatusDisplay />
-									) : wasJustSubmitted && actionData.completionPromise ? (
-										<TemplateStatusDisplay />
-									) : template.status === "completed" ? (
-										<CompletedStatus />
-									) : null}
-
-									{template.status !== "pending" && !wasJustSubmitted && (
-										<Form method="post">
-											<input type="hidden" name="jobId" value={job.id} />
-											<input
-												type="hidden"
-												name="templateId"
-												value={template.templateId}
-											/>
-
-											<button
-												type="submit"
-												disabled={isSubmitting}
-												className="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
-											>
-												{template.status === "completed"
-													? text.resume.regenerateButton
-													: text.content.generateButton}
-											</button>
-										</Form>
-									)}
+							<button
+								type="submit"
+								disabled={isSubmitting || isGenerating}
+								className="group text-left"
+								data-testid={TEST_IDS.generateButton}
+							>
+								<div className="preview-wrapper">
+									<TemplatePreview
+										templateId={template.templateId}
+										className="mx-auto"
+									/>
+									{/* Loading overlay */}
+									<div
+										className={`pointer-events-none absolute inset-0 bg-transparent flex items-center justify-center ${isGenerating ? "bg-white/80" : "bg-transparent"}`}
+									>
+										{isGenerating && (
+											<div className="flex items-center space-x-2 text-blue-600">
+												<LoadingSpinnerIcon size="md" />
+												<span className="font-medium">
+													{text.ui.generating}
+												</span>
+											</div>
+										)}
+									</div>
+									{/* Hover overlay */}
+									<div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
 								</div>
-							</div>
-						</div>
+								{/* Title */}
+								<div className="p-6">
+									<h3 className="text-xl font-semibold text-gray-900 text-center flex items-center justify-center gap-2">
+										<TemplateStatusIcon status={template.status} />
+										{template.name}
+									</h3>
+								</div>
+							</button>
+						</Form>
 					);
 				})}
 			</div>
 
+			{/* Error Message */}
 			{actionData?.error && (
-				<div className="mt-6 p-4 border rounded bg-red-50 text-red-700">
-					{actionData.error}
+				<div className="mt-8 max-w-2xl mx-auto">
+					<div className="bg-red-50 border border-red-200 rounded-xl p-4">
+						<div className="flex items-center">
+							<FailedIcon
+								size="md"
+								className="text-red-500 mr-3 flex-shrink-0"
+							/>
+							<p className="text-red-800 font-medium">{actionData.error}</p>
+						</div>
+					</div>
 				</div>
 			)}
-		</div>
-	);
-}
-
-function TemplateStatusDisplay() {
-	return <GeneratingFallback />;
-}
-
-function GeneratingFallback() {
-	return (
-		<div className="text-blue-600 flex items-center">
-			<LoadingSpinnerIcon size="md" className="mr-1" />
-			{text.ui.generating}
-		</div>
-	);
-}
-
-// Error component
-function GenerationError() {
-	return (
-		<div className="text-red-600 flex items-center">
-			<FailedIcon size="md" className="mr-1" />
-			{text.ui.failed}
-		</div>
-	);
-}
-
-// Success component
-function CompletedStatus() {
-	return (
-		<div className="text-green-600 flex items-center">
-			<CheckIcon size="md" className="mr-1" />
-			{text.ui.complete}
 		</div>
 	);
 }

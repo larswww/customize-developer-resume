@@ -11,8 +11,19 @@ import {
 } from "~/routes/resume/utils";
 import type { Route } from "./+types/job";
 
+import { parseWithZod } from "@conform-to/zod";
+import { useEffect, useState } from "react";
+import { JobDetailsForm, JobFormSchema } from "~/components/JobForm";
+import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
 import { CheckIcon, LoadingSpinnerIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
+import {
+	Sheet,
+	SheetContent,
+	SheetTitle,
+	SheetTrigger,
+} from "~/components/ui/sheet";
+import dbService from "~/services/db/dbService.server";
 import text from "~/text";
 import type { TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
@@ -57,6 +68,45 @@ export async function loader(args: LoaderFunctionArgs) {
 }
 
 export async function action(args: ActionFunctionArgs) {
+	const { request } = args;
+	const formData = await request.formData();
+	const action = formData.get("action") as string;
+
+	if (action === "update-job") {
+		const jobId = Number(formData.get("jobId"));
+		const submission = parseWithZod(formData, { schema: JobFormSchema });
+
+		if (submission.status !== "success") {
+			return {
+				success: false,
+				error: "Please check your input and try again",
+			};
+		}
+
+		const { title, link, jobDescription, relevantDescription } =
+			submission.value;
+
+		try {
+			dbService.updateJob({
+				id: jobId,
+				title,
+				link: link || null,
+				jobDescription: jobDescription || "",
+				relevantDescription: relevantDescription || "",
+			});
+
+			return {
+				success: true,
+				message: "Job updated successfully",
+			};
+		} catch (_e) {
+			return {
+				success: false,
+				error: "Failed to update job",
+			};
+		}
+	}
+
 	return handleContentAction(args);
 }
 
@@ -71,13 +121,30 @@ export default function JobLayout({
 		templateStatuses &&
 		templateStatuses.filter((t) => t.status !== "not-started").length > 0;
 
+	const [openSheet, setOpenSheet] = useState(false);
+
+	// Close sheet on successful update
+	useEffect(() => {
+		if (actionData?.success && "message" in actionData) {
+			setOpenSheet(false);
+		}
+	}, [actionData]);
+
 	return (
 		<div className="flex flex-col lg:flex-row w-full h-[calc(100vh-64px)]">
 			<div className="w-full lg:w-1/4 lg:border-r overflow-y-auto p-2 lg:p-3 bg-white relative h-[50vh] lg:h-full">
 				{/* Job Description Placeholder */}
-				<Button variant="outline" className="w-full mb-3" type="button">
-					{text.dashboard.createJob.jobDescription}
-				</Button>
+				<Sheet open={openSheet} onOpenChange={setOpenSheet}>
+					<SheetTitle className="sr-only">Job Details</SheetTitle>
+					<SheetTrigger asChild>
+						<Button variant="outline" className="w-full mb-3" type="button">
+							Edit Job Details
+						</Button>
+					</SheetTrigger>
+					<SheetContent side="left" className="w-[400px] sm:w-[540px]">
+						<JobDetailsForm job={job} onCancel={() => setOpenSheet(false)} />
+					</SheetContent>
+				</Sheet>
 
 				{/* All Templates Link */}
 				<NavLink to={`/job/${job.id}`} viewTransition end>
@@ -117,11 +184,20 @@ export default function JobLayout({
 					)}
 				</div>
 
-				{actionData?.error && (
+				{/* TODO replace with sonner {actionData?.error ? (
 					<div className="mt-4 p-3 border rounded bg-red-50 text-red-700 text-sm">
 						Error: {actionData.error}
 					</div>
-				)}
+				) : null}
+
+				{actionData?.success
+					? "message" in actionData &&
+						actionData.message && (
+							<div className="mt-4 p-3 border rounded bg-green-50 text-green-700 text-sm">
+								{actionData.message}
+							</div>
+						)
+					: null} */}
 			</div>
 
 			<div className="w-full h-[50vh] lg:h-full bg-transparent flex flex-col overflow-hidden">
@@ -152,37 +228,13 @@ function TemplateStatusItem({
 					className="flex items-center justify-between px-2 py-1.5 text-base border-b last:border-b-0 transition"
 				>
 					<span className="flex items-center w-full">
-						<span>{template.name}</span>
-						{template.status === "completed" ? (
-							<StatusCompleted />
-						) : template.status === "pending" ? (
-							<StatusPending />
-						) : null}
+						<TemplateStatusIcon status={template.status} />
+						<span className="ml-2">{template.name}</span>
 					</span>
 				</Button>
 			)}
 		</NavLink>
 	);
-}
-
-function StatusCompleted() {
-	return (
-		<span className="text-green-600 flex items-center">
-			<CheckIcon size="md" />
-		</span>
-	);
-}
-
-function StatusPending() {
-	return (
-		<span className="text-blue-600">
-			<LoadingSpinnerIcon size="md" />
-		</span>
-	);
-}
-
-function JobContent() {
-	return null;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

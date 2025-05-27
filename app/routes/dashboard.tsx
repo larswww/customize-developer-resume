@@ -1,7 +1,8 @@
+import { parseWithZod } from "@conform-to/zod";
 import { useState } from "react";
 import { Form, redirect, useSearchParams } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { CreateJobForm } from "~/components/CreateJobForm";
+import { CreateJobForm, JobFormSchema } from "~/components/JobForm";
 import {
 	DocumentIcon,
 	ExternalLinkIcon,
@@ -31,22 +32,24 @@ export async function action({ request }: ActionFunctionArgs) {
 	const action = formData.get("action") as string;
 
 	if (action === "create") {
-		const title = formData.get("title") as string;
-		const jobDescription = (formData.get("jobDescription") as string) || "";
-		const link = (formData.get("link") as string) || "";
+		const submission = parseWithZod(formData, { schema: JobFormSchema });
 
-		if (!title.trim()) {
+		if (submission.status !== "success") {
 			return {
 				success: false,
-				error: "Job title is required",
+				error: "Please check your input and try again",
 			};
 		}
+
+		const { title, jobDescription, link, relevantDescription } =
+			submission.value;
 
 		// Create a new job with the provided fields
 		const job = dbService.createJob({
 			title,
-			jobDescription,
-			link,
+			jobDescription: jobDescription || "",
+			link: link || null,
+			relevantDescription: relevantDescription || "",
 		});
 
 		return redirect(`/job/${job.id}`);
