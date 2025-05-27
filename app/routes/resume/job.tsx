@@ -139,7 +139,10 @@ export default function JobLayout({
 							Edit Job Details
 						</Button>
 					</SheetTrigger>
-					<SheetContent side="left" className="w-[400px] sm:w-[540px]">
+					<SheetContent
+						side="left"
+						className="w-xl max-w-full min-w-0 p-6 bg-white rounded-r-2xl border-l shadow-2xl overflow-y-auto overflow-x-hidden"
+					>
 						<JobDetailsForm job={job} onCancel={() => setOpenSheet(false)} />
 					</SheetContent>
 				</Sheet>

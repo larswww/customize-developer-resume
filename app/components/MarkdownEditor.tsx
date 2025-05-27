@@ -206,7 +206,7 @@ export function ClientMarkdownEditor(
 					/>
 					<MDXEditor
 						ref={props.editorRef}
-						className="mdxeditor-theme"
+						className="mdxeditor-theme w-full min-w-0"
 						markdown={props.markdown}
 						onChange={handleChange}
 						plugins={[

@@ -290,7 +290,9 @@ const FormMarkdownEditor = ({
 	const hasError = meta.errors && meta.errors.length > 0;
 	const variant = variantProp ?? "default";
 	return (
-		<div className={cn(formFieldVariants({ variant, error: hasError }))}>
+		<div
+			className={cn(formFieldVariants({ variant, error: hasError }), "min-w-0")}
+		>
 			<FormFieldLabel
 				htmlFor={meta.id}
 				label={label}
