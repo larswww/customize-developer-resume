@@ -65,10 +65,6 @@ const resumeWorker = new Worker(
 			const { jobDescription } = jobData;
 			const templateDescription = templateConfig.description;
 
-			if (!jobDescription) {
-				throw new Error("Job description is required");
-			}
-
 			const workflowResult = await executeWorkflow(
 				jobDescription,
 				jobId,

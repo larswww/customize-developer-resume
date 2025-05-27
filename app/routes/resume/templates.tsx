@@ -13,7 +13,7 @@ import { availableTemplates } from "~/config/schemas";
 import dbService from "~/services/db/dbService.server";
 import { queueService } from "~/services/queue/queueService.server";
 import text from "~/text";
-import type { PendingTemplate, TemplateStatus } from "./templateStatus";
+import type { TemplateStatus } from "./templateStatus";
 import { TEST_IDS } from "~/config/testIds";
 
 export const handle = {
@@ -57,13 +57,6 @@ export async function action({ request }: ActionFunctionArgs) {
 	const templateConfig = availableTemplates[templateId];
 	if (!templateConfig) {
 		return { success: false, error: "Template not found" };
-	}
-
-	if (!job.jobDescription) {
-		return {
-			success: false,
-			error: "Please add a job description before generating a resume",
-		};
 	}
 
 	try {
