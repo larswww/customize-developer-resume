@@ -89,4 +89,98 @@ export default {
 		printButton: "Print",
 		emptyState: "Resume preview will appear here",
 	},
+	landing: {
+		heroHeadline: "Build your dev résumé—zero writer's block.",
+		heroSub: "AI drafts your story. You refine. First PDF is free.",
+		ctaGoogle: "Start free with Google",
+		ctaLinkedIn: "Continue with LinkedIn",
+		trustHook: "GDPR-compliant & open-source",
+		socialProofAlt: "Featured in top tech blogs",
+		pain1: "Blank page paralysis?",
+		pain2: "Generic bullet points?",
+		pain3: "Formatting headaches?",
+		solution1: "One-click AI draft.",
+		solution2: "Job-specific tailoring.",
+		solution3: "Pixel-perfect exports.",
+		benefit1:
+			"Learns as you go – adds your context to improve every future draft.",
+		benefit2:
+			"Template variety – senior, junior, freelance, consultant & more.",
+		benefit3:
+			"Inline AI assistant – rewrite, expand or trim any bullet in seconds.",
+		howItWorks: [
+			{ step: "Import LinkedIn", desc: "Import your profile in one click." },
+			{
+				step: "Review AI Draft",
+				desc: "Let AI draft your resume, you polish.",
+			},
+			{ step: "Download PDF", desc: "Export a recruiter-ready PDF instantly." },
+		],
+		features: [
+			{
+				tab: "Templates",
+				bullets: [
+					"Modern, proven layouts",
+					"Dark & light modes",
+					"Easy to switch anytime",
+				],
+			},
+			{
+				tab: "Keyword Matcher",
+				bullets: [
+					"ATS-friendly",
+					"Job description scan",
+					"Highlight missing skills",
+				],
+			},
+			{
+				tab: "Version Control",
+				bullets: [
+					"Track changes",
+					"Duplicate & edit",
+					"Restore previous versions",
+				],
+			},
+		],
+		testimonials: [
+			{
+				quote:
+					"Went from nothing to a recruiter-ready resume during my coffee break.",
+				name: "Samir",
+				role: "Front-end Engineer",
+			},
+			{
+				quote: "The AI suggestions saved me hours.",
+				name: "Alex",
+				role: "Full Stack Dev",
+			},
+			{
+				quote: "Finally, a resume builder that gets developers.",
+				name: "Jamie",
+				role: "Backend Engineer",
+			},
+		],
+		faq: [
+			{
+				q: "Is it really free?",
+				a: "Your first PDF is free. No credit card required.",
+			},
+			{
+				q: "Do you store my data?",
+				a: "Your data is private and never sold. You control deletion.",
+			},
+			{
+				q: "Is it ATS compatible?",
+				a: "Yes, resumes are optimized for applicant tracking systems.",
+			},
+			{
+				q: "Can I use my LinkedIn?",
+				a: "Yes, import your LinkedIn profile in one click.",
+			},
+			{ q: "What about privacy?", a: "We are GDPR-compliant and open-source." },
+		],
+		secondaryCta: "Ready to ship your resume?",
+		privacyPolicy:
+			"Your privacy is important. We do not share your data with third parties. All information is securely stored and used only to generate your resume. For more details, contact support.",
+	},
 } as const;
