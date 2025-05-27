@@ -21,27 +21,23 @@ test.describe("Dashboard Functionality", () => {
 		await test.step("Verify job creation and fields display correctly", async () => {
 			await page.goto("/dashboard");
 
-			const jobCard = page.locator("div.border.rounded-lg").filter({
-				has: page.getByRole("heading", { name: jobTitle, level: 3 }),
+			const jobRow = page.getByRole("row").filter({
+				has: page.getByText(jobTitle),
 			});
-			await expect(jobCard).toBeVisible();
+			await expect(jobRow).toBeVisible();
 
-			const linkButton = jobCard.getByText(
-				text.dashboard.viewJob.viewJobButton,
-			);
-			await expect(linkButton).toBeVisible();
-			const linkHref = await linkButton.getAttribute("href");
-			expect(linkHref).toBe(jobLink);
-
-			const resumeButton = jobCard.getByRole("link", {
-				name: text.dashboard.viewJob.resumeButton,
+			const linkCell = jobRow.getByRole("cell").filter({
+				has: page.getByText(jobLink),
 			});
-			await expect(resumeButton).toBeVisible();
+			await expect(linkCell).toBeVisible();
 
-			const href = await resumeButton.getAttribute("href");
-			expect(href).toContain(`/job/${jobId}`);
+			const removeButton = jobRow.getByRole("button", {
+				name: text.dashboard.jobsTable.delete,
+			});
+			await expect(removeButton).toBeVisible();
 
-			await resumeButton.click();
+			// Clicking anywhere on the row except the remove button should go to the job page
+			await jobRow.getByText(jobTitle).click();
 			await expect(page).toHaveURL(new RegExp(`/job/${jobId}`));
 		});
 
@@ -97,15 +93,14 @@ test.describe("Dashboard Functionality", () => {
 			// Navigate back to dashboard to verify the job title was updated
 			await page.goto("/dashboard");
 
-			// Check that the updated job title is visible
-			await expect(
-				page.getByRole("heading", { name: updatedTitle, level: 3 }),
-			).toBeVisible();
+			// Check that the updated job title is visible in the table
+			const updatedRow = page.getByRole("row").filter({
+				has: page.getByText(updatedTitle),
+			});
+			await expect(updatedRow).toBeVisible();
 
 			// Verify the original title is no longer visible
-			await expect(
-				page.getByRole("heading", { name: originalTitle, level: 3 }),
-			).not.toBeVisible();
+			await expect(page.getByText(originalTitle)).not.toBeVisible();
 		});
 
 		// Clean up using the updated title

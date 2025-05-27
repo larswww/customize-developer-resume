@@ -1,25 +1,13 @@
 import { parseWithZod } from "@conform-to/zod";
 import { format } from "date-fns";
-import { Form, redirect, useSearchParams } from "react-router";
+import { Form, redirect, useNavigate, useSearchParams } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
 import { CreateJobForm, JobFormSchema } from "~/components/JobForm";
-import {
-	DocumentIcon,
-	ExternalLinkIcon,
-	ResumeIcon,
-	TrashIcon,
-} from "~/components/icons";
+import { ResumeIcon } from "~/components/icons";
 import { TemplatePreview } from "~/components/resume/TemplatePreview";
 import { Link } from "~/components/ui/Link";
 import { Button } from "~/components/ui/button";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "~/components/ui/table";
+import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { combineResumeData, getSharedObjects } from "~/routes/resume/utils";
 import text from "~/text";
 import dbService, { type Job } from "../services/db/dbService.server";
@@ -96,69 +84,8 @@ export async function action({ request }: ActionFunctionArgs) {
 	};
 }
 
-function JobCard({ job }: { job: Job }) {
-	return (
-		<div className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-card">
-			<div className="p-4">
-				<h3 className="font-bold text-lg mb-2 truncate">{job.title}</h3>
-				<p className="text-sm text-muted-foreground mb-2">
-					Created:{" "}
-					{job.createdAt ? new Date(job.createdAt).toLocaleDateString() : "—"}
-				</p>
-				<p className="text-sm text-muted-foreground mb-4">
-					Updated:{" "}
-					{job.updatedAt ? new Date(job.updatedAt).toLocaleDateString() : "—"}
-				</p>
-
-				<div className="flex flex-wrap gap-2">
-					<Link
-						to={`/job/${job.id}`}
-						variant="primary"
-						size="sm"
-						className="bg-accent text-accent-foreground hover:bg-accent/90 flex items-center"
-					>
-						<DocumentIcon />
-						{text.dashboard.viewJob.resumeButton}
-					</Link>
-
-					{job.link && (
-						<a
-							href={job.link}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex items-center px-3 py-1 text-sm rounded bg-secondary text-secondary-foreground hover:bg-secondary/80"
-						>
-							<ExternalLinkIcon />
-							{text.dashboard.viewJob.viewJobButton}
-						</a>
-					)}
-
-					<Form method="post">
-						<input type="hidden" name="action" value="delete" />
-						<input type="hidden" name="jobId" value={job.id} />
-						<Button
-							type="submit"
-							variant="destructive"
-							size="sm"
-							className="flex items-center"
-							onClick={(e) => {
-								if (!confirm("Are you sure you want to delete this job?")) {
-									e.preventDefault();
-								}
-							}}
-						>
-							<TrashIcon />
-							{text.ui.delete}
-						</Button>
-					</Form>
-				</div>
-			</div>
-		</div>
-	);
-}
-
 export const handle = {
-	title: () => "Resume Generator Dashboard",
+	title: () => "Your Resumes",
 };
 
 function PostItNoteBox({ children }: { children: React.ReactNode }) {
@@ -230,6 +157,7 @@ function CreateJobSection({
 }
 
 function LatestResumesSection({ resumes }: { resumes: any[] }) {
+	const navigate = useNavigate();
 	return (
 		<section>
 			<h2 className="text-xl font-semibold mb-4">
@@ -244,11 +172,15 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full">
 					{resumes.map((resume) => (
-						<Link
+						<button
 							key={resume.id}
-							to={`/job/${resume.jobId}/${resume.templateId}`}
-							className="flex flex-col items-center bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 overflow-hidden"
+							onClick={() =>
+								navigate(`/job/${resume.jobId}/${resume.templateId}`)
+							}
+							className="flex flex-col items-center bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 overflow-hidden cursor-pointer"
 							style={{ width: 290, height: 200 }}
+							tabIndex={0}
+							type="button"
 						>
 							<TemplatePreview
 								fixedWidth={250}
@@ -256,7 +188,7 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 								data={resume.structuredData}
 								className="w-full h-full"
 							/>
-						</Link>
+						</button>
 					))}
 				</div>
 			)}
@@ -265,6 +197,7 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 }
 
 function JobsTable({ jobs }: { jobs: Job[] }) {
+	const navigate = useNavigate();
 	if (jobs.length === 0) {
 		return (
 			<div className="text-center p-8 bg-card border rounded">
@@ -282,28 +215,37 @@ function JobsTable({ jobs }: { jobs: Job[] }) {
 						? format(new Date(job.updatedAt), "MMM d, yyyy")
 						: "—";
 					return (
-						<TableRow key={job.id} className="group">
-							<Link to={`/job/${job.id}`} className="contents" tabIndex={-1}>
-								<TableCell className="font-medium text-accent-foreground group-hover:underline cursor-pointer">
-									{job.title}
-								</TableCell>
-								<TableCell className="cursor-pointer group-hover:underline">
-									{updated}
-								</TableCell>
-								<TableCell className="cursor-pointer group-hover:underline">
-									{job.link && (
-										<a
-											href={job.link}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-blue-600 hover:underline"
-											onClick={(e) => e.stopPropagation()}
-										>
-											{job.link}
-										</a>
-									)}
-								</TableCell>
-							</Link>
+						<TableRow
+							key={job.id}
+							className="group cursor-pointer"
+							onClick={(e) => {
+								// Prevent navigation if clicking the delete button or job link
+								if ((e.target as HTMLElement).closest("button, a")) return;
+								navigate(`/job/${job.id}`);
+							}}
+							tabIndex={0}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ")
+									navigate(`/job/${job.id}`);
+							}}
+						>
+							<TableCell className="font-medium text-accent-foreground group-hover:underline">
+								{job.title}
+							</TableCell>
+							<TableCell className="group-hover:underline">{updated}</TableCell>
+							<TableCell className="group-hover:underline">
+								{job.link && (
+									<a
+										href={job.link}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="text-blue-600 hover:underline"
+										onClick={(e) => e.stopPropagation()}
+									>
+										{job.link}
+									</a>
+								)}
+							</TableCell>
 							<TableCell>
 								<Form method="post">
 									<input type="hidden" name="action" value="delete" />
@@ -314,11 +256,7 @@ function JobsTable({ jobs }: { jobs: Job[] }) {
 										size="sm"
 										className="text-muted-foreground hover:text-destructive px-2"
 										onClick={(e) => {
-											if (
-												!confirm("Are you sure you want to delete this job?")
-											) {
-												e.preventDefault();
-											}
+											e.stopPropagation();
 										}}
 									>
 										{text.dashboard.jobsTable.delete}

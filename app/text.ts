@@ -47,6 +47,7 @@ export default {
 			confirmButton: "Create custom Resume",
 			link: "Job Link (Optional)",
 			jobDescription: "Job Description",
+			jobTitle: "Job Title",
 		},
 		viewJob: {
 			viewJobButton: "View Job",

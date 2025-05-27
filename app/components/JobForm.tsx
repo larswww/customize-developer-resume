@@ -92,6 +92,7 @@ function JobForm(props: JobFormProps) {
 					<FieldsetSection title="" description="context">
 						<FormField
 							meta={fields.title}
+							label={text.dashboard.createJob.jobTitle}
 							type="text"
 							placeholder="What title or role do you need a resume for?"
 						/>
@@ -182,7 +183,7 @@ function JobForm(props: JobFormProps) {
 						<FormGrid columns={1}>
 							<FormField
 								meta={fields.title}
-								label="Job Title"
+								label={text.dashboard.createJob.jobTitle}
 								type="text"
 								placeholder="What title or role do you need a resume for?"
 							/>
