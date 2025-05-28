@@ -6,6 +6,7 @@ import type { DefaultResumeData } from "~/config/schemas/default";
 import type { SimpleConsultantComponentData } from "~/config/schemas/simple";
 import type { StandardResumeData } from "~/config/schemas/standardResume";
 import { getSampleDataForTemplate } from "./templates/sampleData";
+import type { MarkdownData } from "~/config/schemas/markdown";
 
 interface TemplatePreviewProps {
 	templateId: string;
@@ -40,7 +41,8 @@ export function TemplatePreview({
 			| DefaultResumeData
 			| SimpleConsultantComponentData
 			| ConsultantOnePagerData
-			| StandardResumeData;
+			| StandardResumeData
+			| MarkdownData;
 	}>;
 
 	const previewData = data ?? getSampleDataForTemplate(templateId);

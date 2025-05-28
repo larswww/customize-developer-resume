@@ -171,6 +171,8 @@ export async function handleContentAction(args: ActionFunctionArgs) {
 		serverLogger.log(`Starting workflow execution (${workflowId})...`);
 
 		const workflowResult = await executeWorkflow(
+			job.title,
+			job.relevantDescription || "",
 			jobDescription,
 			jobId,
 			workflowId,

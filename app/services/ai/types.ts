@@ -66,6 +66,8 @@ interface BaseAIRequestOptions {
 }
 
 export interface WorkflowContext {
+	title: string;
+	relevantDescription: string;
 	jobDescription: string;
 	workHistory: string;
 	templateDescription?: string;

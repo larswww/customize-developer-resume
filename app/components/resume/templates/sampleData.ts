@@ -1,5 +1,6 @@
 import type { ConsultantOnePagerData } from "~/config/schemas/consultantOnePager";
 import type { DefaultResumeData } from "~/config/schemas/default";
+import type { MarkdownData } from "~/config/schemas/markdown";
 import type { SimpleConsultantComponentData } from "~/config/schemas/simple";
 import type { StandardResumeData } from "~/config/schemas/standardResume";
 
@@ -474,13 +475,102 @@ export const standardResumeSampleData: StandardResumeData = {
 	},
 };
 
+export const markdownTemplateSampleData = {
+	content: `# Any Document
+
+> For e-mails, letters and everything else.
+>
+> This template demonstrates all the key features of Markdown for structured, beautiful documents.
+
+Sometimes you need to just produce some good resume text. With added structure. This template is for that.
+
+---
+
+## Features at a Glance
+
+1. Structure things in lists.
+2. Or just write paragraphs.
+3. Use *italic*, **bold** and _underline_ for emphasis.
+4. Add [links](https://reactrouter.com/).
+5. Insert images:
+   ![Sample Image](https://placehold.co/100x60?text=Logo)
+6. Use inline code like \`npm install\` for commands.
+7. Create tables for clarity.
+
+---
+
+## Headings create structure
+
+### Subsection: Lists
+
+- Unordered lists are great for:
+  - Quick points
+  - To-do items
+  - Summaries
+- You can nest lists:
+  1. First item
+     - Sub-item A
+     - Sub-item B
+  2. Second item
+
+### Subsection: Formatting
+
+You probably knew that already. But did you know you can combine *italic*, **bold**, and _underline_? Try mixing them: **_bold & underline_**.
+
+> "Blockquotes are perfect for highlighting important notes or testimonials."
+
+---
+
+## Tables
+
+| Skill         | Level   | Years |
+|--------------|---------|-------|
+| JavaScript   | Expert  | 5     |
+| TypeScript   | Pro     | 3     |
+| Markdown     | Ninja   | 7     |
+
+---
+
+## Horizontal Rule
+
+Above and below this line is a horizontal rule (---).
+
+---
+
+## Inline Code & Code Blocks
+
+Use inline code for commands: \`pnpm install\` or \`git commit -m "message"\`.
+
+
+---
+
+## Links & Images
+
+- [React Router Docs](https://reactrouter.com/)
+- ![React Logo](https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg)
+
+---
+
+## Final Tips
+
+- Use headings to break up sections
+- Use lists for clarity
+- Use tables for structured data
+- Use formatting for emphasis
+- Use links and images to enrich your content
+
+Happy writing!
+`,
+};
+
 export const getSampleDataForTemplate = (
 	templateId: string,
 ):
 	| DefaultResumeData
 	| SimpleConsultantComponentData
 	| ConsultantOnePagerData
-	| StandardResumeData => {
+	| StandardResumeData
+	| MarkdownData => {
 	switch (templateId) {
 		case "simpleConsultant":
 			return simpleSampleData;
@@ -488,6 +578,8 @@ export const getSampleDataForTemplate = (
 			return consultantOnePagerSampleData;
 		case "standardResume":
 			return standardResumeSampleData;
+		case "markdown":
+			return markdownTemplateSampleData;
 		default:
 			return defaultSampleData;
 	}

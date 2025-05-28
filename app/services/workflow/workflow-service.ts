@@ -51,6 +51,8 @@ class DBAdapter implements DBService {
  * @param templateDescription - Optional template description.
  */
 export async function executeWorkflow(
+	title: string,
+	relevantDescription: string,
 	jobDescription: string,
 	jobId: number,
 	workflowId: WorkFlowId = defaultWorkflowId,
@@ -78,6 +80,8 @@ export async function executeWorkflow(
 		const engine = new WorkflowEngine(currentWorkflowSteps, dbAdapter);
 
 		const initialContext: WorkflowContext = {
+			title: title || "",
+			relevantDescription: relevantDescription || "",
 			jobDescription,
 			workHistory: workHistoryString,
 			templateDescription,

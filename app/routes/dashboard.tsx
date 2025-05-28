@@ -186,7 +186,7 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 								fixedWidth={250}
 								templateId={resume.templateId}
 								data={resume.structuredData}
-								className="w-full h-full"
+								className="w-full h-full text-left"
 							/>
 						</button>
 					))}

@@ -8,6 +8,7 @@ import { workflowSteps as onePagerWorkflowSteps } from "./one-pager";
 import { workflowSteps as simpleResumeWorkflowSteps } from "./simple-resume";
 import { workflowSteps as standardResumeWorkflowSteps } from "./standardResume";
 import { workflowSteps as testWorkflowSteps } from "./test";
+import { workflowSteps as documentWorkflowSteps } from "./document";
 
 export type WorkflowConfig = {
 	label: string;
@@ -23,7 +24,8 @@ export type WorkFlowId =
 	| "defaultAlt"
 	| "onePager"
 	| "simpleResume"
-	| "standardResume";
+	| "standardResume"
+	| "document";
 
 export const workflows: Record<WorkFlowId, WorkflowConfig> = {
 	default: {
@@ -61,6 +63,10 @@ export const workflows: Record<WorkFlowId, WorkflowConfig> = {
 	standardResume: {
 		label: "Standard Resume Workflow",
 		steps: standardResumeWorkflowSteps,
+	},
+	document: {
+		label: "Document Workflow",
+		steps: documentWorkflowSteps,
 	},
 };
 
