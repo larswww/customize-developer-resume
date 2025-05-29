@@ -13,7 +13,7 @@ import {
 } from "~/components/ui/FormField";
 import { FormGrid } from "~/components/ui/FormGrid";
 import { Button } from "~/components/ui/button";
-import type { Job } from "~/services/db/dbService.server";
+import { type Job, JobInputSchema } from "~/services/db/schemas";
 import text from "~/text";
 import CollapsibleSection from "./ui/CollapsibleSection";
 
@@ -42,9 +42,9 @@ function useJobForm({
 	const [form, fields] = useForm({
 		id: formId,
 		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: JobFormSchema });
+			return parseWithZod(formData, { schema: JobInputSchema });
 		},
-		constraint: getZodConstraint(JobFormSchema),
+		constraint: getZodConstraint(JobInputSchema),
 		shouldValidate: "onBlur",
 		shouldRevalidate: "onInput",
 		defaultValue,

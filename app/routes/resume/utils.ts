@@ -9,7 +9,8 @@ import {
 	defaultWorkflowId,
 	workflows,
 } from "~/config/workflows";
-import dbService, { type Job } from "~/services/db/dbService.server";
+import dbService from "~/services/db/dbService.server";
+import type { Job } from "~/services/db/schemas";
 import { generateAndSaveResume } from "~/services/resume/resumeDataService";
 import { executeWorkflow } from "~/services/workflow/workflow-service";
 import { serverLogger } from "~/utils/logger.server";
@@ -137,97 +138,6 @@ async function _generateAndSaveResumeInternal<T extends z.ZodTypeAny>({
 				error instanceof Error
 					? error.message
 					: "An unknown error occurred during resume generation/saving",
-		};
-	}
-}
-
-export async function handleContentAction(args: ActionFunctionArgs) {
-	const { request, params } = args;
-	const formData = await request.formData();
-	const jobDescription = formData.get("jobDescription") as string;
-	const relevant = formData.get("relevant") as string;
-	const jobId = Number(params.jobId);
-
-	const { job, selectedTemplateConfig, selectedTemplateId } =
-		await extractRouteParams(args);
-	const templateDescription = selectedTemplateConfig.description;
-	const workflowId = selectedTemplateConfig.defaultWorkflowId;
-	const selectedWorkflow = workflows[workflowId];
-
-	if (!jobDescription) {
-		return {
-			success: false,
-			error: "Please add a job description to generate resume",
-		};
-	}
-
-	dbService.updateJob({
-		...job,
-		jobDescription,
-		relevantDescription: relevant || "",
-	});
-
-	try {
-		serverLogger.log(`Starting workflow execution (${workflowId})...`);
-
-		const workflowResult = await executeWorkflow(
-			job.title,
-			job.relevantDescription || "",
-			jobDescription,
-			jobId,
-			workflowId,
-			templateDescription,
-		);
-
-		if (!workflowResult.success) {
-			return {
-				success: false,
-				selectedWorkflowId: workflowId,
-				error: "Workflow execution failed.",
-			};
-		}
-
-		serverLogger.log(
-			`Workflow (${workflowId}) successful, proceeding to generate resume...`,
-		);
-
-		const generationSaveResult = await _generateAndSaveResumeInternal({
-			jobId,
-			selectedWorkflowId: workflowId,
-			selectedWorkflow,
-			selectedTemplateId,
-			selectedTemplateConfig,
-			jobDescription: job.jobDescription,
-			// feedback: undefined, // No feedback source in this action yet
-		});
-
-		if (!generationSaveResult.success) {
-			return {
-				success: false,
-				selectedWorkflowId: workflowId,
-				error:
-					generationSaveResult.error ||
-					"Resume generation/saving failed after successful workflow.",
-			};
-		}
-
-		// If generation and saving succeeded
-		return {
-			success: true,
-			selectedWorkflowId: workflowId,
-		};
-	} catch (error) {
-		serverLogger.error(
-			`Error in workflow action handler (${workflowId}):`,
-			error,
-		);
-		return {
-			success: false,
-			error:
-				error instanceof Error
-					? error.message
-					: "An unknown error occurred during workflow execution",
-			selectedWorkflowId: workflowId,
 		};
 	}
 }

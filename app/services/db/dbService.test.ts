@@ -4,7 +4,8 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { ContactInfo } from "~/config/schemas/sharedTypes";
 import type { DefaultResumeData } from "../../config/schemas/default";
-import { type WorkflowStepStatus, createDbService } from "./dbService.server";
+import { createDbService } from "./dbService.server";
+import type { WorkflowStepStatus } from "~/services/db/schemas";
 
 describe("DbService", () => {
 	let dbService: ReturnType<typeof createDbService>;

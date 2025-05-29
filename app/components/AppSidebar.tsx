@@ -1,6 +1,5 @@
 import { NavLink } from "react-router";
-import type { Job } from "~/services/db/dbService.server";
-import { DocumentIcon } from "./icons";
+import type { Job } from "~/services/db/schemas";
 import {
 	Sidebar,
 	SidebarContent,

@@ -191,6 +191,19 @@ export function ClientMarkdownEditor(
 		}
 	};
 
+	const plugins = [
+		headingsPlugin(),
+		listsPlugin(),
+		quotePlugin(),
+		linkPlugin(),
+		linkDialogPlugin(),
+		thematicBreakPlugin(),
+	];
+
+	if (!props.hideToolbar) {
+		plugins.push(toolbarPlugin({ toolbarContents: () => <CustomToolbar /> }));
+	}
+
 	return (
 		<ClientOnly fallback={<div>Loading Editor...</div>}>
 			{() => (
@@ -206,21 +219,7 @@ export function ClientMarkdownEditor(
 						className="mdxeditor-theme w-full min-w-0"
 						markdown={props.markdown}
 						onChange={handleChange}
-						plugins={[
-							headingsPlugin(),
-							listsPlugin(),
-							quotePlugin(),
-							linkPlugin(),
-							linkDialogPlugin(),
-							thematicBreakPlugin(),
-							...(props.hideToolbar
-								? []
-								: [
-										toolbarPlugin({
-											toolbarContents: () => <CustomToolbar />,
-										}),
-									]),
-						]}
+						plugins={plugins}
 						contentEditableClassName="prose"
 						placeholder={props.placeholder}
 					/>
