@@ -31,7 +31,8 @@ import { reGenerateWithFeedback } from "~/services/ai/resumeStructuredDataServic
 import text from "~/text";
 import { availableTemplates } from "../../config/schemas";
 import { TEST_IDS } from "../../config/testIds";
-import dbService, { type Job } from "../../services/db/dbService.server";
+import dbService from "../../services/db/dbService.server";
+import type { Job } from "~/services/db/schemas";
 import type { Route } from "./+types/resume";
 
 export const handle = {

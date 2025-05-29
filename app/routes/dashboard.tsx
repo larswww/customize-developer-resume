@@ -2,15 +2,15 @@ import { parseWithZod } from "@conform-to/zod";
 import { format } from "date-fns";
 import { Form, redirect, useNavigate, useSearchParams } from "react-router";
 import type { ActionFunctionArgs } from "react-router";
-import { CreateJobForm, JobFormSchema } from "~/components/JobForm";
+import { CreateJobForm } from "~/components/JobForm";
+import { type Job, JobInputSchema } from "~/services/db/schemas";
 import { ResumeIcon } from "~/components/icons";
 import { TemplatePreview } from "~/components/resume/TemplatePreview";
-import { Link } from "~/components/ui/Link";
 import { Button } from "~/components/ui/button";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { combineResumeData, getSharedObjects } from "~/routes/resume/utils";
 import text from "~/text";
-import dbService, { type Job } from "../services/db/dbService.server";
+import dbService from "../services/db/dbService.server";
 import type { Route } from "./+types/dashboard";
 
 export function meta() {
@@ -36,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
 	const action = formData.get("action") as string;
 
 	if (action === "create") {
-		const submission = parseWithZod(formData, { schema: JobFormSchema });
+		const submission = parseWithZod(formData, { schema: JobInputSchema });
 
 		if (submission.status !== "success") {
 			return {
@@ -52,7 +52,7 @@ export async function action({ request }: ActionFunctionArgs) {
 		const job = dbService.createJob({
 			title,
 			jobDescription: jobDescription || "",
-			link: link || null,
+			link: link || undefined,
 			relevantDescription: relevantDescription || "",
 		});
 
@@ -172,15 +172,17 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 			) : (
 				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full">
 					{resumes.map((resume) => (
-						<button
+						<div
 							key={resume.id}
 							onClick={() =>
 								navigate(`/job/${resume.jobId}/${resume.templateId}`)
 							}
+							onKeyDown={(e) => {
+								if (e.key === "Enter" || e.key === " ")
+									navigate(`/job/${resume.jobId}/${resume.templateId}`);
+							}}
 							className="flex flex-col items-center bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow p-4 overflow-hidden cursor-pointer"
 							style={{ width: 290, height: 200 }}
-							tabIndex={0}
-							type="button"
 						>
 							<TemplatePreview
 								fixedWidth={250}
@@ -188,7 +190,7 @@ function LatestResumesSection({ resumes }: { resumes: any[] }) {
 								data={resume.structuredData}
 								className="w-full h-full text-left"
 							/>
-						</button>
+						</div>
 					))}
 				</div>
 			)}

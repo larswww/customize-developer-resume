@@ -11,7 +11,7 @@ import type {
 	WorkflowContext,
 	WorkflowStep,
 } from "../../services/ai/types";
-import type { WorkflowStepStatus } from "../db/dbService.server";
+import type { WorkflowStepStatus } from "~/services/db/schemas";
 export interface WorkflowStepUpdate {
 	id: string;
 	status: WorkflowStepStatus;

@@ -4,20 +4,17 @@ import type {
 	LoaderFunctionArgs,
 	UIMatch,
 } from "react-router";
-import {
-	extractRouteParams,
-	getWorkflow,
-	handleContentAction,
-} from "~/routes/resume/utils";
+import { extractRouteParams, getWorkflow } from "~/routes/resume/utils";
 import type { Route } from "./+types/job";
 
 import { parseWithZod } from "@conform-to/zod";
 import { useEffect, useState } from "react";
-import { JobDetailsForm, JobFormSchema } from "~/components/JobForm";
+import { JobDetailsForm } from "~/components/JobForm";
 import { TemplateStatusIcon } from "~/components/TemplateStatusComponents";
 import { ChevronRightIcon, PanelRightIcon } from "~/components/icons";
 import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
+import { JobInputSchema } from "~/services/db/schemas";
+
 import {
 	Sheet,
 	SheetContent,
@@ -26,7 +23,6 @@ import {
 } from "~/components/ui/sheet";
 import dbService from "~/services/db/dbService.server";
 import text from "~/text";
-import type { TemplateStatus } from "./templateStatus";
 import { getTemplateStatuses } from "./templateStatus";
 
 export function meta() {
@@ -75,7 +71,7 @@ export async function action(args: ActionFunctionArgs) {
 
 	if (action === "update-job") {
 		const jobId = Number(formData.get("jobId"));
-		const submission = parseWithZod(formData, { schema: JobFormSchema });
+		const submission = parseWithZod(formData, { schema: JobInputSchema });
 
 		if (submission.status !== "success") {
 			return {
@@ -91,7 +87,7 @@ export async function action(args: ActionFunctionArgs) {
 			dbService.updateJob({
 				id: jobId,
 				title,
-				link: link || null,
+				link: link || undefined,
 				jobDescription: jobDescription || "",
 				relevantDescription: relevantDescription || "",
 			});
@@ -107,8 +103,6 @@ export async function action(args: ActionFunctionArgs) {
 			};
 		}
 	}
-
-	return handleContentAction(args);
 }
 
 export default function JobLayout({
