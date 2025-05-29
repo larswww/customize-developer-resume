@@ -1,4 +1,4 @@
-import { Queue, QueueEvents, type JobState } from "bullmq";
+import { type JobState, Queue, QueueEvents } from "bullmq";
 import { serverLogger } from "~/utils/logger.server";
 
 // Redis connection configuration
@@ -18,12 +18,12 @@ export const JOB_TYPES = {
 };
 
 // Job status
-export enum JobStatus {
-	WAITING = "waiting",
-	ACTIVE = "active",
-	COMPLETED = "completed",
-	FAILED = "failed",
-}
+export const JobStatus = {
+	WAITING: "waiting",
+	ACTIVE: "active",
+	COMPLETED: "completed",
+	FAILED: "failed",
+} as const;
 
 // Type for resume generation job data
 export interface ResumeGenerationJobData {

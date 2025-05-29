@@ -1,4 +1,4 @@
-import { createLogger } from "./logger";
+import { createLogger } from "./logger.ts";
 
 const isEnabled = process.env.NODE_ENV !== "production";
 
