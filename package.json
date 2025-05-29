@@ -8,7 +8,7 @@
 		"dev": "cross-env DB_NAME=dev NODE_ENV=development tsx server.ts",
 		"dev:msw": "cross-env DB_NAME=e2e MSW_ENABLED=true NODE_ENV=development PORT=4000 tsx server.ts",
 		"worker": "tsx app/services/queue/resumeWorker.server.ts",
-		"start": "tsx server.ts",
+		"start": "node --experimental-strip-types --experimental-transform-types server.ts",
 		"start:prod:msw": "cross-env DB_NAME=e2e MSW_ENABLED=true NODE_ENV=production PORT=4000 tsx server.ts",
 		"typecheck": "react-router typegen && tsc -b",
 		"test:e2e": "cross-env DB_NAME=e2e MSW_ENABLED=true OPENAI_API_KEY=mock playwright test --reporter=line",
@@ -86,9 +86,10 @@
 		"vitest": "^3.1.4"
 	},
 	"engines": {
-		"node": "20.17.0",
-		"pnpm": "10.6.3"
+		"node": "22.16.0",
+		"pnpm": "10.11.0"
 	},
+	"packageManager": "pnpm@10.11.0",
 	"msw": {
 		"workerDirectory": ["public"]
 	},

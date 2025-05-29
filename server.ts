@@ -8,7 +8,7 @@ import express, {
 	type NextFunction,
 } from "express";
 import morgan from "morgan";
-import { serverLogger } from "./app/utils/logger.server";
+import { serverLogger } from "./app/utils/logger.server.ts";
 
 dotenv.config();
 
