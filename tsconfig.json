@@ -19,7 +19,6 @@
 		},
 		"esModuleInterop": true,
 		"rewriteRelativeImportExtensions": true,
-		"erasableSyntaxOnly": true,
 		"forceConsistentCasingInFileNames": true,
 		"verbatimModuleSyntax": true,
 		"noEmit": true,

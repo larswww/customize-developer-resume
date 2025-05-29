@@ -87,8 +87,9 @@
 	},
 	"engines": {
 		"node": "22.16.0",
-		"pnpm": "10.6.3"
+		"pnpm": "10.11.0"
 	},
+	"packageManager": "pnpm@10.11.0",
 	"msw": {
 		"workerDirectory": ["public"]
 	},
