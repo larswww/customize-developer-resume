@@ -24,7 +24,7 @@
 	"dependencies": {
 		"@anthropic-ai/sdk": "^0.51.0",
 		"@conform-to/react": "^1.6.0",
-		"@conform-to/zod": "^1.6.0",
+		"@conform-to/zod": "^1.6.1",
 		"@emotion/styled": "^11.14.0",
 		"@mdxeditor/editor": "^3.32.3",
 		"@radix-ui/react-collapsible": "^1.1.11",
