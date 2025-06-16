@@ -22,7 +22,7 @@
 		"lint:lint": "biome lint --write ."
 	},
 	"dependencies": {
-		"@anthropic-ai/sdk": "^0.51.0",
+		"@anthropic-ai/sdk": "^0.54.0",
 		"@conform-to/react": "^1.6.0",
 		"@conform-to/zod": "^1.6.0",
 		"@emotion/styled": "^11.14.0",
