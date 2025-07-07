@@ -75,7 +75,7 @@
 		"cross-env": "^7.0.3",
 		"happy-dom": "^17.4.7",
 		"lefthook": "^1.11.13",
-		"msw": "^2.8.4",
+		"msw": "^2.10.3",
 		"playwright": "^1.52.0",
 		"tailwindcss": "^4.1.7",
 		"tsx": "^4.19.4",
